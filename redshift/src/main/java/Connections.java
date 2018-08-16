@@ -2,6 +2,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,20 +15,43 @@ import org.slf4j.LoggerFactory;
 
 public class Connections {
   private static final Logger logger = LoggerFactory.getLogger(Connections.class);
+
+  class User {
+    public final String userName;
+    public final String dbName;
+
+    User(String userName, String dbName) {
+      this.userName = userName;
+      this.dbName = dbName;
+    }
+
+    @Override
+    public String toString() {
+      return userName + ":" + dbName;
+    }
+  }
+
   final Connection connection;
+  int numConnections;
+  List<User> topUsers;
 
   Connections(Connection connection) {
     this.connection = connection;
+    numConnections = 0;
+    topUsers = new ArrayList<>();
   }
 
-  public void analyze() throws SQLException {
+  public void capture() throws SQLException {
     logger.debug("Start analysis");
 
     // 1. Get number of active sessions
     Statement activeSessionsStatement = this.connection.createStatement();
     ResultSet activeSessionsResultSet = activeSessionsStatement.executeQuery("select count(*) from stv_sessions");
     try {
-      logger.info("No. of active sessions: " + activeSessionsResultSet.getString(1));
+      if (activeSessionsResultSet.next()) {
+        numConnections = activeSessionsResultSet.getInt(1);
+        logger.debug("No. of active sessions: " + numConnections);
+      }
     } finally {
       activeSessionsResultSet.close();
       activeSessionsStatement.close();
@@ -45,13 +70,22 @@ public class Connections {
     try {
       logger.info("Top 5 users: ");
       while (topFiveResultSet.next()) {
-        logger.info(topFiveResultSet.getString("user_name")
-            + ":"
-            + topFiveResultSet.getString("db_name"));
+        User user = new User(topFiveResultSet.getString("user_name"),
+            topFiveResultSet.getString("db_name"));
+        topUsers.add(user);
+        logger.debug(user.toString());
       }
     } finally {
       topFiveResultSet.close();
       topFiveStatement.close();
     }
+  }
+
+  public int getNumConnections() {
+    return numConnections;
+  }
+
+  public List<User> getTopUsers() {
+    return topUsers;
   }
 }
