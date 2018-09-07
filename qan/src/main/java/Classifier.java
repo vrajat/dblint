@@ -1,10 +1,6 @@
 import org.apache.calcite.sql.SqlCall;
-import org.apache.calcite.sql.SqlFilterOperator;
 import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.SqlOperator;
-import org.apache.calcite.sql.SqlOperatorTable;
 import org.apache.calcite.sql.SqlSelect;
-import org.apache.calcite.sql.SqlSelectOperator;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.util.SqlBasicVisitor;
 
