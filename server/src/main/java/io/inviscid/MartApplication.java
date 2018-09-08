@@ -4,10 +4,10 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-public class martApplication extends Application<martConfiguration> {
+public class MartApplication extends Application<MartConfiguration> {
 
     public static void main(final String[] args) throws Exception {
-        new martApplication().run(args);
+        new MartApplication().run(args);
     }
 
     @Override
@@ -16,12 +16,12 @@ public class martApplication extends Application<martConfiguration> {
     }
 
     @Override
-    public void initialize(final Bootstrap<martConfiguration> bootstrap) {
+    public void initialize(final Bootstrap<MartConfiguration> bootstrap) {
         // TODO: application initialization
     }
 
     @Override
-    public void run(final martConfiguration configuration,
+    public void run(final MartConfiguration configuration,
                     final Environment environment) {
         // TODO: implement application
     }

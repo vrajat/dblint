@@ -21,6 +21,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>1.3.5</dropwizard.version>
+        <mainClass>io.inviscid.MartApplication</mainClass>
     </properties>
 
     <dependencyManagement>
@@ -39,6 +40,11 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-testing</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
