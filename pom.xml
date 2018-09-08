@@ -13,6 +13,7 @@
         <module>metabase</module>
         <module>qan</module>
         <module>server</module>
+        <module>rpm</module>
     </modules>
 
     <properties>
@@ -40,6 +41,16 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>rpm-maven-plugin</artifactId>
+                    <version>2.2.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
