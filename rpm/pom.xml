@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>mart</artifactId>
+        <groupId>io.inviscid</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rpm</artifactId>
+    <properties>
+        <app.home>/usr/lib/mart</app.home>
+        <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+        <main.basedir>${project.parent.basedir}</main.basedir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.inviscid</groupId>
+            <artifactId>server</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <name>inviscid-mart</name>
+                    <group>Applications/Databases</group>
+                    <description>RPM Package for Inviscid Mart (https://github.com/vrajat/mart</description>
+                    <mappings>
+                        <mapping>
+                            <directory>${app.home}/lib/</directory>
+                            <dependency>
+                                <includes>
+                                    <include>io.inviscid:server</include>
+                                </includes>
+                            </dependency>
+                            <artifact />
+                        </mapping>
+                        <mapping>
+                            <directory>${app.home}/bin</directory>
+                            <filemode>755</filemode>
+                            <sources>
+                                <source>
+                                    <location>src/main/resources/rpm/init.d/mart.service</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/etc/mart/</directory>
+                            <configuration>true</configuration>
+                            <sources>
+                                <source>
+                                    <location>src/main/resources/rpm/config/mart.yml</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/var/log/mart/</directory>
+                            <filemode>755</filemode>
+                            <username>ec2-user</username>
+                            <groupname>ec2-user</groupname>
+                        </mapping>
+                        <mapping>
+                            <directory>/var/run/mart/</directory>
+                            <filemode>755</filemode>
+                            <username>ec2-user</username>
+                            <groupname>ec2-user</groupname>
+                        </mapping>
+                    </mappings>
+                    <postinstallScriptlet>
+                        <scriptFile>src/main/resources/rpm/scripts/postinst</scriptFile>
+                        <fileEncoding>utf-8</fileEncoding>
+                    </postinstallScriptlet>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
