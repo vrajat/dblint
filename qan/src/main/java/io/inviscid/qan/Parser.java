@@ -1,4 +1,4 @@
-package io.inviscid;
+package io.inviscid.qan;
 
 import org.apache.calcite.avatica.util.Casing;
 import org.apache.calcite.avatica.util.Quoting;
