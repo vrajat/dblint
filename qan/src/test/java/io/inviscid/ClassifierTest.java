@@ -1,3 +1,6 @@
+package io.inviscid;
+
+import io.inviscid.Classifier;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Test;
 

@@ -13,7 +13,6 @@
         <module>metabase</module>
         <module>qan</module>
         <module>server</module>
-        <module>rpm</module>
     </modules>
 
     <properties>
