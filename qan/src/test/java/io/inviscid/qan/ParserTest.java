@@ -1,6 +1,5 @@
-package io.inviscid;
+package io.inviscid.qan;
 
-import io.inviscid.Parser;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Test;
