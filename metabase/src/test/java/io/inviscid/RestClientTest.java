@@ -1,4 +1,8 @@
+package io.inviscid;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
+import io.inviscid.Database;
+import io.inviscid.RestClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

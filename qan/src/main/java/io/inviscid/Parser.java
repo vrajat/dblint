@@ -1,3 +1,5 @@
+package io.inviscid;
+
 import org.apache.calcite.avatica.util.Casing;
 import org.apache.calcite.avatica.util.Quoting;
 import org.apache.calcite.sql.SqlNode;

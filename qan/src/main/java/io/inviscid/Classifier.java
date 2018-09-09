@@ -1,3 +1,5 @@
+package io.inviscid;
+
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.SqlSelect;

@@ -1,4 +1,7 @@
+package io.inviscid;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.inviscid.Database;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

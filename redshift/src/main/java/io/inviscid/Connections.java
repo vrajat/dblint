@@ -1,3 +1,5 @@
+package io.inviscid;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Connections analyzes the connections to redshift.
+ * io.inviscid.Connections analyzes the connections to redshift.
  * Analyzes the main users of live sessions
  */
 

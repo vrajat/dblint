@@ -1,3 +1,6 @@
+package io.inviscid;
+
+import io.inviscid.Connections;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -14,7 +17,7 @@ class ConnectionsTest {
 
   @BeforeAll
   static void setUp() throws SQLException {
-    h2db = DriverManager.getConnection("jdbc:h2:mem:ConnectionsTest");
+    h2db = DriverManager.getConnection("jdbc:h2:mem:io.inviscid.ConnectionsTest");
 
     // Create the table stv_sessions
     try (Statement createTable = h2db.createStatement()) {
