@@ -17,7 +17,7 @@ public class Parser {
   Casing quotedCasing = Casing.UNCHANGED;
   SqlConformance conformance = SqlConformanceEnum.DEFAULT;
 
-  Parser() {
+  public Parser() {
     this.sqlParser = SqlParser.create("",
         SqlParser.configBuilder()
             .setParserFactory(SqlParserImpl.FACTORY)
@@ -28,7 +28,7 @@ public class Parser {
             .build());
   }
 
-  SqlNode parse(String sql) throws SqlParseException {
+  public SqlNode parse(String sql) throws SqlParseException {
     return sqlParser.parseQuery(sql);
   }
 }
