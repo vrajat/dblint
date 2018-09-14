@@ -17,6 +17,10 @@ public class Parser {
   Casing quotedCasing = Casing.UNCHANGED;
   SqlConformance conformance = SqlConformanceEnum.DEFAULT;
 
+  /**
+   * Sole Constructor for a SQL Parser based on Apache Calcite.
+   * Uses default values for various parameters for the Calcite Parser.
+   */
   public Parser() {
     this.sqlParser = SqlParser.create("",
         SqlParser.configBuilder()

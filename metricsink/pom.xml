@@ -11,6 +11,10 @@
 
     <artifactId>metricsink</artifactId>
 
+    <properties>
+        <project.rootdir>${project.parent.basedir}</project.rootdir>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -46,6 +50,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-parameters</arg>

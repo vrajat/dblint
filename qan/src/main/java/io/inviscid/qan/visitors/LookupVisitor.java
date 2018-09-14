@@ -11,6 +11,12 @@ public class LookupVisitor extends ClassifyingVisitor {
     super(true);
   }
 
+  /**
+   * Checks of a sqlCall Node is of type isDistinct or OrderBy.
+   *
+   * @param sqlCall SqlCall node to check
+   * @return Void to continue visitation of all nodes
+   */
   public Void visit(SqlCall sqlCall) {
     if (sqlCall instanceof SqlSelect) {
       SqlSelect sqlSelect = (SqlSelect) sqlCall;

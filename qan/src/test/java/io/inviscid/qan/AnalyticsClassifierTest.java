@@ -1,14 +1,16 @@
 package io.inviscid.qan;
 
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+
 import io.inviscid.qan.enums.AnalyticsEnum;
 import io.inviscid.qan.enums.QueryType;
-import org.apache.calcite.sql.parser.SqlParseException;
-import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.calcite.sql.parser.SqlParseException;
+
+import org.junit.jupiter.api.Test;
 
 class AnalyticsClassifierTest {
   @Test

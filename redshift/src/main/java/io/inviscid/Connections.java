@@ -1,14 +1,14 @@
 package io.inviscid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * io.inviscid.Connections analyzes the connections to redshift.
@@ -43,12 +43,13 @@ public class Connections {
     topUsers = new ArrayList<>();
   }
 
-  public void capture() throws SQLException {
+  void capture() throws SQLException {
     logger.debug("Start analysis");
 
     // 1. Get number of active sessions
     Statement activeSessionsStatement = this.connection.createStatement();
-    ResultSet activeSessionsResultSet = activeSessionsStatement.executeQuery("select count(*) from stv_sessions");
+    ResultSet activeSessionsResultSet = activeSessionsStatement.executeQuery(
+        "select count(*) from stv_sessions");
     try {
       if (activeSessionsResultSet.next()) {
         numConnections = activeSessionsResultSet.getInt(1);
@@ -62,11 +63,11 @@ public class Connections {
     // 2. Get top 5 users
     Statement topFiveStatement = this.connection.createStatement();
     ResultSet topFiveResultSet = topFiveStatement.executeQuery(
-        "select user_name, db_name, count(*) as count " +
-            "from stv_sessions " +
-            "group by user_name, db_name " +
-            "order by count " +
-            "limit 5"
+        "select user_name, db_name, count(*) as count "
+            + "from stv_sessions "
+            + "group by user_name, db_name "
+            + "order by count "
+            + "limit 5"
     );
 
     try {

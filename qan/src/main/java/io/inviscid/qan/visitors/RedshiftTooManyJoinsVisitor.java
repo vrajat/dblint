@@ -6,6 +6,7 @@ import org.apache.calcite.sql.SqlJoin;
 public class RedshiftTooManyJoinsVisitor extends ClassifyingVisitor {
   int numJoins = 0;
   public final int limit;
+
   public RedshiftTooManyJoinsVisitor() {
     this(10);
   }

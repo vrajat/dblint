@@ -11,7 +11,7 @@ public class RedshiftDb {
   final String password;
   final Jdbi jdbi;
 
-  public RedshiftDb(String url, String user, String password) {
+  RedshiftDb(String url, String user, String password) {
     this.url = url;
     this.user = user;
     this.password = password;
@@ -21,7 +21,8 @@ public class RedshiftDb {
   List<QueryStats> getQueryStats(boolean inTest) {
     return jdbi.withHandle(handle -> {
       handle.registerRowMapper(ConstructorMapper.factory(QueryStats.class));
-      return handle.createQuery(inTest ? QueryStats.getExtractQueryinTest() : QueryStats.getExtractQuery())
+      return handle.createQuery(inTest ? QueryStats.getExtractQueryinTest()
+          : QueryStats.getExtractQuery())
           .mapTo(QueryStats.class)
           .list();
     });

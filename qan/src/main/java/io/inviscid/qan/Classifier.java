@@ -1,9 +1,10 @@
 package io.inviscid.qan;
 
 import io.inviscid.qan.enums.QueryType;
-import org.apache.calcite.sql.parser.SqlParseException;
 
 import java.util.List;
+
+import org.apache.calcite.sql.parser.SqlParseException;
 
 public abstract class Classifier {
   public final Parser parser;
