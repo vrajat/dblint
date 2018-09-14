@@ -74,11 +74,11 @@ class MySQLSinkTest {
     assertEquals(queryStats.minDuration, resultSet.getDouble("min_duration"));
     assertEquals(queryStats.avgDuration, resultSet.getDouble("avg_duration"));
     assertEquals(queryStats.medianDuration, resultSet.getDouble("median_duration"));
-    assertEquals(queryStats.p75Duration, resultSet.getDouble("p75_duration"));
-    assertEquals(queryStats.p90Duration, resultSet.getDouble("p90_duration"));
-    assertEquals(queryStats.p95Duration, resultSet.getDouble("p95_duration"));
-    assertEquals(queryStats.p99Duration, resultSet.getDouble("p99_duration"));
-    assertEquals(queryStats.p999Duration, resultSet.getDouble("p999_duration"));
+    assertEquals(queryStats.p75, resultSet.getDouble("p75_duration"));
+    assertEquals(queryStats.p90, resultSet.getDouble("p90_duration"));
+    assertEquals(queryStats.p95, resultSet.getDouble("p95_duration"));
+    assertEquals(queryStats.p99, resultSet.getDouble("p99_duration"));
+    assertEquals(queryStats.p999, resultSet.getDouble("p999_duration"));
     assertEquals(queryStats.maxDuration, resultSet.getDouble("max_duration"));
   }
 }
