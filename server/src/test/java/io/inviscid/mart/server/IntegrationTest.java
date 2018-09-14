@@ -1,4 +1,4 @@
-package io.inviscid;
+package io.inviscid.mart.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -6,8 +6,9 @@ import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 
+import io.inviscid.mart.server.MartApplication;
+import io.inviscid.mart.server.MartConfiguration;
 import javax.ws.rs.core.Response;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 

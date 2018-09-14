@@ -11,4 +11,6 @@
               files="Analyticslassifier.java"/>
     <suppress checks="CustomImportOrder"
               files="Classifier.java"/>
+    <suppress checks="CustomImportOrder"
+              files="Connections.java"/>
 </suppressions>
