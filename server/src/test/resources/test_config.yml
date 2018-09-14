@@ -2,3 +2,13 @@ logging:
   level: INFO
   loggers:
     io.inviscid: DEBUG
+queryStatsCron:
+  frequencyMin: 60
+  redshift:
+    url: "jdbc:h2:mem:IntegrationTestRedshift"
+    user: ""
+    password: ""
+  mySql:
+    url: "jdbc:h2:mem:IntegrationTestMySQL"
+    user: ""
+    password: ""

@@ -42,7 +42,11 @@ public class MySqlSink {
     flyway.clean();
   }
 
-  void insertQueryStats(QueryStats queryStats) {
+  /**
+   * Insert one QueryStat row into query_stats table in MySQL.
+   * @param queryStats A POJO of queryStats
+   */
+  public void insertQueryStats(QueryStats queryStats) {
     jdbi.useHandle(handle -> {
       handle.registerRowMapper(FieldMapper.factory(QueryStats.class));
       handle.createUpdate("insert into query_stats(db, user, query_group, day, "
