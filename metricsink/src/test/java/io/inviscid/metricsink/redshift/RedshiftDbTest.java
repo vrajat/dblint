@@ -1,9 +1,7 @@
 package io.inviscid.metricsink.redshift;
 
-import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -15,7 +13,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.flywaydb.core.Flyway;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class RedshiftDbTest {
   private static final String url = "jdbc:h2:mem:io.inviscid.metricsink.redshift.RedshiftDbTest";
@@ -45,7 +46,8 @@ class RedshiftDbTest {
       tables.add(rs.getString(3));
     }
 
-    List<String> expected = Arrays.asList("PG_USER", "STL_QUERY", "STL_WLM_QUERY", "flyway_schema_history");
+    List<String> expected = Arrays.asList("PG_USER", "STL_QUERY",
+        "STL_WLM_QUERY", "flyway_schema_history");
     assertIterableEquals(expected, tables);
   }
 

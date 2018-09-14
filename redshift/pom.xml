@@ -11,6 +11,10 @@
 
     <artifactId>redshift</artifactId>
 
+    <properties>
+        <project.rootdir>${project.parent.basedir}</project.rootdir>
+    </properties>
+
     <repositories>
         <repository>
             <id>redshift</id>

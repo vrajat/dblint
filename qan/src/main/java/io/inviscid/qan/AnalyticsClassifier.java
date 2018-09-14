@@ -2,11 +2,12 @@ package io.inviscid.qan;
 
 import io.inviscid.qan.enums.AnalyticsEnum;
 import io.inviscid.qan.enums.QueryType;
-import org.apache.calcite.sql.SqlNode;
-import org.apache.calcite.sql.parser.SqlParseException;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.calcite.sql.SqlNode;
+import org.apache.calcite.sql.parser.SqlParseException;
 
 /**
  * Created by rvenkatesh on 9/9/18.

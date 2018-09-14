@@ -1,9 +1,9 @@
 package io.inviscid;
 
-import io.dropwizard.Configuration;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.hibernate.validator.constraints.*;
-import javax.validation.constraints.*;
+import io.dropwizard.Configuration;
+//import javax.validation.constraints.*;
+//import org.hibernate.validator.constraints.*;
 
 public class MartConfiguration extends Configuration {
     // TODO: implement service configuration

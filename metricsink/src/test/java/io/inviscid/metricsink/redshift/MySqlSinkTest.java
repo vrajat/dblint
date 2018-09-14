@@ -1,9 +1,6 @@
 package io.inviscid.metricsink.redshift;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -15,19 +12,22 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-class MySQLSinkTest {
-  private static final String url = "jdbc:h2:mem:io.inviscid.metricsink.sinks.MySQLSinkTest";
+class MySqlSinkTest {
+  private static final String url = "jdbc:h2:mem:io.inviscid.metricsink.sinks.MySqlSinkTest";
 
   private Connection h2db;
-  private MySQLSink mySQLSink;
+  private MySqlSink mySqlSink;
 
   @BeforeEach
-  void setMySQLSink() throws SQLException {
+  void setmysqlsink() throws SQLException {
     h2db = DriverManager.getConnection(url);
-    mySQLSink = new MySQLSink(url, "", "");
-    mySQLSink.initialize();
+    mySqlSink = new MySqlSink(url, "", "");
+    mySqlSink.initialize();
   }
 
   @AfterEach
@@ -58,12 +58,12 @@ class MySQLSinkTest {
     QueryStats queryStats = new QueryStats("db", "user", "user_group", LocalDateTime.now(),
         0.1, 0.2, 0.3, 0.4, 0.5, 0.6,
         0.9, 0.999, 1);
-    mySQLSink.insertQueryStats(queryStats);
+    mySqlSink.insertQueryStats(queryStats);
 
     Statement statement = h2db.createStatement();
-    ResultSet resultSet = statement.executeQuery("select db, user, query_group, day, " +
-          "min_duration, avg_duration, median_duration, p75_duration, p90_duration, p95_duration," +
-          "p99_duration, p999_duration, max_duration from PUBLIC.query_stats");
+    ResultSet resultSet = statement.executeQuery("select db, user, query_group, day, + "
+          + "min_duration, avg_duration, median_duration, p75_duration, p90_duration, p95_duration,"
+          + "p99_duration, p999_duration, max_duration from PUBLIC.query_stats");
 
     resultSet.next();
 
