@@ -1,4 +1,14 @@
 logging:
   level: INFO
   loggers:
-    io.inviscid: DEBUG
+    io.inviscid: INFO
+queryStatsCron:
+  frequencyMin: 60
+  redshift:
+    url: ""
+    user: ""
+    password: ""
+  mySql:
+    url: ""
+    user: ""
+    password: ""

@@ -13,7 +13,7 @@
     <properties>
         <app.home>/usr/lib/mart</app.home>
         <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
-        <main.basedir>${project.parent.basedir}</main.basedir>
+        <project.rootdir>${project.parent.basedir}</project.rootdir>
     </properties>
 
     <dependencies>
@@ -40,7 +40,7 @@
                 <configuration>
                     <name>inviscid-mart</name>
                     <group>Applications/Databases</group>
-                    <description>RPM Package for Inviscid Mart (https://github.com/vrajat/mart</description>
+                    <description>RPM Package for Inviscid Mart (https://github.com/vrajat/mart)</description>
                     <mappings>
                         <mapping>
                             <directory>${app.home}/lib/</directory>
