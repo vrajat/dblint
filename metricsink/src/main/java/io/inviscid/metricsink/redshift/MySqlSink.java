@@ -32,7 +32,10 @@ public class MySqlSink {
     this.jdbi = Jdbi.create(url, user, password);
   }
 
-  void initialize() {
+  /**
+   * Setup MySQL with tables to store metrics.
+   */
+  public void initialize() {
     flyway.setDataSource(url, user, password);
     flyway.setLocations("db/redshiftMigrations");
     flyway.migrate();
