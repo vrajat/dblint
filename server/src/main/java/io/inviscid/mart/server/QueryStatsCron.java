@@ -44,6 +44,10 @@ public class QueryStatsCron implements Runnable, Cron {
     failedIterations = metricRegistry.counter("queryStatsCron.failedIterations");
   }
 
+  void initialize() {
+    mySqlSink.initialize();
+  }
+
   /**
    * Run one iteration to get QueryStats from Redshift and
    * store into MySQL.

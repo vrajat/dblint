@@ -31,8 +31,11 @@ public class MartApplication extends Application<MartConfiguration> {
     ScheduledExecutorServiceBuilder serviceBuilder = environment.lifecycle()
         .scheduledExecutorService("query_stats_cron");
     ScheduledExecutorService scheduledExecutorService = serviceBuilder.build();
+
     QueryStatsCronConfiguration qcsConfig = configuration.queryStatsCron;
     QueryStatsCron queryStatsCron = new QueryStatsCron(qcsConfig, environment.metrics());
+    queryStatsCron.initialize();
+
     scheduledExecutorService.scheduleAtFixedRate(queryStatsCron,
         qcsConfig.getFrequencyMin(), qcsConfig.getFrequencyMin(), TimeUnit.MINUTES);
     environment.healthChecks().register("QueryStatsCron", new CronHealthCheck(queryStatsCron));

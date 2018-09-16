@@ -2,6 +2,7 @@ logging:
   level: INFO
   loggers:
     io.inviscid: DEBUG
+    com.flyway: DEBUG
 queryStatsCron:
   frequencyMin: 60
   redshift:
