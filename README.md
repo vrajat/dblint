@@ -9,11 +9,8 @@ Technologies supported:
 * Redshift
 
 ## Install
-
-* Download the latest RPM from [Releases](https://github.com/vrajat/mart/releases) 
-  to an AWS EC2 machine.
+Download the latest RPM from [Releases](https://github.com/vrajat/mart/releases) to an AWS EC2 machine.
   
-* Follow these steps: 
 
 
     # Install the RPM
@@ -22,9 +19,25 @@ Technologies supported:
     #Copy the sample configuration file
     cp /etc/mart/mart-sample.yml /etc/mart/sample.yml
     
- 
- * Edit the configuration file. Add DB access info. Refer to [modules](#Modules)
- 
+    # Edit the configuration file. 
+    # Add DB access info. 
+    # Refer to modules
+
+    # Start the service
+    /etc/init.d/mart.service start
+    
+    # Check & monitor healthchecks
+    curl http://localhost:8081/healthchecks?pretty=true
+    
+    # Monitor logs
+    tail -f /var/log/mart/server.log
+    tail -f /var/log/mart/request.log
+    
+    View metrics
+    ls /var/log/mart/metrics/
+    
+
+    
  ## Modules
  ### QueryStatsCron
 _QueryStatsCron_ captures query stats every 60 minutes, aggregates key metrics and stores
@@ -53,7 +66,7 @@ statistics on the duration of queries aggregated by
 |----|-----------|
 |db| Database connected to|
 |user| User who submitted the query|
-|query_group| Label of the queue (ref: [Redshift WLM] (https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html)|
+|query_group| Label of the queue (ref: [Redshift WLM](https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html))|
 |day| Day on which query was submitted _YYYY-MM-DD_|
 |min_duration| Minimum duration|
 |avg_duration| Average duration|
