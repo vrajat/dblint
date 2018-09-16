@@ -65,7 +65,7 @@
                             <configuration>true</configuration>
                             <sources>
                                 <source>
-                                    <location>src/main/resources/rpm/config/mart.yml</location>
+                                    <location>src/main/resources/rpm/config/mart-sample.yml</location>
                                 </source>
                             </sources>
                         </mapping>

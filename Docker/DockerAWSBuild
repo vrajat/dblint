@@ -1,0 +1,22 @@
+FROM amazonlinux
+
+WORKDIR /app
+
+RUN yum install tar which java-1.8.0-openjdk-devel rpm-build git -y \
+    && yum -y clean all
+
+RUN curl http://www-us.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz > apache-maven-3.5.4-bin.tar.gz \
+    && tar -xzvf apache-maven-3.5.4-bin.tar.gz \
+    && mv apache-maven-3.5.4 /usr/local/maven \
+    && ln -s /usr/local/maven/apache-maven-3.5.4 /usr/local/maven/current \
+    && echo "export MAVEN_HOME=/usr/local/maven/current" >> /etc/bashrc \
+    && echo "export M2_HOME=/usr/local/maven/current" >> /etc/bashrc \
+    && echo "export M2=/usr/local/maven/current/bin" >> /etc/bashrc \
+    && echo "export PATH=/usr/local/maven/current/bin:\$PATH" >> /etc/bashrc \
+    && source /etc/bashrc
+
+RUN git clone https://github.com/vrajat/mart.git \
+    && cd mart \
+    && /usr/local/maven/bin/mvn clean package \
+    && cd .. \
+    && rm -rf mart

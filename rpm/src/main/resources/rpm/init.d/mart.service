@@ -20,7 +20,7 @@ usage() {
 
 start() {
   ulimit -n 100000
-  nohup java -jar -server /usr/lib/mart/lib/mart-*.jar server /etc/mart/mart.yml &
+  nohup java -jar -server /usr/lib/mart/lib/server-*.jar server /etc/mart/mart.yml &
   PID=$!
   echo $PID > ${PID_FILE}
   sleep 1

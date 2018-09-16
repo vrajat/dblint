@@ -1,0 +1,42 @@
+logging:
+  level: INFO
+  loggers:
+    io.inviscid: INFO
+  appenders:
+    - type: file
+      currentLogFilename: /var/log/mart/server.log
+      threshold: ALL
+      queueSize: 512
+      discardingThreshold: 0
+      archive: true
+      archivedLogFilenamePattern: /var/log/mart/server-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
+      bufferSize: 8KB
+      immediateFlush: true
+server:
+  requestLog:
+    appenders:
+    - type: file
+      currentLogFilename: /var/log/mart/request.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: /var/log/mart/request-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
+      immediateFlush: true
+metrics:
+  frequency: 1 minute
+  reporters:
+    - type: csv
+      file: /var/log/mart/metrics
+queryStatsCron:
+  frequencyMin: 60
+  redshift:
+    url: ""
+    user: ""
+    password: ""
+  mySql:
+    url: ""
+    user: ""
+    password: ""
