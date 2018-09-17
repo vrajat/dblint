@@ -11,7 +11,7 @@ public class QueryStats {
 
   public final String queryGroup;
 
-  public final LocalDateTime day;
+  public final LocalDateTime timestampHour;
   public final double minDuration;
 
   public final double avgDuration;
@@ -33,7 +33,7 @@ public class QueryStats {
    * @param db DB of the query group
    * @param user User of the query group
    * @param queryGroup Label of the query group
-   * @param day Day of aggregation
+   * @param timestampHour Timestamp normalized to hour of aggregation
    * @param minDuration Min. duration in the query group
    * @param avgDuration Average duration in the query group
    * @param medianDuration Median duration in the query group
@@ -48,7 +48,7 @@ public class QueryStats {
   public QueryStats(String db,
                     String user,
                     String queryGroup,
-                    LocalDateTime day,
+                    LocalDateTime timestampHour,
                     double minDuration,
                     double avgDuration,
                     double medianDuration,
@@ -61,7 +61,7 @@ public class QueryStats {
     this.db = db;
     this.user = user;
     this.queryGroup = queryGroup;
-    this.day = day;
+    this.timestampHour = timestampHour;
     this.minDuration = minDuration;
     this.avgDuration = avgDuration;
     this.medianDuration = medianDuration;
@@ -91,7 +91,7 @@ public class QueryStats {
       + "    TRIM(database) AS db,\n"
       + "    TRIM(u.usename) AS \"user\",\n"
       + "    TRIM(label) AS query_group,\n"
-      + "    DATE_TRUNC('day', starttime) AS day,\n"
+      + "    DATE_TRUNC('hour', starttime) AS timestamp_hour,\n"
       + "    -- total_queue_time/1000000.0 AS duration,\n"
       + "    -- total_exec_time/1000000.0 AS duration,\n"
       + "    (total_queue_time + total_exec_time)/1000000.0 AS duration\n"
@@ -105,7 +105,7 @@ public class QueryStats {
       + "    db,\n"
       + "    \"user\",\n"
       + "    query_group,\n"
-      + "    day,\n"
+      + "    timestamp_hour,\n"
       + "    duration\n"
       + "  FROM durations1\n"
       + "  %s"
@@ -114,7 +114,7 @@ public class QueryStats {
       + "  db,\n"
       + "  \"user\",\n"
       + "  query_group,\n"
-      + "  day,\n"
+      + "  timestamp_hour,\n"
       + "  MIN(duration) AS min_duration,\n"
       + "  AVG(duration) AS avg_duration,\n"
       + "  %s"
@@ -125,17 +125,17 @@ public class QueryStats {
 
   private static String extractQueryCalculatePercentileinRedshift = ","
         + "    PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY duration) "
-        + "OVER (PARTITION BY db, \"user\", query_group, day) AS median_duration,\n"
+        + "OVER (PARTITION BY db, \"user\", query_group, timestamp_hour) AS median_duration,\n"
         + "    PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY duration) "
-        + "OVER (PARTITION BY db, \"user\", query_group, day) AS p75,\n"
+        + "OVER (PARTITION BY db, \"user\", query_group, timestamp_hour) AS p75,\n"
         + "    PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY duration) "
-        + "OVER (PARTITION BY db, \"user\", query_group, day) AS p90,\n"
+        + "OVER (PARTITION BY db, \"user\", query_group, timestamp_hour) AS p90,\n"
         + "    PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY duration) "
-        + "OVER (PARTITION BY db, \"user\", query_group, day) AS p95,\n"
+        + "OVER (PARTITION BY db, \"user\", query_group, timestamp_hour) AS p95,\n"
         + "    PERCENTILE_CONT(0.99) WITHIN GROUP (ORDER BY duration) "
-        + "OVER (PARTITION BY db, \"user\", query_group, day) AS p99,\n"
+        + "OVER (PARTITION BY db, \"user\", query_group, timestamp_hour) AS p99,\n"
         + "    PERCENTILE_CONT(0.999) WITHIN GROUP (ORDER BY duration) "
-        + "OVER (PARTITION BY db, \"user\", query_group, day) AS p999\n";
+        + "OVER (PARTITION BY db, \"user\", query_group, timestamp_hour) AS p999\n";
 
   private static String aggregatePercentileinRedshift = "  MAX(median) AS median,\n"
         + "  MAX(p75) AS p75,\n"

@@ -61,7 +61,7 @@ class MySqlSinkTest {
     mySqlSink.insertQueryStats(queryStats);
 
     Statement statement = h2db.createStatement();
-    ResultSet resultSet = statement.executeQuery("select db, user, query_group, day, + "
+    ResultSet resultSet = statement.executeQuery("select db, user, query_group, timestamp_hour, "
           + "min_duration, avg_duration, median_duration, p75_duration, p90_duration, p95_duration,"
           + "p99_duration, p999_duration, max_duration from PUBLIC.query_stats");
 
@@ -70,7 +70,7 @@ class MySqlSinkTest {
     assertEquals(queryStats.db, resultSet.getString("db"));
     assertEquals(queryStats.user, resultSet.getString("user"));
     assertEquals(queryStats.queryGroup, resultSet.getString("query_group"));
-    assertEquals(queryStats.day, resultSet.getTimestamp("day").toLocalDateTime());
+    assertEquals(queryStats.timestampHour, resultSet.getTimestamp("timestamp_hour").toLocalDateTime());
     assertEquals(queryStats.minDuration, resultSet.getDouble("min_duration"));
     assertEquals(queryStats.avgDuration, resultSet.getDouble("avg_duration"));
     assertEquals(queryStats.medianDuration, resultSet.getDouble("median_duration"));

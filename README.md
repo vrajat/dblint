@@ -60,14 +60,14 @@ statistics on the duration of queries aggregated by
 * Database
 * User
 * Label
-* Day
+* Timestamp normalized to Hour
 
 |Name|Description|
 |----|-----------|
 |db| Database connected to|
 |user| User who submitted the query|
 |query_group| Label of the queue (ref: [Redshift WLM](https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html))|
-|day| Day on which query was submitted _YYYY-MM-DD_|
+|timestampHour| Timestamp normalized to hour on which query was submitted _YYYY-MM-DD HH:00:00_|
 |min_duration| Minimum duration|
 |avg_duration| Average duration|
 |median_duration| Median duration|
