@@ -3,6 +3,7 @@ package io.inviscid.metricsink.redshift;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class RedshiftDb {
@@ -29,11 +30,12 @@ public class RedshiftDb {
    * @param inTest Test parameter to choose a H2 compliant query
    * @return List of QueryStats
    */
-  public List<QueryStats> getQueryStats(boolean inTest) {
+  public List<QueryStats> getQueryStats(boolean inTest,
+                                        LocalDateTime rangeStart, LocalDateTime rangeEnd) {
     return jdbi.withHandle(handle -> {
       handle.registerRowMapper(ConstructorMapper.factory(QueryStats.class));
-      return handle.createQuery(inTest ? QueryStats.getExtractQueryinTest()
-          : QueryStats.getExtractQuery())
+      return handle.createQuery(inTest ? QueryStats.getExtractQueryinTest(rangeStart, rangeEnd)
+          : QueryStats.getExtractQuery(rangeStart, rangeEnd))
           .mapTo(QueryStats.class)
           .list();
     });
