@@ -1,7 +1,7 @@
 CREATE TABLE query_stats (
-    db varchar,
-    user varchar,
-    query_group varchar,
+    db varchar(100),
+    user varchar(100),
+    query_group varchar(100),
     timestamp_hour timestamp,
     min_duration float,
     avg_duration float,
