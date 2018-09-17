@@ -123,8 +123,8 @@ public class QueryStats {
       + "    query_group,\n"
       + "    timestamp_hour,\n"
       + "    duration\n"
-      + "  FROM durations1\n"
       + "  %s"
+      + "  FROM durations1\n"
       + ")\n"
       + "SELECT\n"
       + "  db,\n"
@@ -153,7 +153,8 @@ public class QueryStats {
         + "    PERCENTILE_CONT(0.999) WITHIN GROUP (ORDER BY duration) "
         + "OVER (PARTITION BY db, \"user\", query_group, timestamp_hour) AS p999\n";
 
-  private static String aggregatePercentileinRedshift = "  MAX(median) AS median,\n"
+  private static String aggregatePercentileinRedshift =
+      "  MAX(median_duration) AS median_duration,\n"
         + "  MAX(p75) AS p75,\n"
         + "  MAX(p90) AS p90,\n"
         + "  MAX(p95) AS p95,\n"
