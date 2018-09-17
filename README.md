@@ -47,10 +47,10 @@ in a MySQL-compatible database.
 |Name|Default|Description|  
 |----|-------|-----------|
 | frequencyMin|60|Interval in no. of minutes|
-|redshift.url|<Empty>|URL of the Redshift Database|
+|redshift.url|<Empty>|URL of the Redshift Database. SSL not supported. Set `?ssl=false`|
 |redshift.user|<Empty>|A admin user|
 |redshift.password|<Empty>|Password|
-|mysql.url|<Empty>|URL of the Redshift Database|
+|mysql.url|<Empty>|URL of the MySQL Database. SSL not supprt. Set `useSSL=false`|
 |mysql.user|<Empty>|A admin user|
 |mysql.password|<Empty>|Password|
 
@@ -64,17 +64,17 @@ statistics on the duration of queries aggregated by
 
 |Name|Description|
 |----|-----------|
-|db| Database connected to|
-|user| User who submitted the query|
-|query_group| Label of the queue (ref: [Redshift WLM](https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html))|
-|timestampHour| Timestamp normalized to hour on which query was submitted _YYYY-MM-DD HH:00:00_|
-|min_duration| Minimum duration|
-|avg_duration| Average duration|
-|median_duration| Median duration|
-|p75_duration| 75th Percentile of duration|
-|p90_duration| 90th Percentile of duration|
-|p95_duration| 95th Percentile of duration|
-|p99_duration| 99th Percentile of duration|
-|p999_duration| 999th Percentile of duration|
-|max_duration| Max. duration|
+|`db`| Database connected to|
+|`user`| User who submitted the query|
+|`query_group`| Label of the queue (ref: [Redshift WLM](https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html))|
+|`timestamp_hour`| Timestamp normalized to hour on which query was submitted _YYYY-MM-DD HH:00:00_|
+|`min_duration`| Minimum duration|
+|`avg_duration`| Average duration|
+|`median_duration`| Median duration|
+|`p75_duration`| 75th Percentile of duration|
+|`p90_duration`| 90th Percentile of duration|
+|`p95_duration`| 95th Percentile of duration|
+|`p99_duration`| 99th Percentile of duration|
+|`p999_duration`| 999th Percentile of duration|
+|`max_duration`| Max. duration|
  
