@@ -6,7 +6,7 @@
     <parent>
         <artifactId>mart</artifactId>
         <groupId>io.inviscid</groupId>
-        <version>0.1.0</version>
+        <version>0.1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
     </prerequisites>
 
     <artifactId>server</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>io.inviscid</groupId>
             <artifactId>metricsink</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
