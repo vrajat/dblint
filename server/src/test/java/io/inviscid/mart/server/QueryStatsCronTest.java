@@ -1,8 +1,12 @@
 package io.inviscid.mart.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
 
 import com.codahale.metrics.MetricRegistry;
 import io.inviscid.mart.server.configuration.MySqlConfiguration;
@@ -55,7 +59,9 @@ class QueryStatsCronTest {
     RedshiftDb redshiftDbMock = mock(RedshiftDb.class);
     MySqlSink mySqlSinkMock = mock(MySqlSink.class);
 
-    when(redshiftDbMock.getQueryStats(false)).thenThrow(new RuntimeException("Mock Exception"));
+    when(redshiftDbMock.getQueryStats(eq(false),
+        any(LocalDateTime.class), any(LocalDateTime.class)))
+        .thenThrow(new RuntimeException("Mock Exception"));
     QueryStatsCron queryStatsCron = new QueryStatsCron(qcsConfig, metricRegistry,
         redshiftDbMock, mySqlSinkMock);
 

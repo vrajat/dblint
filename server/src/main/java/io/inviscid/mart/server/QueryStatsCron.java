@@ -9,6 +9,7 @@ import io.inviscid.metricsink.redshift.RedshiftDb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class QueryStatsCron implements Runnable, Cron {
@@ -20,6 +21,8 @@ public class QueryStatsCron implements Runnable, Cron {
 
   Counter iterations;
   Counter failedIterations;
+
+  LocalDateTime startRange;
 
   QueryStatsCron(QueryStatsCronConfiguration queryStatsCronConfiguration,
                  MetricRegistry metricRegistry) {
@@ -42,6 +45,7 @@ public class QueryStatsCron implements Runnable, Cron {
 
     iterations = metricRegistry.counter("queryStatsCron.iterations");
     failedIterations = metricRegistry.counter("queryStatsCron.failedIterations");
+    startRange = LocalDateTime.now();
   }
 
   void initialize() {
@@ -55,15 +59,20 @@ public class QueryStatsCron implements Runnable, Cron {
   public void run() {
     logger.debug("Run one instance of QueryStatsCron");
 
+    LocalDateTime endRange = LocalDateTime.now();
+
     try {
       iterations.inc();
-      List<QueryStats> queryStatsList = redshiftDb.getQueryStats(false);
+      List<QueryStats> queryStatsList = redshiftDb.getQueryStats(false,
+          startRange, endRange);
       for (QueryStats queryStats : queryStatsList) {
         mySqlSink.insertQueryStats(queryStats);
       }
     } catch (Exception exc) {
       failedIterations.inc();
       logger.warn("Exception thrown", exc);
+    } finally {
+      startRange = endRange;
     }
   }
 

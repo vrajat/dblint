@@ -54,7 +54,10 @@ class RedshiftDbTest {
   @Test
   void queryStatsTest() {
     RedshiftDb redshiftDb = new RedshiftDb(url, "", "");
-    List<QueryStats> queryStatsList = redshiftDb.getQueryStats(true);
+    List<QueryStats> queryStatsList = redshiftDb.getQueryStats(true,
+        LocalDateTime.of(2018, 9, 13, 12, 0, 0),
+        LocalDateTime.of(2018, 9, 13, 13, 0, 0));
+
     assertEquals(1, queryStatsList.size());
 
     QueryStats queryStats = queryStatsList.get(0);

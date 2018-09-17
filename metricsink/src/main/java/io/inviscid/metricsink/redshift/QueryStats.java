@@ -4,8 +4,20 @@ import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 
 public class QueryStats {
+  static final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
+      .appendValue(ChronoField.YEAR).appendLiteral('-')
+      .appendValue(ChronoField.MONTH_OF_YEAR).appendLiteral('-')
+      .appendValue(ChronoField.DAY_OF_MONTH).appendLiteral(' ')
+      .appendValue(ChronoField.HOUR_OF_DAY).appendLiteral(':')
+      .appendValue(ChronoField.MINUTE_OF_HOUR).appendLiteral(':')
+      .appendValue(ChronoField.SECOND_OF_MINUTE)
+      .toFormatter();
+
   public final String db;
   public final String user;
 
@@ -73,15 +85,18 @@ public class QueryStats {
     this.maxDuration = maxDuration;
   }
 
-  static String getExtractQuery() {
+  static String getExtractQuery(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
     return String.format(
-        extractQueryTemplate, extractQueryCalculatePercentileinRedshift,
-        aggregatePercentileinRedshift
+        extractQueryTemplate,
+        rangeStart.format(dateTimeFormatter), rangeEnd.format(dateTimeFormatter),
+        extractQueryCalculatePercentileinRedshift, aggregatePercentileinRedshift
     );
   }
 
-  public static String getExtractQueryinTest() {
-    return String.format(extractQueryTemplate, "", aggregatePercentileinH2);
+  static String getExtractQueryinTest(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
+    return String.format(extractQueryTemplate,
+        rangeStart.format(dateTimeFormatter), rangeEnd.format(dateTimeFormatter),
+        "", aggregatePercentileinH2);
   }
 
   // Ref: https://gist.github.com/iconara/3523d89306153eb2ffaf
@@ -91,7 +106,7 @@ public class QueryStats {
       + "    TRIM(database) AS db,\n"
       + "    TRIM(u.usename) AS \"user\",\n"
       + "    TRIM(label) AS query_group,\n"
-      + "    DATE_TRUNC('hour', starttime) AS timestamp_hour,\n"
+      + "    DATE_TRUNC('hour', endtime) AS timestamp_hour,\n"
       + "    -- total_queue_time/1000000.0 AS duration,\n"
       + "    -- total_exec_time/1000000.0 AS duration,\n"
       + "    (total_queue_time + total_exec_time)/1000000.0 AS duration\n"
@@ -99,6 +114,7 @@ public class QueryStats {
       + "  WHERE q.query = w.query\n"
       + "    AND q.userid = u.usesysid\n"
       + "    AND aborted = 0\n"
+      + "    AND endtime between '%s' and '%s'\n"
       + "),\n"
       + "durations2 AS (\n"
       + "  SELECT\n"
