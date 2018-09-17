@@ -52,10 +52,10 @@ public class MySqlSink {
   public void insertQueryStats(QueryStats queryStats) {
     jdbi.useHandle(handle -> {
       handle.registerRowMapper(FieldMapper.factory(QueryStats.class));
-      handle.createUpdate("insert into query_stats(db, user, query_group, day, "
+      handle.createUpdate("insert into query_stats(db, user, query_group, timestamp_hour, "
           + "min_duration, avg_duration, median_duration, p75_duration, p90_duration, p95_duration,"
           + "p99_duration, p999_duration, max_duration) values ("
-          + ":db, :user, :queryGroup, :day, :minDuration, :avgDuration, :medianDuration, "
+          + ":db, :user, :queryGroup, :timestampHour, :minDuration, :avgDuration, :medianDuration, "
           + ":p75, :p90, :p95, :p99, :p999, :maxDuration)")
           .bindFields(queryStats)
           .execute();

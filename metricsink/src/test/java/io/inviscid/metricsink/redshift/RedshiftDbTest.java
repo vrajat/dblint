@@ -62,7 +62,7 @@ class RedshiftDbTest {
     assertEquals("public", queryStats.db);
     assertEquals("inviscid", queryStats.user);
     assertEquals("label", queryStats.queryGroup);
-    assertEquals(LocalDateTime.of(2018, 9, 13, 0, 0), queryStats.day);
+    assertEquals(LocalDateTime.of(2018, 9, 13, 12, 0), queryStats.timestampHour);
     assertEquals(0.000075, queryStats.minDuration);
     assertEquals(0.000075, queryStats.avgDuration);
     assertEquals(0, queryStats.medianDuration);
