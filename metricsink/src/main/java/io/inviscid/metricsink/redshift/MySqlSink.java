@@ -1,5 +1,7 @@
 package io.inviscid.metricsink.redshift;
 
+import com.codahale.metrics.MetricRegistry;
+import io.inviscid.metricsink.util.JdbiTimer;
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
@@ -11,8 +13,9 @@ public class MySqlSink {
   final Flyway flyway;
   final Jdbi jdbi;
 
-  public MySqlSink(String url, String user, String password) {
-    this(url, user, password, new Flyway());
+  public MySqlSink(String url, String user, String password,
+                   MetricRegistry metricRegistry) {
+    this(url, user, password, metricRegistry, new Flyway());
   }
 
   /**
@@ -24,12 +27,14 @@ public class MySqlSink {
    * @param flyway Migrations library to setup the MySQL database
    */
 
-  public MySqlSink(String url, String user, String password, Flyway flyway) {
+  public MySqlSink(String url, String user, String password,
+                   MetricRegistry metricRegistry, Flyway flyway) {
     this.url = url;
     this.user = user;
     this.password = password;
     this.flyway = flyway;
     this.jdbi = Jdbi.create(url, user, password);
+    this.jdbi.setSqlLogger(new JdbiTimer(metricRegistry));
   }
 
   /**
@@ -58,6 +63,19 @@ public class MySqlSink {
           + ":db, :user, :queryGroup, :timestampHour, :minDuration, :avgDuration, :medianDuration, "
           + ":p75, :p90, :p95, :p99, :p999, :maxDuration)")
           .bindFields(queryStats)
+          .execute();
+    });
+  }
+
+  /**
+   * Insert one UserQuery row into bad_queries table in MySQL.
+   * @param userQuery A POJO of UserQuery
+   */
+  public void insertBadQueries(UserQuery userQuery) {
+    jdbi.useHandle(handle -> {
+      handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
+      handle.createUpdate(UserQuery.insertQuery)
+          .bindFields(userQuery)
           .execute();
     });
   }
