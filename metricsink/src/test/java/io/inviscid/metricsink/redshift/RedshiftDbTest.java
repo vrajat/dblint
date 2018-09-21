@@ -13,10 +13,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.codahale.metrics.MetricRegistry;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 class RedshiftDbTest {
   private static final String url = "jdbc:h2:mem:io.inviscid.metricsink.redshift.RedshiftDbTest";
@@ -24,11 +26,14 @@ class RedshiftDbTest {
   private Connection h2db;
 
   @BeforeEach
-  void setH2db() throws SQLException {
+  void setH2db(TestInfo testInfo) throws SQLException {
+    String testName = testInfo.getDisplayName();
+    String testLocation = testName.substring(0, testName.length() - 2);
     h2db = DriverManager.getConnection(url);
     Flyway flyway = new Flyway();
     flyway.setDataSource(url, "", "");
-    flyway.setLocations("db/redshiftTestMigrations");
+    flyway.setLocations("db/redshiftTestMigrations", "db/" + testLocation);
+
     flyway.migrate();
   }
 
@@ -46,14 +51,15 @@ class RedshiftDbTest {
       tables.add(rs.getString(3));
     }
 
-    List<String> expected = Arrays.asList("PG_USER", "STL_QUERY",
+    List<String> expected = Arrays.asList("PG_USER", "STL_QUERY", "STL_QUERYTEXT",
         "STL_WLM_QUERY", "flyway_schema_history");
     assertIterableEquals(expected, tables);
   }
 
   @Test
   void queryStatsTest() {
-    RedshiftDb redshiftDb = new RedshiftDb(url, "", "");
+    MetricRegistry metricRegistry = new MetricRegistry();
+    RedshiftDb redshiftDb = new RedshiftDb(url, "", "", metricRegistry);
     List<QueryStats> queryStatsList = redshiftDb.getQueryStats(true,
         LocalDateTime.of(2018, 9, 13, 12, 0, 0),
         LocalDateTime.of(2018, 9, 13, 13, 0, 0));
@@ -75,5 +81,41 @@ class RedshiftDbTest {
     assertEquals(0, queryStats.p99);
     assertEquals(0, queryStats.p999);
     assertEquals(0.000075, queryStats.maxDuration);
+  }
+
+  @Test
+  void userQueryTest() {
+    MetricRegistry metricRegistry = new MetricRegistry();
+    RedshiftDb redshiftDb = new RedshiftDb(url, "", "", metricRegistry);
+
+    List<UserQuery> userQueries = redshiftDb.getQueries(
+        LocalDateTime.of(2018, 9, 19, 11, 0, 0),
+        LocalDateTime.of(2018, 9, 19, 16, 0, 0));
+
+    UserQuery userQuery0 = userQueries.get(0);
+    UserQuery userQuery1 = userQueries.get(1);
+
+    assertEquals(2, userQueries.size());
+    assertEquals(1793, userQuery0.queryId);
+    assertEquals(100, userQuery0.userId);
+    assertEquals(6919, userQuery0.transactionId);
+    assertEquals(19644, userQuery0.pid);
+    assertEquals(LocalDateTime.of(2018, 9,19, 13, 8,3, 419322000), userQuery0.startTime);
+    assertEquals(LocalDateTime.of(2018, 9,19, 13, 46,51, 926214000), userQuery0.endTime);
+    assertEquals(2329, userQuery0.duration);
+    assertEquals("dev", userQuery0.database);
+    assertEquals(false, userQuery0.aborted);
+    assertEquals(200, userQuery0.sql.length());
+
+    assertEquals(1224, userQuery1.queryId);
+    assertEquals(100, userQuery1.userId);
+    assertEquals(5052, userQuery1.transactionId);
+    assertEquals(15859, userQuery1.pid);
+    assertEquals(LocalDateTime.of(2018, 9,19, 11, 50,42, 221579000), userQuery1.startTime);
+    assertEquals(LocalDateTime.of(2018, 9,19, 11, 51,21, 252449000), userQuery1.endTime);
+    assertEquals(39, userQuery1.duration);
+    assertEquals("dev", userQuery1.database);
+    assertEquals(false, userQuery1.aborted);
+    assertEquals(647, userQuery1.sql.length());
   }
 }

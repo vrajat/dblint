@@ -4,19 +4,8 @@ import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 
-public class QueryStats {
-  static final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
-      .appendValue(ChronoField.YEAR).appendLiteral('-')
-      .appendValue(ChronoField.MONTH_OF_YEAR).appendLiteral('-')
-      .appendValue(ChronoField.DAY_OF_MONTH).appendLiteral(' ')
-      .appendValue(ChronoField.HOUR_OF_DAY).appendLiteral(':')
-      .appendValue(ChronoField.MINUTE_OF_HOUR).appendLiteral(':')
-      .appendValue(ChronoField.SECOND_OF_MINUTE)
-      .toFormatter();
+public class QueryStats implements Jdbi {
 
   public final String db;
   public final String user;
@@ -42,19 +31,19 @@ public class QueryStats {
   /**
    * QueryStats represents Query Stats info in a database.
    *
-   * @param db DB of the query group
-   * @param user User of the query group
-   * @param queryGroup Label of the query group
+   * @param db DB of the sql group
+   * @param user User of the sql group
+   * @param queryGroup Label of the sql group
    * @param timestampHour Timestamp normalized to hour of aggregation
-   * @param minDuration Min. duration in the query group
-   * @param avgDuration Average duration in the query group
-   * @param medianDuration Median duration in the query group
-   * @param p75 75th percentile duration in the query group
-   * @param p90 90th percentile duration in the query group
-   * @param p95 95th percentile duration in the query group
-   * @param p99 99th percentile duration in the query group
-   * @param p999 999th percentile duration in the query group
-   * @param maxDuration Max duration in the query group
+   * @param minDuration Min. duration in the sql group
+   * @param avgDuration Average duration in the sql group
+   * @param medianDuration Median duration in the sql group
+   * @param p75 75th percentile duration in the sql group
+   * @param p90 90th percentile duration in the sql group
+   * @param p95 95th percentile duration in the sql group
+   * @param p99 99th percentile duration in the sql group
+   * @param p999 999th percentile duration in the sql group
+   * @param maxDuration Max duration in the sql group
    */
   @JdbiConstructor
   public QueryStats(String db,
@@ -88,14 +77,14 @@ public class QueryStats {
   static String getExtractQuery(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
     return String.format(
         extractQueryTemplate,
-        rangeStart.format(dateTimeFormatter), rangeEnd.format(dateTimeFormatter),
+        rangeStart.format(Jdbi.dateTimeFormatter), rangeEnd.format(Jdbi.dateTimeFormatter),
         extractQueryCalculatePercentileinRedshift, aggregatePercentileinRedshift
     );
   }
 
   static String getExtractQueryinTest(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
     return String.format(extractQueryTemplate,
-        rangeStart.format(dateTimeFormatter), rangeEnd.format(dateTimeFormatter),
+        rangeStart.format(Jdbi.dateTimeFormatter), rangeEnd.format(Jdbi.dateTimeFormatter),
         "", aggregatePercentileinH2);
   }
 

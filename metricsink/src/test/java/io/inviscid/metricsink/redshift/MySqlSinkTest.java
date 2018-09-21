@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.codahale.metrics.MetricRegistry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 class MySqlSinkTest {
   private static final String url = "jdbc:h2:mem:io.inviscid.metricsink.sinks.MySqlSinkTest";
+  private static MetricRegistry metricRegistry = new MetricRegistry();
 
   private Connection h2db;
   private MySqlSink mySqlSink;
@@ -26,7 +28,7 @@ class MySqlSinkTest {
   @BeforeEach
   void setmysqlsink() throws SQLException {
     h2db = DriverManager.getConnection(url);
-    mySqlSink = new MySqlSink(url, "", "");
+    mySqlSink = new MySqlSink(url, "", "", metricRegistry);
     mySqlSink.initialize();
   }
 
@@ -48,6 +50,7 @@ class MySqlSinkTest {
     }
 
     List<String> expected = new ArrayList<>();
+    expected.add("BAD_USER_QUERIES");
     expected.add("QUERY_STATS");
     expected.add("flyway_schema_history");
     Assertions.assertIterableEquals(expected, tables);
@@ -70,7 +73,8 @@ class MySqlSinkTest {
     assertEquals(queryStats.db, resultSet.getString("db"));
     assertEquals(queryStats.user, resultSet.getString("user"));
     assertEquals(queryStats.queryGroup, resultSet.getString("query_group"));
-    assertEquals(queryStats.timestampHour, resultSet.getTimestamp("timestamp_hour").toLocalDateTime());
+    assertEquals(queryStats.timestampHour,
+        resultSet.getTimestamp("timestamp_hour").toLocalDateTime());
     assertEquals(queryStats.minDuration, resultSet.getDouble("min_duration"));
     assertEquals(queryStats.avgDuration, resultSet.getDouble("avg_duration"));
     assertEquals(queryStats.medianDuration, resultSet.getDouble("median_duration"));
@@ -80,5 +84,32 @@ class MySqlSinkTest {
     assertEquals(queryStats.p99, resultSet.getDouble("p99_duration"));
     assertEquals(queryStats.p999, resultSet.getDouble("p999_duration"));
     assertEquals(queryStats.maxDuration, resultSet.getDouble("max_duration"));
+  }
+
+  @Test
+  void insertOneUserQuery() throws SQLException {
+    UserQuery userQuery = new UserQuery(1, 1, 1,1, LocalDateTime.now(),
+        LocalDateTime.now(), 10L, "db", false, "select something");
+
+    mySqlSink.insertBadQueries(userQuery);
+
+    Statement statement = h2db.createStatement();
+    ResultSet resultSet = statement.executeQuery("select query_id, user_id, transaction_id, pid, "
+          + "start_time, end_time, duration, database, aborted, sql from PUBLIC.bad_user_queries");
+
+    resultSet.next();
+
+    assertEquals(userQuery.queryId, resultSet.getInt("query_id"));
+    assertEquals(userQuery.userId, resultSet.getInt("user_id"));
+    assertEquals(userQuery.transactionId, resultSet.getInt("transaction_id"));
+    assertEquals(userQuery.pid, resultSet.getInt("pid"));
+    assertEquals(userQuery.startTime,
+        resultSet.getTimestamp("start_time").toLocalDateTime());
+    assertEquals(userQuery.endTime,
+        resultSet.getTimestamp("end_time").toLocalDateTime());
+    assertEquals(userQuery.duration, resultSet.getDouble("duration"));
+    assertEquals(userQuery.database, resultSet.getString("database"));
+    assertEquals(userQuery.aborted, resultSet.getBoolean("aborted"));
+    assertEquals(userQuery.sql, resultSet.getString("sql"));
   }
 }

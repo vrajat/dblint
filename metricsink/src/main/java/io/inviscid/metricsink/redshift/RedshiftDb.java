@@ -1,5 +1,8 @@
 package io.inviscid.metricsink.redshift;
 
+import com.codahale.metrics.MetricRegistry;
+import io.inviscid.metricsink.util.JdbiTimer;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 
@@ -18,16 +21,17 @@ public class RedshiftDb {
    * @param user User of the Redshift database
    * @param password Password of the Redshift database
    */
-  public RedshiftDb(String url, String user, String password) {
+  public RedshiftDb(String url, String user, String password, MetricRegistry metricRegistry) {
     this.url = url;
     this.user = user;
     this.password = password;
     this.jdbi = Jdbi.create(url, user, password);
+    jdbi.setSqlLogger(new JdbiTimer(metricRegistry));
   }
 
   /**
    * Get QueryStats for a specific time period from Redshift.
-   * @param inTest Test parameter to choose a H2 compliant query
+   * @param inTest Test parameter to choose a H2 compliant sql
    * @return List of QueryStats
    */
   public List<QueryStats> getQueryStats(boolean inTest,
@@ -37,6 +41,21 @@ public class RedshiftDb {
       return handle.createQuery(inTest ? QueryStats.getExtractQueryinTest(rangeStart, rangeEnd)
           : QueryStats.getExtractQuery(rangeStart, rangeEnd))
           .mapTo(QueryStats.class)
+          .list();
+    });
+  }
+
+  /**
+   * Get all UserQueries for a specific time period from RedShift.
+   * @param rangeStart Start time of time window
+   * @param rangeEnd End time of time window
+   * @return List of User Queries
+   */
+  public List<UserQuery> getQueries(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
+    return jdbi.withHandle(handle -> {
+      handle.registerRowMapper(ConstructorMapper.factory(UserQuery.class));
+      return handle.createQuery(UserQuery.getExtractQuery(rangeStart, rangeEnd))
+          .mapTo(UserQuery.class)
           .list();
     });
   }
