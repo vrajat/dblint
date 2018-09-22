@@ -40,7 +40,7 @@ Download the latest RPM from [Releases](https://github.com/vrajat/mart/releases)
     
  ## Modules
  ### QueryStatsCron
-_QueryStatsCron_ captures query stats every 60 minutes, aggregates key metrics and stores
+_QueryStatsCron_ captures sql stats every 60 minutes, aggregates key metrics and stores
 in a MySQL-compatible database. 
 
 #### Configuration
@@ -65,9 +65,9 @@ statistics on the duration of queries aggregated by
 |Name|Description|
 |----|-----------|
 |`db`| Database connected to|
-|`user`| User who submitted the query|
+|`user`| User who submitted the sql|
 |`query_group`| Label of the queue (ref: [Redshift WLM](https://docs.aws.amazon.com/redshift/latest/dg/c_workload_mngmt_classification.html))|
-|`timestamp_hour`| Timestamp normalized to hour on which query was submitted _YYYY-MM-DD HH:00:00_|
+|`timestamp_hour`| Timestamp normalized to hour on which sql was submitted _YYYY-MM-DD HH:00:00_|
 |`min_duration`| Minimum duration|
 |`avg_duration`| Average duration|
 |`median_duration`| Median duration|

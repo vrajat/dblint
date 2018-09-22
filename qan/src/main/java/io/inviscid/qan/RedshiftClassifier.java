@@ -9,7 +9,7 @@ import org.apache.calcite.sql.parser.SqlParseException;
 
 
 public class RedshiftClassifier extends AnalyticsClassifier {
-  RedshiftClassifier() {
+  public RedshiftClassifier() {
     super();
   }
 
