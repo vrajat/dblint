@@ -30,13 +30,14 @@ metrics:
   reporters:
     - type: csv
       file: /var/log/mart/metrics
-queryStatsCron:
-  frequencyMin: 60
-  redshift:
-    url: ""
-    user: ""
-    password: ""
-  mySql:
-    url: ""
-    user: ""
-    password: ""
+      includes: inviscid.*
+redshift:
+  url: ""
+  user: ""
+  password: ""
+mySql:
+  url: ""
+  user: ""
+  password: ""
+queryStatsCronMin: 60
+badQueriesCronMin: 60
