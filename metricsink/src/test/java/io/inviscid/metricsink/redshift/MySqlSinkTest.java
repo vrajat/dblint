@@ -51,6 +51,7 @@ class MySqlSinkTest {
 
     List<String> expected = new ArrayList<>();
     expected.add("BAD_USER_QUERIES");
+    expected.add("CONNECTIONS");
     expected.add("QUERY_STATS");
     expected.add("flyway_schema_history");
     Assertions.assertIterableEquals(expected, tables);
@@ -111,5 +112,27 @@ class MySqlSinkTest {
     assertEquals(userQuery.database, resultSet.getString("database"));
     assertEquals(userQuery.aborted, resultSet.getBoolean("aborted"));
     assertEquals(userQuery.sql, resultSet.getString("sql"));
+  }
+
+  @Test
+  void insertOneConnection() throws SQLException {
+    io.inviscid.metricsink.redshift.Connection connection
+        = new io.inviscid.metricsink.redshift.Connection(LocalDateTime.now(), LocalDateTime.now(),
+        101, "user", "168.9.1.1", "26" );
+
+    mySqlSink.insertConnections(connection);
+
+    Statement statement = h2db.createStatement();
+    ResultSet resultSet = statement.executeQuery("select poll_time, start_time, process, user_name"
+          + ", remote_host, remote_port from PUBLIC.connections");
+
+    resultSet.next();
+
+    assertEquals(connection.pollTime, resultSet.getTimestamp("poll_time").toLocalDateTime());
+    assertEquals(connection.startTime, resultSet.getTimestamp("start_time").toLocalDateTime());
+    assertEquals(connection.process, resultSet.getInt("process"));
+    assertEquals(connection.userName, resultSet.getString("user_name"));
+    assertEquals(connection.remoteHost, resultSet.getString("remote_host"));
+    assertEquals(connection.remotePort, resultSet.getString("remote_port"));
   }
 }

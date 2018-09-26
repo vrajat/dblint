@@ -59,4 +59,17 @@ public class RedshiftDb {
           .list();
     });
   }
+
+  /**
+   * Get all connections currently active in Redshift.
+   * @return List of Connection
+   */
+  public List<Connection> getConnections() {
+    return jdbi.withHandle(handle -> {
+      handle.registerRowMapper(ConstructorMapper.factory(Connection.class));
+      return handle.createQuery(Connection.extractQuery)
+          .mapTo(Connection.class)
+          .list();
+    });
+  }
 }
