@@ -2,6 +2,7 @@ package io.inviscid.metricsink.redshift;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -51,8 +52,8 @@ class RedshiftDbTest {
       tables.add(rs.getString(3));
     }
 
-    List<String> expected = Arrays.asList("PG_USER", "STL_QUERY", "STL_QUERYTEXT",
-        "STL_WLM_QUERY", "flyway_schema_history");
+    List<String> expected = Arrays.asList("PG_USER", "STL_CONNECTION_LOG",
+        "STL_QUERY", "STL_QUERYTEXT", "STL_WLM_QUERY", "STV_SESSIONS", "flyway_schema_history");
     assertIterableEquals(expected, tables);
   }
 
@@ -117,5 +118,23 @@ class RedshiftDbTest {
     assertEquals("dev", userQuery1.database);
     assertEquals(false, userQuery1.aborted);
     assertEquals(647, userQuery1.sql.length());
+  }
+
+  @Test
+  void connectionTest() {
+    MetricRegistry metricRegistry = new MetricRegistry();
+    RedshiftDb redshiftDb = new RedshiftDb(url, "", "", metricRegistry);
+
+    List<io.inviscid.metricsink.redshift.Connection> connections = redshiftDb.getConnections();
+
+    io.inviscid.metricsink.redshift.Connection c = connections.get(0);
+    assertEquals(1, connections.size());
+    assertEquals(LocalDateTime.of(2018, 9, 13, 13, 0, 0), c.startTime);
+    assertEquals(101, c.process);
+    assertEquals("user", c.userName);
+    assertEquals("168.9.1.1", c.remoteHost);
+    assertEquals("26", c.remotePort);
+    assertNotNull(c.pollTime);
+
   }
 }

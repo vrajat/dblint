@@ -79,4 +79,17 @@ public class MySqlSink {
           .execute();
     });
   }
+
+  /**
+   * Insert one connection row into connections table in MySQL.
+   * @param connection A POJO of Connection
+   */
+  public void insertConnections(Connection connection) {
+    jdbi.useHandle(handle -> {
+      handle.registerRowMapper(FieldMapper.factory(Connection.class));
+      handle.createUpdate(Connection.insertQuery)
+          .bindFields(connection)
+          .execute();
+    });
+  }
 }
