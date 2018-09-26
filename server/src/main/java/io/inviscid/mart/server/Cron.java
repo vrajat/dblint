@@ -23,17 +23,14 @@ public abstract class Cron implements Runnable {
    * @param metricRegistry MetricRegistry for DropWizard App
    */
   public Cron(MySqlSink mySqlSink, RedshiftDb redshiftDb,
-              int frequency, MetricRegistry metricRegistry) {
+              int frequency, MetricRegistry metricRegistry,
+              String metricNamespace) {
     this.mySqlSink = mySqlSink;
     this.redshiftDb = redshiftDb;
     this.frequency = frequency;
-    iterations = metricRegistry.counter("badQueriesCronMin.iterations");
-    failedIterations = metricRegistry.counter("badQueriesCronMin.failedIterations");
+    iterations = metricRegistry.counter("inviscid." + metricNamespace + ".iterations");
+    failedIterations = metricRegistry.counter("inviscid" + metricNamespace + ".failedIterations");
     startRange = LocalDateTime.now();
-  }
-
-  public void initialize() {
-    mySqlSink.initialize();
   }
 
   public long getIterations() {

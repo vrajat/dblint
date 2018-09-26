@@ -18,7 +18,7 @@ public enum DefaultNameStrategy implements StatementNameStrategy {
     public String getStatementName(StatementContext statementContext) {
       final String rawSql = statementContext.getRawSql();
       if (rawSql == null || rawSql.length() == 0) {
-        return "sql.empty";
+        return "inviscid.sql.empty";
       }
       return null;
     }
@@ -57,7 +57,7 @@ public enum DefaultNameStrategy implements StatementNameStrategy {
   CONSTANT_SQL_RAW {
     @Override
     public String getStatementName(StatementContext statementContext) {
-      return "sql.raw";
+      return "inviscid.sql.raw";
     }
   }
 }

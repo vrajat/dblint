@@ -16,7 +16,7 @@ public class QueryStatsCron extends Cron {
 
   QueryStatsCron(int frequency, MetricRegistry metricRegistry,
                  RedshiftDb redshiftDb, MySqlSink mySqlSink) {
-    super(mySqlSink, redshiftDb, frequency, metricRegistry);
+    super(mySqlSink, redshiftDb, frequency, metricRegistry, "queryStatsCron");
   }
 
   /**
