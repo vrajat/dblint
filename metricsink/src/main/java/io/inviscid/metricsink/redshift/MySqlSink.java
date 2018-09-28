@@ -24,6 +24,7 @@ public class MySqlSink {
    * @param url URL of the MySQL Database
    * @param user user of the MySQL Database
    * @param password password of the MySQL database
+   * @param metricRegistry MetricRegistry to store JDBI metrics
    * @param flyway Migrations library to setup the MySQL database
    */
 

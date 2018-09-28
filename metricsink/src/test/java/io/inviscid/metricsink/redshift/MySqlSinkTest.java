@@ -11,8 +11,10 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
 
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,14 +22,15 @@ import org.junit.jupiter.api.Test;
 
 class MySqlSinkTest {
   private static final String url = "jdbc:h2:mem:io.inviscid.metricsink.sinks.MySqlSinkTest";
-  private static MetricRegistry metricRegistry = new MetricRegistry();
 
+  private MetricRegistry metricRegistry;
   private Connection h2db;
   private MySqlSink mySqlSink;
 
   @BeforeEach
   void setmysqlsink() throws SQLException {
     h2db = DriverManager.getConnection(url);
+    metricRegistry = new MetricRegistry();
     mySqlSink = new MySqlSink(url, "", "", metricRegistry);
     mySqlSink.initialize();
   }
@@ -51,8 +54,8 @@ class MySqlSinkTest {
 
     List<String> expected = new ArrayList<>();
     expected.add("BAD_USER_QUERIES");
-    expected.add("CONNECTIONS");
     expected.add("QUERY_STATS");
+    expected.add("USER_CONNECTIONS");
     expected.add("flyway_schema_history");
     Assertions.assertIterableEquals(expected, tables);
   }
@@ -124,7 +127,7 @@ class MySqlSinkTest {
 
     Statement statement = h2db.createStatement();
     ResultSet resultSet = statement.executeQuery("select poll_time, start_time, process, user_name"
-          + ", remote_host, remote_port from PUBLIC.connections");
+          + ", remote_host, remote_port from PUBLIC.user_connections");
 
     resultSet.next();
 
@@ -134,5 +137,44 @@ class MySqlSinkTest {
     assertEquals(userConnection.userName, resultSet.getString("user_name"));
     assertEquals(userConnection.remoteHost, resultSet.getString("remote_host"));
     assertEquals(userConnection.remotePort, resultSet.getString("remote_port"));
+  }
+
+  @Test
+  void queryStatMetricsTest() {
+    QueryStats queryStats = new QueryStats("db", "user", "user_group", LocalDateTime.now(),
+        0.1, 0.2, 0.3, 0.4, 0.5, 0.6,
+        0.9, 0.999, 1);
+    mySqlSink.insertQueryStats(queryStats);
+    SortedMap<String, Timer> timers = metricRegistry.getTimers();
+
+    assertEquals(1, timers.size());
+    assertEquals("inviscid.sql.raw", timers.firstKey());
+  }
+
+  @Test
+  void badQueriesMetricsTest() {
+    UserQuery userQuery = new UserQuery(1, 1, 1,1, LocalDateTime.now(),
+        LocalDateTime.now(), 10L, "db", false, "select something");
+
+    mySqlSink.insertBadQueries(userQuery);
+
+    SortedMap<String, Timer> timers = metricRegistry.getTimers();
+
+    assertEquals(1, timers.size());
+    assertEquals("inviscid.sql.raw", timers.firstKey());
+  }
+
+  @Test
+  void userConnectionMetricsTest() {
+     UserConnection userConnection
+        = new UserConnection(LocalDateTime.now(), LocalDateTime.now(),
+        101, "user", "168.9.1.1", "26" );
+
+    mySqlSink.insertConnections(userConnection);
+
+    SortedMap<String, Timer> timers = metricRegistry.getTimers();
+
+    assertEquals(1, timers.size());
+    assertEquals("inviscid.sql.raw", timers.firstKey());
   }
 }

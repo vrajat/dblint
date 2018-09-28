@@ -7,7 +7,7 @@ package io.inviscid.metricsink.util.strategies;
 public class SmartNameStrategy extends DelegatingStatementNameStrategy {
 
   /**
-   * A strategy to choose a smart name for a SQL sql using the caller & SQL.
+   * A strategy to choose a smart name for a SQL sql using the caller and SQL.
    */
   public SmartNameStrategy() {
     super(DefaultNameStrategy.CHECK_EMPTY,
