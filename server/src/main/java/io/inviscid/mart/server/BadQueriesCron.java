@@ -61,6 +61,7 @@ public class BadQueriesCron extends Cron {
           }
         } catch (SqlParseException parseExc) {
           parseExceptions.getCount();
+          logger.warn("Parse failed: ", parseExc);
         }
       }
 
