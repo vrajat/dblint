@@ -5,7 +5,7 @@ import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 import java.time.LocalDateTime;
 
 public class UserConnection implements Jdbi {
-  public final LocalDateTime pollTime;
+  public LocalDateTime pollTime;
   public final LocalDateTime startTime;
   public final int process;
   public final String userName;
@@ -14,7 +14,6 @@ public class UserConnection implements Jdbi {
 
   /**
    * Construct a UserConnection row.
-   * @param pollTime Time at which the row was polled
    * @param startTime Start time of the connection
    * @param process PID of the connection
    * @param userName User connected on this connection
@@ -22,9 +21,8 @@ public class UserConnection implements Jdbi {
    * @param remotePort Remote port of the connection
    */
   @JdbiConstructor
-  public UserConnection(LocalDateTime pollTime, LocalDateTime startTime, int process,
+  public UserConnection(LocalDateTime startTime, int process,
                         String userName, String remoteHost, String remotePort) {
-    this.pollTime = pollTime;
     this.startTime = startTime;
     this.process = process;
     this.userName = userName;
@@ -33,8 +31,7 @@ public class UserConnection implements Jdbi {
   }
 
   public static final String extractQuery = "select distinct\n"
-      + " now() as poll_time"
-      + " , starttime as start_time\n"
+      + " starttime as start_time\n"
       + " , process\n"
       + " , user_name\n"
       + " , remotehost as remote_host\n"
