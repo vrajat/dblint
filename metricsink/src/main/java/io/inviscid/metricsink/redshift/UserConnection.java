@@ -4,7 +4,7 @@ import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
 import java.time.LocalDateTime;
 
-public class Connection implements Jdbi {
+public class UserConnection implements Jdbi {
   public final LocalDateTime pollTime;
   public final LocalDateTime startTime;
   public final int process;
@@ -13,7 +13,7 @@ public class Connection implements Jdbi {
   public final String remotePort;
 
   /**
-   * Construct a Connection row.
+   * Construct a UserConnection row.
    * @param pollTime Time at which the row was polled
    * @param startTime Start time of the connection
    * @param process PID of the connection
@@ -22,8 +22,8 @@ public class Connection implements Jdbi {
    * @param remotePort Remote port of the connection
    */
   @JdbiConstructor
-  public Connection(LocalDateTime pollTime, LocalDateTime startTime, int process, String userName,
-                    String remoteHost, String remotePort) {
+  public UserConnection(LocalDateTime pollTime, LocalDateTime startTime, int process,
+                        String userName, String remoteHost, String remotePort) {
     this.pollTime = pollTime;
     this.startTime = startTime;
     this.process = process;

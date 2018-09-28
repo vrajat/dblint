@@ -62,13 +62,13 @@ public class RedshiftDb {
 
   /**
    * Get all connections currently active in Redshift.
-   * @return List of Connection
+   * @return List of UserConnection
    */
-  public List<Connection> getConnections() {
+  public List<UserConnection> getUserConnections() {
     return jdbi.withHandle(handle -> {
-      handle.registerRowMapper(ConstructorMapper.factory(Connection.class));
-      return handle.createQuery(Connection.extractQuery)
-          .mapTo(Connection.class)
+      handle.registerRowMapper(ConstructorMapper.factory(UserConnection.class));
+      return handle.createQuery(UserConnection.extractQuery)
+          .mapTo(UserConnection.class)
           .list();
     });
   }
