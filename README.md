@@ -37,22 +37,26 @@ Download the latest RPM from [Releases](https://github.com/vrajat/mart/releases)
     ls /var/log/mart/metrics/
     
 
-    
+## Configuration
+
+    redshift:
+    # URL of the Redshift Database. SSL not supported. Set `?ssl=false`|
+      url: ""
+    # An admin user with access to all of Redshift system tables
+      user: ""
+    # Password of admin user
+      password: ""
+    # MySQL database where metrics will be stored.
+    mySql:
+    # URL of the MySQL Database. SSL not supprt. Set `useSSL=false`|
+      url: ""
+      user: ""
+      password: ""
+
  ## Modules
  ### QueryStatsCron
 _QueryStatsCron_ captures sql stats every 60 minutes, aggregates key metrics and stores
 in a MySQL-compatible database. 
-
-#### Configuration
-|Name|Default|Description|  
-|----|-------|-----------|
-| frequencyMin|60|Interval in no. of minutes|
-|redshift.url|<Empty>|URL of the Redshift Database. SSL not supported. Set `?ssl=false`|
-|redshift.user|<Empty>|A admin user|
-|redshift.password|<Empty>|Password|
-|mysql.url|<Empty>|URL of the MySQL Database. SSL not supprt. Set `useSSL=false`|
-|mysql.user|<Empty>|A admin user|
-|mysql.password|<Empty>|Password|
 
 #### Statistics
 Statistics is available in _query_stats_ table in MySQL database. It contains
@@ -77,4 +81,40 @@ statistics on the duration of queries aggregated by
 |`p99_duration`| 99th Percentile of duration|
 |`p999_duration`| 999th Percentile of duration|
 |`max_duration`| Max. duration|
- 
+
+### BadQueriesCron
+_BadQueriesCron_ parses all queries every 60 seconds and finds queries which are sub-optimal. 
+Queries are checked for the following anti-patterns:
+- Large no. of joins: No. of joins is > 10
+
+#### Schema
+Information on bad queries is available in _bad_user_queries_ table in MySQL database. It
+stores the following information for every query:
+
+|Name|Description|
+|----|-----------|
+|`query_id`|Query ID assigned by Redshift|
+|`user_id`| User ID who submitted the query|
+|`transaction_id`| Transaction ID of the query|
+|`pid`| ID of the process that executed the query|
+|`start_time`| Query start time|
+|`end_time`| Query end time|
+|`duration`| Query end time - start time|
+|`db`| DB name where query was run|
+|`aborted`| Whether query was aborted|
+|`query`| Query text|
+
+### ConnectionsCron
+_ConnectionsCron_ takes a snapshot of live connections.
+
+### Schema
+Information is stored _user_connections_. 
+
+|Name|Description|
+|----|-----------|
+|`poll_time`|Time at which data was polled|
+|`start_time`| Connection start time|
+|`process`| Process ID associated with connection|
+|`user_name`| Owner of the connection|
+|`remote_host`| Origin host name of the connection|
+|`remote_port`| Origin port of the connection|
