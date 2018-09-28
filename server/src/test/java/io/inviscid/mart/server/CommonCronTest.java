@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -46,11 +47,14 @@ class CommonCronTest {
         Arguments.of(new QueryStatsCron(frequency, new MetricRegistry(),
             mock(RedshiftDb.class), mock(MySqlSink.class))),
         Arguments.of(new BadQueriesCron(frequency, new MetricRegistry(),
-            mock(RedshiftDb.class), mock(MySqlSink.class)))
+            mock(RedshiftDb.class), mock(MySqlSink.class))),
+        Arguments.of(new ConnectionsCron(mock(MySqlSink.class), mock(RedshiftDb.class),
+            frequency, new MetricRegistry()))
     );
   }
 
   @ParameterizedTest
+  @DisplayName("{arguments}")
   @MethodSource("cronProvider")
   void singleRunTest(Cron cron) {
     cron.run();
@@ -60,6 +64,7 @@ class CommonCronTest {
   }
 
   @ParameterizedTest
+  @DisplayName("{arguments}")
   @MethodSource("cronProvider")
   void singleRunExceptionTest(Cron cron) {
     when(cron.redshiftDb.getQueryStats(eq(false),
@@ -68,6 +73,9 @@ class CommonCronTest {
 
     when(cron.redshiftDb.getQueries(any(LocalDateTime.class), any(LocalDateTime.class)))
         .thenThrow(new RuntimeException("Mock Exception"));
+
+    when(cron.redshiftDb.getUserConnections()).thenThrow(new RuntimeException("Mock Exception"));
+
     cron.run();
 
     assertEquals(1, cron.iterations.getCount());
