@@ -41,21 +41,38 @@ public class MartApplication extends Application<MartConfiguration> {
     mySqlSink.initialize();
 
     ScheduledExecutorServiceBuilder serviceBuilder = environment.lifecycle()
-        .scheduledExecutorService("query_stats_cron");
+        .scheduledExecutorService("mart_application");
     ScheduledExecutorService scheduledExecutorService = serviceBuilder.build();
 
-    QueryStatsCron queryStatsCron = new QueryStatsCron(configuration.queryStatsCronMin,
-        environment.metrics(), redshiftDb, mySqlSink);
+    if (configuration.queryStatsCron != null) {
+      QueryStatsCron queryStatsCron = new QueryStatsCron(configuration.queryStatsCron.frequencyMin,
+          environment.metrics(), redshiftDb, mySqlSink);
 
-    scheduledExecutorService.scheduleAtFixedRate(queryStatsCron,
-        0, configuration.queryStatsCronMin, TimeUnit.MINUTES);
-    environment.healthChecks().register("QueryStatsCron", new CronHealthCheck(queryStatsCron));
+      scheduledExecutorService.scheduleAtFixedRate(queryStatsCron,
+          configuration.queryStatsCron.delayMin, configuration.queryStatsCron.frequencyMin,
+          TimeUnit.MINUTES);
+      environment.healthChecks().register("QueryStatsCron", new CronHealthCheck(queryStatsCron));
 
-    BadQueriesCron badQueriesCron = new BadQueriesCron(configuration.badQueriesCronMin,
-        environment.metrics(), redshiftDb, mySqlSink);
+    }
 
-    scheduledExecutorService.scheduleAtFixedRate(badQueriesCron,
-        0, configuration.badQueriesCronMin, TimeUnit.MINUTES);
-    environment.healthChecks().register("BadQueriesCron", new CronHealthCheck(badQueriesCron));
+    if (configuration.badQueriesCron != null) {
+      BadQueriesCron badQueriesCron = new BadQueriesCron(configuration.badQueriesCron.frequencyMin,
+          environment.metrics(), redshiftDb, mySqlSink);
+
+      scheduledExecutorService.scheduleAtFixedRate(badQueriesCron,
+          configuration.badQueriesCron.delayMin, configuration.badQueriesCron.frequencyMin,
+          TimeUnit.MINUTES);
+      environment.healthChecks().register("BadQueriesCron", new CronHealthCheck(badQueriesCron));
+    }
+
+    if (configuration.connectionsCron != null) {
+      ConnectionsCron connectionsCron = new ConnectionsCron(mySqlSink, redshiftDb,
+          configuration.connectionsCron.frequencyMin, environment.metrics());
+
+      scheduledExecutorService.scheduleAtFixedRate(connectionsCron,
+          configuration.connectionsCron.delayMin, configuration.connectionsCron.frequencyMin,
+          TimeUnit.MINUTES);
+      environment.healthChecks().register("ConnectionsCron", new CronHealthCheck(connectionsCron));
+    }
   }
 }
