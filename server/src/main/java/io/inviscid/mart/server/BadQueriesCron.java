@@ -1,5 +1,6 @@
 package io.inviscid.mart.server;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import io.inviscid.metricsink.redshift.MySqlSink;
 import io.inviscid.metricsink.redshift.RedshiftDb;
@@ -18,12 +19,16 @@ public class BadQueriesCron extends Cron {
   private static Logger logger = LoggerFactory.getLogger(BadQueriesCron.class);
 
   RedshiftClassifier redshiftClassier;
+  Counter numQueriesProcessed;
+  Counter numBadQueries;
 
   BadQueriesCron(int frequency, MetricRegistry metricRegistry,
                  RedshiftDb redshiftDb, MySqlSink mySqlSink) {
     super(mySqlSink, redshiftDb, frequency, metricRegistry, "badQueriesCron");
 
     redshiftClassier = new RedshiftClassifier();
+    numQueriesProcessed = metricRegistry.counter("inviscid.bad_queries_cron.num_queries_processed");
+    numBadQueries = metricRegistry.counter("inviscid.bad_queries_cron.num_bad_queries");
   }
 
   /**
@@ -39,12 +44,20 @@ public class BadQueriesCron extends Cron {
     try {
       iterations.inc();
       List<UserQuery> userQueryList = redshiftDb.getQueries(startRange, endRange);
+
+      numQueriesProcessed.inc(userQueryList.size());
+      logger.info("Processing " + userQueryList.size() + "queries" );
+
+      long prevFound = numBadQueries.getCount();
       for (UserQuery userQuery : userQueryList) {
-        List<QueryType> queryTypes = redshiftClassier.classify(userQuery.sql);
+        List<QueryType> queryTypes = redshiftClassier.classify(userQuery.query);
         if (queryTypes.contains(RedshiftEnum.BAD_TOOMANYJOINS)) {
+          numBadQueries.inc();
           mySqlSink.insertBadQueries(userQuery);
         }
       }
+
+      logger.info("Bad queries found: " + (numBadQueries.getCount() - prevFound));
     } catch (Exception exc) {
       failedIterations.inc();
       logger.warn("Exception thrown", exc);
