@@ -30,7 +30,9 @@ metrics:
   reporters:
     - type: csv
       file: /var/log/mart/metrics
-      includes: inviscid.*
+      includes:
+        - inviscid.*
+      useRegexFilters: true
 redshift:
   url: ""
   user: ""
