@@ -1,3 +1,37 @@
+######### USER SECTION ##########
+# Redshift database under observation
+redshift:
+# URL of the Redshift Database. SSL not supported. Set `?ssl=false`|
+  url: ""
+# An admin user with access to all of Redshift system tables
+  user: ""
+# Password of admin user
+  password: ""
+# MySQL database where metrics will be stored.
+mySql:
+# URL of the MySQL Database. SSL not supprt. Set `useSSL=false`|
+  url: ""
+  user: ""
+  password: ""
+
+########## CRON SECTION ########################
+# CRON attributes of various modules.
+# Typically you do not need to edit this section
+#################################################
+queryStatsCron:
+  frequencyMin: 60
+  delayMin: 5
+badQueriesCron:
+  frequencyMin: 60
+  delayMin: 5
+connectionsCron:
+  frequencyMin: 5
+  delayMin: 5
+
+######## SYSTEM SECTION ########################
+# Logging, metrics and Dropwizard configuration
+# You should not need to edit this section.
+################################################
 logging:
   level: INFO
   loggers:
@@ -44,20 +78,5 @@ metrics:
       includes:
         - inviscid.*
       useRegexFilters: true
-redshift:
-  url: ""
-  user: ""
-  password: ""
-mySql:
-  url: ""
-  user: ""
-  password: ""
-queryStatsCron:
-  frequencyMin: 60
-  delayMin: 5
-badQueriesCron:
-  frequencyMin: 60
-  delayMin: 5
-connectionsCron:
-  frequencyMin: 60
-  delayMin: 5
+
+
