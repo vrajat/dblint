@@ -125,10 +125,10 @@ class RedshiftDbTest {
     MetricRegistry metricRegistry = new MetricRegistry();
     RedshiftDb redshiftDb = new RedshiftDb(url, "", "", metricRegistry);
 
-    List<io.inviscid.metricsink.redshift.Connection> connections = redshiftDb.getConnections();
+    List<UserConnection> userConnections = redshiftDb.getUserConnections();
 
-    io.inviscid.metricsink.redshift.Connection c = connections.get(0);
-    assertEquals(1, connections.size());
+    UserConnection c = userConnections.get(0);
+    assertEquals(1, userConnections.size());
     assertEquals(LocalDateTime.of(2018, 9, 13, 13, 0, 0), c.startTime);
     assertEquals(101, c.process);
     assertEquals("user", c.userName);
