@@ -40,7 +40,7 @@ class BadQueriesCronTest {
 
     SortedMap<String, Counter> counters = metricRegistry.getCounters();
 
-    assertEquals(4, counters.size());
+    assertEquals(5, counters.size());
     assertEquals(2, counters.get("inviscid.bad_queries_cron.num_queries_processed").getCount());
   }
 }

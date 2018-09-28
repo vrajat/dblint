@@ -2,6 +2,17 @@ logging:
   level: INFO
   loggers:
     io.inviscid: INFO
+    io.inviscid.qan.Parser:
+      level: ERROR
+      additive: false
+      appenders:
+        - type: file
+          currentLogFilename: /var/log/mart/qan.log
+          archive: true
+          archivedLogFilenamePattern: /var/log/mart/qan-%d.log
+          archivedFileCount: 5
+          timeZone: UTC
+          immediateFlush: true
   appenders:
     - type: file
       currentLogFilename: /var/log/mart/server.log
