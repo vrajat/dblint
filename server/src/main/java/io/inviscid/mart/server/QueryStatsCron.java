@@ -1,5 +1,6 @@
 package io.inviscid.mart.server;
 
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import io.inviscid.metricsink.redshift.MySqlSink;
 import io.inviscid.metricsink.redshift.QueryStats;
@@ -14,9 +15,12 @@ import java.util.List;
 public class QueryStatsCron extends Cron {
   private static final Logger logger = LoggerFactory.getLogger(QueryStatsCron.class);
 
+  Counter numQueries;
+
   QueryStatsCron(int frequency, MetricRegistry metricRegistry,
                  RedshiftDb redshiftDb, MySqlSink mySqlSink) {
     super(mySqlSink, redshiftDb, frequency, metricRegistry, "queryStatsCron");
+    numQueries = metricRegistry.counter("inviscid.query_stats_cron.num_queries");
   }
 
   /**
@@ -32,6 +36,8 @@ public class QueryStatsCron extends Cron {
       iterations.inc();
       List<QueryStats> queryStatsList = redshiftDb.getQueryStats(false,
           startRange, endRange);
+      numQueries.inc(queryStatsList.size());
+      logger.info("Processing " + queryStatsList.size() + " queries");
       for (QueryStats queryStats : queryStatsList) {
         mySqlSink.insertQueryStats(queryStats);
       }
