@@ -9,6 +9,7 @@ import io.inviscid.qan.RedshiftClassifier;
 import io.inviscid.qan.enums.QueryType;
 import io.inviscid.qan.enums.RedshiftEnum;
 
+import org.apache.calcite.sql.parser.SqlParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ public class BadQueriesCron extends Cron {
   RedshiftClassifier redshiftClassier;
   Counter numQueriesProcessed;
   Counter numBadQueries;
+  Counter parseExceptions;
 
   BadQueriesCron(int frequency, MetricRegistry metricRegistry,
                  RedshiftDb redshiftDb, MySqlSink mySqlSink) {
@@ -29,6 +31,7 @@ public class BadQueriesCron extends Cron {
     redshiftClassier = new RedshiftClassifier();
     numQueriesProcessed = metricRegistry.counter("inviscid.bad_queries_cron.num_queries_processed");
     numBadQueries = metricRegistry.counter("inviscid.bad_queries_cron.num_bad_queries");
+    parseExceptions = metricRegistry.counter("inviscid.bad_queries_cron.num_parse_exception");
   }
 
   /**
@@ -50,10 +53,14 @@ public class BadQueriesCron extends Cron {
 
       long prevFound = numBadQueries.getCount();
       for (UserQuery userQuery : userQueryList) {
-        List<QueryType> queryTypes = redshiftClassier.classify(userQuery.query);
-        if (queryTypes.contains(RedshiftEnum.BAD_TOOMANYJOINS)) {
-          numBadQueries.inc();
-          mySqlSink.insertBadQueries(userQuery);
+        try {
+          List<QueryType> queryTypes = redshiftClassier.classify(userQuery.query);
+          if (queryTypes.contains(RedshiftEnum.BAD_TOOMANYJOINS)) {
+            numBadQueries.inc();
+            mySqlSink.insertBadQueries(userQuery);
+          }
+        } catch (SqlParseException parseExc) {
+          parseExceptions.getCount();
         }
       }
 

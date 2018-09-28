@@ -19,8 +19,11 @@ public class AnalyticsClassifier extends Classifier {
 
   @Override
   public List<QueryType> classify(String sql) throws SqlParseException {
+    return classifyImpl(parser.parse(sql));
+  }
+
+  List<QueryType> classifyImpl(SqlNode parseTree) {
     List<QueryType> typeList = new ArrayList<>();
-    SqlNode parseTree = parser.parse(sql);
     for (AnalyticsEnum analyticsEnum: AnalyticsEnum.values()) {
       if (analyticsEnum.isPassed(parseTree)) {
         typeList.add(analyticsEnum);

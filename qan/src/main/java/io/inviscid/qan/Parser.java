@@ -8,8 +8,12 @@ import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.calcite.sql.parser.impl.SqlParserImpl;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Parser {
+  private static Logger logger = LoggerFactory.getLogger(Parser.class);
+
   public final SqlParser sqlParser;
 
   Quoting quoting = Quoting.DOUBLE_QUOTE;
@@ -32,7 +36,18 @@ public class Parser {
             .build());
   }
 
+  /**
+   * Parse a SQL string using Apache Calcite.
+   * @param sql String containing the SQL query
+   * @return SqlNode as Root of the parse tree
+   * @throws SqlParseException A parse exception if parsing fails
+   */
   public SqlNode parse(String sql) throws SqlParseException {
-    return sqlParser.parseQuery(sql);
+    try {
+      return sqlParser.parseQuery(sql);
+    } catch (SqlParseException parseExc) {
+      logger.error(sql);
+      throw parseExc;
+    }
   }
 }
