@@ -18,6 +18,7 @@ import com.codahale.metrics.Timer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class MySqlSinkTest {
@@ -99,7 +100,7 @@ class MySqlSinkTest {
 
     Statement statement = h2db.createStatement();
     ResultSet resultSet = statement.executeQuery("select query_id, user_id, transaction_id, pid, "
-          + "start_time, end_time, duration, database, aborted, sql from PUBLIC.bad_user_queries");
+          + "start_time, end_time, duration, db, aborted, query from PUBLIC.bad_user_queries");
 
     resultSet.next();
 
@@ -112,17 +113,17 @@ class MySqlSinkTest {
     assertEquals(userQuery.endTime,
         resultSet.getTimestamp("end_time").toLocalDateTime());
     assertEquals(userQuery.duration, resultSet.getDouble("duration"));
-    assertEquals(userQuery.database, resultSet.getString("database"));
+    assertEquals(userQuery.db, resultSet.getString("db"));
     assertEquals(userQuery.aborted, resultSet.getBoolean("aborted"));
-    assertEquals(userQuery.sql, resultSet.getString("sql"));
+    assertEquals(userQuery.query, resultSet.getString("query"));
   }
 
   @Test
   void insertOneConnection() throws SQLException {
     UserConnection userConnection
-        = new UserConnection(LocalDateTime.now(), LocalDateTime.now(),
+        = new UserConnection(LocalDateTime.now(),
         101, "user", "168.9.1.1", "26" );
-
+    userConnection.pollTime = LocalDateTime.now();
     mySqlSink.insertConnections(userConnection);
 
     Statement statement = h2db.createStatement();
@@ -148,7 +149,7 @@ class MySqlSinkTest {
     SortedMap<String, Timer> timers = metricRegistry.getTimers();
 
     assertEquals(1, timers.size());
-    assertEquals("inviscid.sql.raw", timers.firstKey());
+    assertEquals("inviscid.query.raw", timers.firstKey());
   }
 
   @Test
@@ -161,20 +162,21 @@ class MySqlSinkTest {
     SortedMap<String, Timer> timers = metricRegistry.getTimers();
 
     assertEquals(1, timers.size());
-    assertEquals("inviscid.sql.raw", timers.firstKey());
+    assertEquals("inviscid.query.raw", timers.firstKey());
   }
 
   @Test
   void userConnectionMetricsTest() {
-     UserConnection userConnection
-        = new UserConnection(LocalDateTime.now(), LocalDateTime.now(),
+    UserConnection userConnection
+        = new UserConnection(LocalDateTime.now(),
         101, "user", "168.9.1.1", "26" );
+    userConnection.pollTime = LocalDateTime.now();
 
     mySqlSink.insertConnections(userConnection);
 
     SortedMap<String, Timer> timers = metricRegistry.getTimers();
 
     assertEquals(1, timers.size());
-    assertEquals("inviscid.sql.raw", timers.firstKey());
+    assertEquals("inviscid.query.raw", timers.firstKey());
   }
 }

@@ -11,14 +11,14 @@ import org.jdbi.v3.core.statement.StatementContext;
 public enum DefaultNameStrategy implements StatementNameStrategy {
 
   /**
-   * If no SQL in the context, returns `sql.empty`, otherwise falls through
+   * If no SQL in the context, returns `query.empty`, otherwise falls through
    */
   CHECK_EMPTY {
     @Override
     public String getStatementName(StatementContext statementContext) {
       final String rawSql = statementContext.getRawSql();
       if (rawSql == null || rawSql.length() == 0) {
-        return "inviscid.sql.empty";
+        return "inviscid.query.empty";
       }
       return null;
     }
@@ -52,12 +52,12 @@ public enum DefaultNameStrategy implements StatementNameStrategy {
   },
 
   /**
-   * Returns the `sql.raw` constant
+   * Returns the `query.raw` constant
    */
   CONSTANT_SQL_RAW {
     @Override
     public String getStatementName(StatementContext statementContext) {
-      return "inviscid.sql.raw";
+      return "inviscid.query.raw";
     }
   }
 }

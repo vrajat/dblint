@@ -20,8 +20,8 @@ public class JdbiTimer implements SqlLogger {
   }
 
   /**
-   * Calculate elapsed time of a SQL sql in JDBI after execution.
-   * @param statementContext JDBI StatementContext with info about sql execution.
+   * Calculate elapsed time of a SQL query in JDBI after execution.
+   * @param statementContext JDBI StatementContext with info about query execution.
    */
   public void logAfterExecution(StatementContext statementContext) {
     String statementName = statementNameStrategy.getStatementName(statementContext);

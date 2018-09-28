@@ -10,7 +10,7 @@ public abstract class DelegatingStatementNameStrategy implements StatementNameSt
   /**
    * Unknown SQL.
    */
-  private static final String UNKNOWN_SQL = "sql.unknown";
+  private static final String UNKNOWN_SQL = "query.unknown";
 
   private final List<StatementNameStrategy> strategies;
 

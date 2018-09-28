@@ -6,7 +6,7 @@ create table bad_user_queries(
     start_time timestamp,
     end_time timestamp,
     duration double,
-    database varchar(100),
+    db varchar(100),
     aborted int,
-    sql text
+    query text
 );
