@@ -45,6 +45,6 @@ public class UserConnection implements Jdbi {
       + " and DATEDIFF(second, starttime, recordtime) > 1\n"
       + "order by starttime desc";
 
-  public static final String insertQuery = "insert into connections values ("
+  public static final String insertQuery = "insert into user_connections values ("
       + ":pollTime, :startTime, :process, :userName, :remoteHost, :remotePort)";
 }

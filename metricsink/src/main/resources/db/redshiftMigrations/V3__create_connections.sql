@@ -1,4 +1,4 @@
-create table connections (
+create table user_connections (
     poll_time timestamp,
     start_time timestamp,
     process int,

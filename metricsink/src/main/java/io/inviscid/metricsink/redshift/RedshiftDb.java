@@ -32,6 +32,8 @@ public class RedshiftDb {
   /**
    * Get QueryStats for a specific time period from Redshift.
    * @param inTest Test parameter to choose a H2 compliant sql
+   * @param rangeStart Start time of time window
+   * @param rangeEnd End time of time window
    * @return List of QueryStats
    */
   public List<QueryStats> getQueryStats(boolean inTest,

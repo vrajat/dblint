@@ -1,8 +1,8 @@
 logging:
   level: INFO
   loggers:
-    io.inviscid: DEBUG
-    com.flyway: DEBUG
+    io.inviscid: INFO
+    com.flyway: INFO
 redshift:
   url: "jdbc:h2:mem:IntegrationTestRedshift"
   user: ""
@@ -11,5 +11,12 @@ mySql:
   url: "jdbc:h2:mem:IntegrationTestMySQL"
   user: ""
   password: ""
-queryStatsCronMin: 60
-badQueriesCronMin: 60
+queryStatsCron:
+  frequencyMin: 60
+  delayMin: 5
+badQueriesCron:
+  frequencyMin: 60
+  delayMin: 5
+connectionsCron:
+  frequencyMin: 60
+  delayMin: 5
