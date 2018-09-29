@@ -39,7 +39,7 @@ public class UserConnection implements Jdbi {
       + "from stv_sessions\n"
       + "left join stl_connection_log\n"
       + " on pid = process\n"
-      + " and DATEDIFF(second, starttime, recordtime) > 1\n"
+      + " and DATEDIFF(second, starttime, recordtime) < 1\n"
       + "order by starttime desc";
 
   public static final String insertQuery = "insert into user_connections values ("
