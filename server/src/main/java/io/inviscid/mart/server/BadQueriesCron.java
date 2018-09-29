@@ -49,7 +49,7 @@ public class BadQueriesCron extends Cron {
       List<UserQuery> userQueryList = redshiftDb.getQueries(startRange, endRange);
 
       numQueriesProcessed.inc(userQueryList.size());
-      logger.info("Processing " + userQueryList.size() + "queries" );
+      logger.info("Processing " + userQueryList.size() + " queries" );
 
       long prevFound = numBadQueries.getCount();
       for (UserQuery userQuery : userQueryList) {
@@ -60,8 +60,8 @@ public class BadQueriesCron extends Cron {
             mySqlSink.insertBadQueries(userQuery);
           }
         } catch (SqlParseException parseExc) {
-          parseExceptions.getCount();
-          logger.warn("Parse failed: ", parseExc);
+          parseExceptions.inc();
+          logger.warn(userQuery.query, parseExc);
         }
       }
 
