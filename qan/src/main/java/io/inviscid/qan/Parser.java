@@ -55,6 +55,10 @@ public class Parser {
     return sql;
   }
 
+  private String handleNewLine(String sql) {
+    return sql.replaceAll("\\\\n", "\n").replaceAll("\\r", "\r");
+  }
+
   /**
    * Parse a SQL string using Apache Calcite.
    * @param sql String containing the SQL query
@@ -63,7 +67,7 @@ public class Parser {
    */
   public SqlNode parse(String sql) throws SqlParseException {
     try {
-      return sqlParser.parseQuery(trim(sql));
+      return sqlParser.parseQuery(trim(handleNewLine(sql)));
     } catch (SqlParseException parseExc) {
       logger.error(sql);
       throw parseExc;
