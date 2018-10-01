@@ -2,6 +2,8 @@
 select 1 from tbl
 -- ParserTest:select all
 select * from volt_tt_576f619a83feb
+-- ParserTest: escaped new line
+select\n* from x
 -- ParserTest: three line
 select x
   from y
