@@ -11,6 +11,9 @@ import org.apache.calcite.sql.validate.SqlConformanceEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Parser {
   private static Logger logger = LoggerFactory.getLogger(Parser.class);
 
@@ -36,6 +39,22 @@ public class Parser {
             .build());
   }
 
+  private String trim(String sql) {
+    sql = sql.trim();
+    List<Character> chars = Arrays.asList(';');
+    boolean found = true;
+    while (found) {
+      found = false;
+      for (Character character : chars) {
+        if (sql.charAt(sql.length() - 1) == character) {
+          sql = sql.substring(0, sql.length() - 1);
+          found = true;
+        }
+      }
+    }
+    return sql;
+  }
+
   /**
    * Parse a SQL string using Apache Calcite.
    * @param sql String containing the SQL query
@@ -44,7 +63,7 @@ public class Parser {
    */
   public SqlNode parse(String sql) throws SqlParseException {
     try {
-      return sqlParser.parseQuery(sql);
+      return sqlParser.parseQuery(trim(sql));
     } catch (SqlParseException parseExc) {
       logger.error(sql);
       throw parseExc;

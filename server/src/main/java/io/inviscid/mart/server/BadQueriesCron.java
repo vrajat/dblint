@@ -61,7 +61,8 @@ public class BadQueriesCron extends Cron {
           }
         } catch (SqlParseException parseExc) {
           parseExceptions.inc();
-          logger.warn(userQuery.query, parseExc);
+          logger.warn(userQuery.query);
+          logger.warn("Query ID: " + userQuery.queryId + " ", parseExc);
         }
       }
 
