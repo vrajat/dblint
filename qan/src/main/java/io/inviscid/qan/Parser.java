@@ -66,10 +66,11 @@ public class Parser {
    * @throws SqlParseException A parse exception if parsing fails
    */
   public SqlNode parse(String sql) throws SqlParseException {
+    String processedSql = trim(handleNewLine(sql));
     try {
-      return sqlParser.parseQuery(trim(handleNewLine(sql)));
+      return sqlParser.parseQuery(processedSql);
     } catch (SqlParseException parseExc) {
-      logger.error(sql);
+      logger.error(processedSql);
       throw parseExc;
     }
   }
