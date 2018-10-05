@@ -4,6 +4,7 @@ import io.inviscid.qan.enums.QueryType;
 
 import java.util.List;
 
+import io.inviscid.qan.planner.Parser;
 import org.apache.calcite.sql.parser.SqlParseException;
 
 public abstract class Classifier {

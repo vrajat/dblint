@@ -3,7 +3,7 @@ package io.inviscid.qan.visitors;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.inviscid.qan.Parser;
+import io.inviscid.qan.planner.Parser;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Test;
