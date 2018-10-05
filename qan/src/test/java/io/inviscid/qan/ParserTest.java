@@ -5,12 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import io.inviscid.qan.planner.Parser;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Tag;
