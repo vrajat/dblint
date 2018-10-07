@@ -18,11 +18,10 @@ package io.inviscid.qan.planner;
 import io.inviscid.qan.QanException;
 
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Tpcds extends MartSchema {
-  Tpcds(String name) {
+  public Tpcds(String name) {
     super(name);
   }
 
@@ -114,7 +113,7 @@ public class Tpcds extends MartSchema {
         new MartColumn("i_container", Types.VARCHAR),
         new MartColumn("i_manager_id", Types.INTEGER),
         new MartColumn("i_product_name", Types.VARCHAR)
-    ), new MartColumn("i_item_id", Types.VARCHAR));
+    ), "i_item_id");
 
     this.addTable(item);
 

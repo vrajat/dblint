@@ -13,31 +13,44 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
 public class SchemaParser {
-  static class Field {
+  public static class Field {
     public final String field;
     public final String type;
     public final String isNull;
     public final String key;
     public final String extra;
     public final String comment;
+    public final String defaultValue;
 
+    /**
+     * Create a field or a column of a table.
+     * @param field Name of the field or column.
+     * @param type Type of the field or column.
+     * @param isNull Can be null or not
+     * @param key Key name
+     * @param extra Extra attributes
+     * @param comment Comment for the field
+     * @param defaultValue Default value of the field
+     */
     @JsonCreator
     public Field(@JsonProperty("Field") String field,
                  @JsonProperty("Type") String type,
                  @JsonProperty("Null") String isNull,
                  @JsonProperty("Key") String key,
                  @JsonProperty("Extra") String extra,
-                 @JsonProperty("Comment") String comment) {
+                 @JsonProperty("Comment") String comment,
+                 @JsonProperty("Default") String defaultValue) {
       this.field = field;
       this.type = type;
       this.isNull = isNull;
       this.key = key;
       this.extra = extra;
       this.comment = comment;
+      this.defaultValue = defaultValue;
     }
   }
 
-  static class Key {
+  public static class Key {
     public final String table;
     public final String nonUnique;
     public final String keyName;
@@ -49,7 +62,23 @@ public class SchemaParser {
     public final String indexType;
     public final String comment;
     public final String indexComment;
+    public final String subPart;
 
+    /**
+     * Key or index on a table.
+     * @param table Name of the Key. PRIMARY for a primary key
+     * @param nonUnique Not unique or unique
+     * @param keyName Name of the key.
+     * @param seqInIndex Sequence among other keys.
+     * @param columnName Name of the column on key
+     * @param collation Collation of the key
+     * @param cardinality Cardinality of the key
+     * @param isNull Can value be null
+     * @param indexType Type of index
+     * @param comment Comment on the key
+     * @param indexComment Comment related to index
+     * @param subPart Unknown field
+     */
     @JsonCreator
     public Key(@JsonProperty("Table") String table,
                @JsonProperty("Non_unique") String nonUnique,
@@ -61,7 +90,8 @@ public class SchemaParser {
                @JsonProperty("Null") String isNull,
                @JsonProperty("Index_type") String indexType,
                @JsonProperty("Comment") String comment,
-               @JsonProperty("Index_comment") String indexComment) {
+               @JsonProperty("Index_comment") String indexComment,
+               @JsonProperty("Sub_part") String subPart) {
       this.table = table;
       this.nonUnique = nonUnique;
       this.keyName = keyName;
@@ -73,6 +103,7 @@ public class SchemaParser {
       this.indexType = indexType;
       this.comment = comment;
       this.indexComment = indexComment;
+      this.subPart = subPart;
     }
   }
 
@@ -93,6 +124,24 @@ public class SchemaParser {
     public final String createOptions;
     public final String comment;
 
+    /**
+     * Options of a table.
+     * @param name Name of the option
+     * @param engine Engine type of table
+     * @param version Version of the table
+     * @param rowFormat Rowformat of the table
+     * @param rows No. of rows in the table
+     * @param avgRowLength Avg Row Length of the table
+     * @param dataLength Data length of the table
+     * @param maxDataLength Max data length allowed
+     * @param indexLength Length of index
+     * @param dataFree Unknown
+     * @param autoIncrement Current auto increment column
+     * @param createTime Create time of the table.
+     * @param collation Collation of the table
+     * @param createOptions Options during create
+     * @param comment Any comments
+     */
     @JsonCreator
     public Options(@JsonProperty("Name") String name,
                    @JsonProperty("Engine") String engine,
@@ -127,7 +176,7 @@ public class SchemaParser {
     }
   }
 
-  static class TableStructure {
+  public static class TableStructure {
     public final String name;
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "field")
@@ -137,6 +186,13 @@ public class SchemaParser {
     public final List<Key> keys;
     public final Options options;
 
+    /**
+     * A MySql Table.
+     * @param name Name of the table
+     * @param fieldList List of fields or columns
+     * @param keys List of keys or indexes
+     * @param options Options of the table
+     */
     @JsonCreator
     public TableStructure(@JsonProperty("name") String name,
                           @JsonProperty("field") List<Field> fieldList,
@@ -149,12 +205,17 @@ public class SchemaParser {
     }
   }
 
-  static class Database {
+  public static class Database {
     public final String name;
     @JacksonXmlElementWrapper(useWrapping = false)
     @JacksonXmlProperty(localName = "table_structure")
     public final List<TableStructure> tables;
 
+    /**
+     * A MySql database.
+     * @param name Name of the database
+     * @param tables List of tables in the database
+     */
     @JsonCreator
     public Database(@JsonProperty("name") String name,
                     @JsonProperty("table_structure") List<TableStructure> tables) {
@@ -163,9 +224,40 @@ public class SchemaParser {
     }
   }
 
-  Database database;
+  public static class MySqlDump {
+    public final Database database;
 
-  static Database parseDatabase(InputStream is) throws XMLStreamException, IOException {
+    /**
+     * Handles <mysqldump></mysqldump> tag.
+     * @param database The MySql Database
+     */
+    @JsonCreator
+    public MySqlDump(@JsonProperty("database") Database database) {
+      this.database = database;
+    }
+  }
+
+  /**
+   * Parse an XML file from a MySql Dump command.
+   * @param is InputStream of the XML file
+   * @return {@link Database} for the MySql database
+   * @throws XMLStreamException An exception if XML is malformed
+   * @throws IOException An exception if inputstream cannot be processed successfully.
+   */
+  public static Database parseMySqlDump(InputStream is) throws XMLStreamException, IOException {
+    XmlMapper xmlMapper = new XmlMapper();
+    XMLInputFactory factory = XMLInputFactory.newInstance();
+    return xmlMapper.readValue(factory.createXMLStreamReader(is), MySqlDump.class).database;
+  }
+
+  /**
+   * Parses <database></database> XML from a MySql dump command.
+   * @param is InputStream of the XML source
+   * @return {@link Database} for the MySql database
+   * @throws XMLStreamException An exception if XML is malformed
+   * @throws IOException An exception if inputstream cannot be processed successfully.
+   */
+  public static Database parseDatabase(InputStream is) throws XMLStreamException, IOException {
     XmlMapper xmlMapper = new XmlMapper();
     XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
     return xmlMapper.readValue(xmlInputFactory.createXMLStreamReader(is), Database.class);

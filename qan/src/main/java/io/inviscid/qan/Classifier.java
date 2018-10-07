@@ -14,7 +14,7 @@ public abstract class Classifier {
     this.parser = new Parser();
   }
 
-  public abstract List<QueryType> classify(String sql) throws SqlParseException;
+  public abstract List<QueryType> classify(String sql) throws SqlParseException, QanException;
 
 
 }

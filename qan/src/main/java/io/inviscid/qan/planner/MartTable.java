@@ -54,7 +54,7 @@ public class MartTable extends AbstractTable
    * @param primaryKey Primary key of the table
    */
   public MartTable(MartSchema schema, String name, List<MartColumn> columns,
-                   MartColumn primaryKey) {
+                   String primaryKey) {
     this(schema, name, columns, primaryKey, new ArrayList<>());
   }
 
@@ -68,19 +68,19 @@ public class MartTable extends AbstractTable
    * @param secondaryIndexes List of secondary indexes
    */
   public MartTable(MartSchema schema, String name, List<MartColumn> columns,
-                   MartColumn primaryKey, List<MartColumn> secondaryIndexes) {
+                   String primaryKey, List<String> secondaryIndexes) {
     this.schema = schema;
     this.name = name;
     this.columns = columns;
     this.secondaryIndexes = new ArrayList<>();
     if (primaryKey != null) {
-      this.primaryKey = getFieldOrdinal(primaryKey.name);
+      this.primaryKey = getFieldOrdinal(primaryKey.toUpperCase());
       this.secondaryIndexes.add(this.primaryKey);
     } else {
       this.primaryKey = null;
     }
-    for (MartColumn column : secondaryIndexes) {
-      this.secondaryIndexes.add(getFieldOrdinal(column.name));
+    for (String column : secondaryIndexes) {
+      this.secondaryIndexes.add(getFieldOrdinal(column.toUpperCase()));
     }
   }
 
