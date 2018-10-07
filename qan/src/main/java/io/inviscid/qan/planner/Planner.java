@@ -8,6 +8,10 @@ import org.apache.calcite.plan.volcano.AbstractConverter;
 import org.apache.calcite.rel.RelDistributionTraitDef;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.metadata.DefaultRelMetadataProvider;
+import org.apache.calcite.rel.rules.FilterAggregateTransposeRule;
+import org.apache.calcite.rel.rules.FilterJoinRule;
+import org.apache.calcite.rel.rules.FilterProjectTransposeRule;
+import org.apache.calcite.rel.rules.ReduceExpressionsRule;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
@@ -29,6 +33,10 @@ public class Planner {
   final org.apache.calcite.tools.Planner planner;
 
   static final List<RelOptRule> RULE_SET = Arrays.asList(
+      ReduceExpressionsRule.FilterReduceExpressionsRule.FILTER_INSTANCE,
+      FilterProjectTransposeRule.INSTANCE,
+      FilterJoinRule.FILTER_ON_JOIN,
+      FilterAggregateTransposeRule.INSTANCE,
       IndexTableScanRule.INSTANCE
   );
 

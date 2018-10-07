@@ -1,13 +1,13 @@
 package io.inviscid.qan.planner;
 
+import io.inviscid.qan.QanException;
+
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.IntSummaryStatistics;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import io.inviscid.qan.QanException;
 
 public class MartColumn {
   private static final Map<Pattern, Integer> typeMap;

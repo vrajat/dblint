@@ -8,10 +8,10 @@ public class UserQuery {
   String userHost;
   String ipAddress;
   String id;
-  String queryTime;
+  Double queryTime;
   String lockTime;
   String rowsSent;
-  String rowsExamined;
+  Integer rowsExamined;
   List<String> queries;
 
   UserQuery() {
@@ -42,12 +42,12 @@ public class UserQuery {
     this.id = id;
   }
 
-  public String getQueryTime() {
+  public Double getQueryTime() {
     return queryTime;
   }
 
   public void setQueryTime(String queryTime) {
-    this.queryTime = queryTime;
+    this.queryTime = Double.parseDouble(queryTime);
   }
 
   public String getLockTime() {
@@ -66,12 +66,12 @@ public class UserQuery {
     this.rowsSent = rowsSent;
   }
 
-  public String getRowsExamined() {
+  public Integer getRowsExamined() {
     return rowsExamined;
   }
 
   public void setRowsExamined(String rowsExamined) {
-    this.rowsExamined = rowsExamined;
+    this.rowsExamined = Integer.parseInt(rowsExamined);
   }
 
   public List<String> getQueries() {
