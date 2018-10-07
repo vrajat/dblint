@@ -12,14 +12,14 @@ import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.tools.Frameworks;
 import org.apache.calcite.tools.RelConversionException;
 import org.apache.calcite.tools.ValidationException;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class PlannerTest {
-  Planner planner;
+  static Planner planner;
 
-  @BeforeEach
-  void setPlanner() throws QanException {
+  @BeforeAll
+  static void setPlanner() throws QanException {
     final SchemaPlus rootSchema = Frameworks.createRootSchema(true);
     Tpcds tpcds = new Tpcds("tpcds");
     SchemaPlus tpcdsSchemaPlus = rootSchema.add("tpcds", tpcds);
@@ -70,6 +70,7 @@ class PlannerTest {
          + "  LogicalFilter(condition=[=(CAST($6):INTEGER, 2018)])\n"
          + "    LogicalTableScan(table=[[tpcds, DATE_DIM]])\n", explainPlan);
   }
+
   @Test
   void planSelectFilterIndex() throws SqlParseException,
       ValidationException, RelConversionException {
@@ -86,7 +87,7 @@ class PlannerTest {
             + "    LogicalTableScan(table=[[tpcds, ITEM]])\n", explainPlan);
   }
 
-   @Test
+  @Test
   void optimizeSelectFilterIndex() throws SqlParseException,
       ValidationException, RelConversionException {
     RelNode relNode = planner.optimize(

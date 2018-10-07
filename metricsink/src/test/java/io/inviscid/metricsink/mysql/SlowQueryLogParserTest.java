@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class SlowQueryLogParserTest {
@@ -47,6 +48,28 @@ class SlowQueryLogParserTest {
     assertEquals("dbadmin2[dbadmin2]", userQuery.getUserHost());
     assertEquals("192.168.0.1", userQuery.getIpAddress());
     assertEquals("311266503", userQuery.getId());
+  }
+
+  @Test
+  void parseSetStatement() {
+    assertTrue(SlowQueryLogParser.parseSetUseStatment("SET timestamp=1537938341;"));
+  }
+
+  @Test
+  void parseMultiSetStatement() {
+    assertTrue(SlowQueryLogParser.parseSetUseStatment("SET timestamp=1537938341,insert_id=1;"));
+  }
+
+  @Disabled
+  @Test
+  void parseUseStatement() {
+    assertTrue(SlowQueryLogParser.parseSetUseStatment("USE a_db;"));
+  }
+
+  @Test
+  void replaceComments() {
+    assertEquals("select  a from b;",
+        SlowQueryLogParser.replaceComments("select /* ContentId:10 */ a from b;"));
   }
 
   @Test
