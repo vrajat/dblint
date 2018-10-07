@@ -38,7 +38,7 @@ public class SlowQueriesCronTest {
     for (SchemaParser.TableStructure ts : database.tables) {
       List<MartColumn> columns = new ArrayList<>();
       for (SchemaParser.Field f : ts.fieldList) {
-        MartColumn col = new MartColumn(f.field, Types.VARCHAR);
+        MartColumn col = new MartColumn(f.field, f.type);
         columns.add(col);
       }
 
@@ -63,7 +63,7 @@ public class SlowQueriesCronTest {
     return mySqlSchemaPlus;
   }
 
-  @Disabled
+  // @Disabled
   @Test
   @Tag("cmdline")
   void cmdLineTest() throws XMLStreamException, IOException, QanException {
