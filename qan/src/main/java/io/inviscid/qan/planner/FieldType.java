@@ -33,7 +33,8 @@ public enum FieldType {
   LONGVARBINARY(Types.LONGVARBINARY, byte[].class),
   DATE(Types.DATE, java.sql.Date.class),
   TIME(Types.TIME, java.sql.Time.class),
-  TIMESTAMP(Types.TIMESTAMP, java.sql.Timestamp.class);
+  TIMESTAMP(Types.TIMESTAMP, java.sql.Timestamp.class),
+  BLOB(Types.BLOB, java.sql.Blob.class);
 
   private final Class clazz;
   private final int type;

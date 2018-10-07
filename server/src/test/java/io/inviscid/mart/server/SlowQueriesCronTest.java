@@ -3,7 +3,6 @@ package io.inviscid.mart.server;
 import javax.xml.stream.XMLStreamException;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class SlowQueriesCronTest {
     return mySqlSchemaPlus;
   }
 
-  // @Disabled
+  @Disabled
   @Test
   @Tag("cmdline")
   void cmdLineTest() throws XMLStreamException, IOException, QanException {
@@ -81,15 +80,17 @@ public class SlowQueriesCronTest {
     );
 
     for (UserQuery query : queries) {
-      for (String sql : query.getQueries()) {
-        logger.info(sql);
-        try {
-          List<QueryType> types = mySqlClassifier.classify(sql);
-          if (types.contains(MySqlEnum.BAD_NOINDEX)) {
-            logger.warn("Query has no index scans");
+      if (query.getRowsExamined() > 1000) {
+        for (String sql : query.getQueries()) {
+          logger.info(sql);
+          try {
+            List<QueryType> types = mySqlClassifier.classify(sql);
+            if (types.contains(MySqlEnum.BAD_NOINDEX)) {
+              logger.warn("Query has no index scans");
+            }
+          } catch (SqlParseException | QanException exc) {
+            logger.error("Failed to parse query", exc);
           }
-        } catch (SqlParseException | QanException exc) {
-          logger.error("Failed to parse query", exc);
         }
       }
     }

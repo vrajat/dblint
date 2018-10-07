@@ -32,7 +32,7 @@ class PlannerTest {
   @Test
   void planSelectScan() throws SqlParseException,
       ValidationException, RelConversionException {
-   RelNode relNode = planner.plan("select d_date_id from date_dim");
+    RelNode relNode = planner.plan("select d_date_id from date_dim");
     String explainPlan = RelOptUtil.dumpPlan("--Logical Plan", relNode,
         SqlExplainFormat.TEXT, SqlExplainLevel.DIGEST_ATTRIBUTES);
     assertNotNull(relNode);
