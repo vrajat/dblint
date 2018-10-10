@@ -110,11 +110,11 @@ stores the following information for every query:
 |`aborted`| Whether query was aborted|
 |`query`| Query text|
 
-### ConnectionsCron
+### Connections
 _ConnectionsCron_ takes a snapshot of live connections.
 
 ### Schema
-Information is stored _user_connections_. 
+#### user_connections
 
 |Name|Description|
 |----|-----------|
@@ -124,3 +124,17 @@ Information is stored _user_connections_.
 |`user_name`| Owner of the connection|
 |`remote_host`| Origin host name of the connection|
 |`remote_port`| Origin port of the connection|
+
+#### running_queries
+
+|Name|Description|
+|----|-----------|
+|`user_id`| User Id who submitted the query|
+|`slice`| Slice Id of the query|
+|`query_id`| Query Id. Can be joined with `stl_querytext`|
+|`label`| Label of the query|
+|`transaction_id`| Transaction Id of the query|
+|`pid`| Process Id|
+|`start_time`| Start time of the query|
+|`suspended`| Is query suspended|
+|`poll_time`| Time at which data was captured |

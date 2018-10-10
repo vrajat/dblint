@@ -93,4 +93,17 @@ public class MySqlSink {
           .execute();
     });
   }
+
+  /**
+   * Insert one RunningQuery row into running_queries table in MySQL.
+   * @param query A POJO of RunningQuery
+   */
+  public void insertRunningQueries(RunningQuery query) {
+    jdbi.useHandle(handle -> {
+      handle.registerRowMapper(FieldMapper.factory(RunningQuery.class));
+      handle.createUpdate(RunningQuery.insertQuery)
+          .bindFields(query)
+          .execute();
+    });
+  }
 }

@@ -74,4 +74,17 @@ public class RedshiftDb {
           .list();
     });
   }
+
+  /**
+   * Get all running queries in Redshift.
+   * @return List of running queries
+   */
+  public List<RunningQuery> getRunningQueries() {
+    return jdbi.withHandle(handle -> {
+      handle.registerRowMapper(ConstructorMapper.factory(RunningQuery.class));
+      return handle.createQuery(RunningQuery.extractQuery)
+          .mapTo(RunningQuery.class)
+          .list();
+    });
+  }
 }
