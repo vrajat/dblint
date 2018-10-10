@@ -53,8 +53,14 @@ Download the latest RPM from [Releases](https://github.com/vrajat/mart/releases)
       user: ""
       password: ""
 
- ## Modules
- ### QueryStatsCron
+## REST
+_/redshift/high_cpu_capture_
+
+Run one instance of _ConnectionsCron_ to capture all the statistics
+
+
+## Modules
+### QueryStatsCron
 _QueryStatsCron_ captures sql stats every 60 minutes, aggregates key metrics and stores
 in a MySQL-compatible database. 
 

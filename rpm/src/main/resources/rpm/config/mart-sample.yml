@@ -18,15 +18,15 @@ mySql:
 # CRON attributes of various modules.
 # Typically you do not need to edit this section
 #################################################
-queryStatsCron:
-  frequencyMin: 60
-  delayMin: 5
-badQueriesCron:
-  frequencyMin: 60
-  delayMin: 5
-connectionsCron:
-  frequencyMin: 5
-  delayMin: 5
+#queryStatsCron:
+#  frequencyMin: 60
+#  delayMin: 5
+#badQueriesCron:
+#  frequencyMin: 60
+#  delayMin: 5
+#connectionsCron:
+#  frequencyMin: 5
+#  delayMin: 5
 
 ######## SYSTEM SECTION ########################
 # Logging, metrics and Dropwizard configuration
