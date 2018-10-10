@@ -1,13 +1,16 @@
 package io.inviscid.mart.server;
 
 import io.dropwizard.Application;
+import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.inviscid.mart.server.configuration.JdbcConfiguration;
+import io.inviscid.mart.server.resources.RedshiftResource;
 import io.inviscid.metricsink.redshift.MySqlSink;
 import io.inviscid.metricsink.redshift.RedshiftDb;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -44,6 +47,10 @@ public class MartApplication extends Application<MartConfiguration> {
         .scheduledExecutorService("mart_application");
     ScheduledExecutorService scheduledExecutorService = serviceBuilder.build();
 
+    ExecutorServiceBuilder executorServiceBuilder = environment.lifecycle()
+        .executorService("mart_resource");
+    ExecutorService executorService = executorServiceBuilder.build();
+
     if (configuration.queryStatsCron != null) {
       QueryStatsCron queryStatsCron = new QueryStatsCron(configuration.queryStatsCron.frequencyMin,
           environment.metrics(), redshiftDb, mySqlSink);
@@ -73,6 +80,12 @@ public class MartApplication extends Application<MartConfiguration> {
           configuration.connectionsCron.delayMin, configuration.connectionsCron.frequencyMin,
           TimeUnit.MINUTES);
       environment.healthChecks().register("ConnectionsCron", new CronHealthCheck(connectionsCron));
+    }
+
+    {
+      ConnectionsCron cron = new ConnectionsCron(mySqlSink, redshiftDb, 0, environment.metrics());
+      RedshiftResource resource = new RedshiftResource(cron, executorService);
+      environment.jersey().register(resource);
     }
   }
 }
