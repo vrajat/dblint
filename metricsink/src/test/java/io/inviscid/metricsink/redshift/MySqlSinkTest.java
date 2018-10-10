@@ -56,6 +56,7 @@ class MySqlSinkTest {
     List<String> expected = new ArrayList<>();
     expected.add("BAD_USER_QUERIES");
     expected.add("QUERY_STATS");
+    expected.add("RUNNING_QUERIES");
     expected.add("USER_CONNECTIONS");
     expected.add("flyway_schema_history");
     Assertions.assertIterableEquals(expected, tables);
@@ -138,6 +139,30 @@ class MySqlSinkTest {
     assertEquals(userConnection.userName, resultSet.getString("user_name"));
     assertEquals(userConnection.remoteHost, resultSet.getString("remote_host"));
     assertEquals(userConnection.remotePort, resultSet.getString("remote_port"));
+  }
+
+  @Test
+  void insertRunningQuery() throws SQLException {
+    RunningQuery query = new RunningQuery(1, 1, 101, "label", 10001, 909,
+        LocalDateTime.now(), false);
+    query.pollTime = LocalDateTime.now();
+    mySqlSink.insertRunningQueries(query);
+
+    Statement statement = h2db.createStatement();
+    ResultSet resultSet = statement.executeQuery("select user_id, slice, query_id, label, "
+          + "transaction_id, pid, start_time, suspended, poll_time from PUBLIC.running_queries");
+
+    resultSet.next();
+
+    assertEquals(query.userId, resultSet.getInt("user_id"));
+    assertEquals(query.slice, resultSet.getInt("slice"));
+    assertEquals(query.queryId, resultSet.getInt("query_id"));
+    assertEquals(query.label, resultSet.getString("label"));
+    assertEquals(query.transactionId, resultSet.getInt("transaction_id"));
+    assertEquals(query.pid, resultSet.getInt("pid"));
+    assertEquals(query.startTime, resultSet.getTimestamp("start_time").toLocalDateTime());
+    assertEquals(query.pollTime, resultSet.getTimestamp("poll_time").toLocalDateTime());
+    assertEquals(query.suspended, resultSet.getBoolean("suspended"));
   }
 
   @Test
