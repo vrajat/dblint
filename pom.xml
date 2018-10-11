@@ -7,7 +7,7 @@
     <groupId>io.inviscid</groupId>
     <artifactId>mart</artifactId>
     <packaging>pom</packaging>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.3.0</version>
     <modules>
         <module>metabase</module>
         <module>qan</module>
