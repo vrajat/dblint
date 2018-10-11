@@ -20,6 +20,7 @@ public class RedshiftDb {
    * @param url URL of the Redshift database
    * @param user User of the Redshift database
    * @param password Password of the Redshift database
+   * @param metricRegistry MetricRegistry for JDBI metrics
    */
   public RedshiftDb(String url, String user, String password, MetricRegistry metricRegistry) {
     this.url = url;
