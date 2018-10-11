@@ -228,7 +228,7 @@ public class SchemaParser {
     public final Database database;
 
     /**
-     * Handles <mysqldump></mysqldump> tag.
+     * Handles mysqldump tag.
      * @param database The MySql Database
      */
     @JsonCreator
@@ -251,7 +251,7 @@ public class SchemaParser {
   }
 
   /**
-   * Parses <database></database> XML from a MySql dump command.
+   * Parses database XML from a MySql dump command.
    * @param is InputStream of the XML source
    * @return {@link Database} for the MySql database
    * @throws XMLStreamException An exception if XML is malformed

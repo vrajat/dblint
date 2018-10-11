@@ -86,6 +86,7 @@ public class MartApplication extends Application<MartConfiguration> {
       ConnectionsCron cron = new ConnectionsCron(mySqlSink, redshiftDb, 0, environment.metrics());
       RedshiftResource resource = new RedshiftResource(cron, executorService);
       environment.jersey().register(resource);
+      environment.healthChecks().register("Redshift Resource High CPU", new CronHealthCheck(cron));
     }
   }
 }
