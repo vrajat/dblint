@@ -5,9 +5,9 @@ import com.codahale.metrics.MetricRegistry;
 import io.inviscid.metricsink.redshift.MySqlSink;
 import io.inviscid.metricsink.redshift.RedshiftDb;
 import io.inviscid.metricsink.redshift.UserQuery;
-import io.inviscid.qan.RedshiftClassifier;
-import io.inviscid.qan.enums.QueryType;
-import io.inviscid.qan.enums.RedshiftEnum;
+import io.inviscid.sqlplanner.RedshiftClassifier;
+import io.inviscid.sqlplanner.enums.QueryType;
+import io.inviscid.sqlplanner.enums.RedshiftEnum;
 
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.slf4j.Logger;

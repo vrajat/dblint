@@ -41,9 +41,9 @@ logging:
       additive: false
       appenders:
         - type: file
-          currentLogFilename: /var/log/mart/qan.log
+          currentLogFilename: /var/log/mart/sqlplanner.log
           archive: true
-          archivedLogFilenamePattern: /var/log/mart/qan-%d.log
+          archivedLogFilenamePattern: /var/log/mart/sqlplanner-%d.log
           archivedFileCount: 5
           timeZone: UTC
           immediateFlush: true
