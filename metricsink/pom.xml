@@ -57,7 +57,7 @@
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
-            <version>4.0.0</version>
+            <version>${metrics.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-annotation</artifactId>
-            <version>4.0.0</version>
+            <version>${metrics.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

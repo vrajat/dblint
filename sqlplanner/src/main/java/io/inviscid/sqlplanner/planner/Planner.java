@@ -108,8 +108,17 @@ public class Planner {
     return this.planner.transform(0, planner.getEmptyTraitSet(), root);
   }
 
-  String digest(String sql, SqlDialect dialect) throws SqlParseException, ValidationException,
-      RelConversionException {
+  /**
+   * Create a query digest by replacing all constants.
+   * @param sql SQL Query
+   * @param dialect SQL dialect to use. For e.g. MySQL
+   * @return A string containing the query digest
+   * @throws SqlParseException If there is SQLParseException
+   * @throws ValidationException If the query cannot be validated.
+   * @throws RelConversionException If the parsed query cannot be setup for optimization
+   */
+  public String digest(String sql, SqlDialect dialect) throws SqlParseException,
+      ValidationException, RelConversionException {
     RelNode relNode = this.optimize(sql);
     RelToSqlConverter converter = new RelToSqlConverter(dialect);
     final SqlNode sqlNode = converter.visitChild(0, relNode).asStatement();

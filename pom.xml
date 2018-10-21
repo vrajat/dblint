@@ -12,6 +12,7 @@
         <module>metabase</module>
         <module>sqlplanner</module>
         <module>metricsink</module>
+        <module>analyses</module>
         <module>server</module>
         <module>rpm</module>
     </modules>
@@ -28,6 +29,7 @@
         <checkstyle-maven-plugin.version>3.0.0</checkstyle-maven-plugin.version>
         <slf4j.version>1.8.0-beta2</slf4j.version>
         <jackson.version>2.9.7</jackson.version>
+        <metrics.version>4.0.0</metrics.version>
     </properties>
 
     <dependencies>
