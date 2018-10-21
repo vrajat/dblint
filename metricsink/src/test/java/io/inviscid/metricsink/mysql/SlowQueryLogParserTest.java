@@ -93,9 +93,9 @@ class SlowQueryLogParserTest {
     );
 
     assertEquals(0.000783, userQuery.getQueryTime().doubleValue());
-    assertEquals("0.000195", userQuery.getLockTime());
-    assertEquals("22", userQuery.getRowsSent());
-    assertEquals(27, userQuery.getRowsExamined().intValue());
+    assertEquals(0.000195, userQuery.getLockTime().doubleValue());
+    assertEquals(22L, userQuery.getRowsSent());
+    assertEquals(27L, userQuery.getRowsExamined());
   }
 
   @Test

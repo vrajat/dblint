@@ -19,7 +19,7 @@ import java.util.List;
 
 public class MySqlClassifier extends Classifier {
   private static final Logger logger = LoggerFactory.getLogger(MySqlClassifier.class);
-  Planner planner;
+  public final Planner planner;
 
   public MySqlClassifier(SchemaPlus schemaPlus) {
     planner = new Planner(schemaPlus);

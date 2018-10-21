@@ -9,9 +9,9 @@ public class UserQuery {
   String ipAddress;
   String id;
   Double queryTime;
-  String lockTime;
-  String rowsSent;
-  Integer rowsExamined;
+  Double lockTime;
+  Long rowsSent;
+  Long rowsExamined;
   List<String> queries;
 
   UserQuery() {
@@ -50,28 +50,28 @@ public class UserQuery {
     this.queryTime = Double.parseDouble(queryTime);
   }
 
-  public String getLockTime() {
+  public Double getLockTime() {
     return lockTime;
   }
 
   public void setLockTime(String lockTime) {
-    this.lockTime = lockTime;
+    this.lockTime = Double.parseDouble(lockTime);
   }
 
-  public String getRowsSent() {
-    return rowsSent;
+  public long getRowsSent() {
+    return rowsSent.longValue();
   }
 
   public void setRowsSent(String rowsSent) {
-    this.rowsSent = rowsSent;
+    this.rowsSent = Long.parseLong(rowsSent);
   }
 
-  public Integer getRowsExamined() {
-    return rowsExamined;
+  public long getRowsExamined() {
+    return rowsExamined.longValue();
   }
 
   public void setRowsExamined(String rowsExamined) {
-    this.rowsExamined = Integer.parseInt(rowsExamined);
+    this.rowsExamined = Long.parseLong(rowsExamined);
   }
 
   public List<String> getQueries() {
