@@ -6,6 +6,7 @@ import io.inviscid.qan.QanException;
 import org.apache.calcite.plan.RelOptUtil;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.schema.SchemaPlus;
+import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.SqlExplainFormat;
 import org.apache.calcite.sql.SqlExplainLevel;
 import org.apache.calcite.sql.parser.SqlParseException;
@@ -103,4 +104,12 @@ class PlannerTest {
             + "\"ISO-8859-1$en_US$primary\", 'abc')]])\n", explainPlan);
   }
 
+  @Test
+  void digestTest() throws SqlParseException, ValidationException, RelConversionException {
+    String digest = planner.digest("select i_color from item where i_color = 'abc'",
+        SqlDialect.DatabaseProduct.MYSQL.getDialect());
+    assertEquals("SELECT `I_COLOR`\n"
+        + "FROM `tpcds`.`ITEM`\n"
+        + "WHERE `I_COLOR` = ?", digest);
+  }
 }
