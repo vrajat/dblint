@@ -65,15 +65,14 @@ public class IndexTableScanRule extends RelOptRule {
     final TableScan scan = call.rel(1);
 
     final ImmutableIntList projects = scan.identity();
-    final List<RexNode> filters = new ArrayList<>();
 
     final Mapping mapping = Mappings.target(projects,
         scan.getTable().getRowType().getFieldCount());
-    filters.add(RexUtil.apply(mapping, filter.getCondition()));
+    final RexNode condition = RexUtil.apply(mapping, filter.getCondition());
 
     call.transformTo(
         LogicalIndexTableScan.create(scan.getCluster(), scan.getTable(),
-            filters, projects));
+            condition, projects));
   }
 
   private boolean hasIndexUsage(RexNode rexNode, ImmutableIntList indexOrdinals) {

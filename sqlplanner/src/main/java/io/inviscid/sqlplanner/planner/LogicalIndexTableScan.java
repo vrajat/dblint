@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LogicalIndexTableScan extends TableScan {
-  public final List<RexNode> filters;
+  public final RexNode condition;
   public final ImmutableIntList projects;
 
   //~ Constructors -----------------------------------------------------------
@@ -27,9 +27,9 @@ public class LogicalIndexTableScan extends TableScan {
    * <p>Use {@link #create} unless you know what you're doing.
    */
   public LogicalIndexTableScan(RelOptCluster cluster, RelTraitSet traitSet, RelOptTable table,
-                               List<RexNode> filters, ImmutableIntList projects) {
+                               RexNode condition, ImmutableIntList projects) {
     super(cluster, traitSet, table);
-    this.filters = filters;
+    this.condition = condition;
     this.projects = projects;
   }
 
@@ -46,7 +46,7 @@ public class LogicalIndexTableScan extends TableScan {
    */
   public static LogicalIndexTableScan create(RelOptCluster cluster,
                                              final RelOptTable relOptTable,
-                                             List<RexNode> filters,
+                                             RexNode condition,
                                              ImmutableIntList projects) {
     final Table table = relOptTable.unwrap(Table.class);
     final RelTraitSet traitSet =
@@ -57,12 +57,12 @@ public class LogicalIndexTableScan extends TableScan {
               }
               return new ArrayList<>();
             });
-    return new LogicalIndexTableScan(cluster, traitSet, relOptTable, filters, projects);
+    return new LogicalIndexTableScan(cluster, traitSet, relOptTable, condition, projects);
   }
 
   @Override
   public RelWriter explainTerms(RelWriter pw) {
     return super.explainTerms(pw)
-        .itemIf("conditions", this.filters, true);
+        .itemIf("conditions", condition, true);
   }
 }
