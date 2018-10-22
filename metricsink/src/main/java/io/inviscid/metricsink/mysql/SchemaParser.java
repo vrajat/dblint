@@ -107,12 +107,12 @@ public class SchemaParser {
     }
   }
 
-  static class Options {
+  public static class Options {
     public final String name;
     public final String engine;
     public final String version;
     public final String rowFormat;
-    public final String rows;
+    public final Long rows;
     public final String avgRowLength;
     public final String dataLength;
     public final String maxDataLength;
@@ -147,7 +147,7 @@ public class SchemaParser {
                    @JsonProperty("Engine") String engine,
                    @JsonProperty("Version") String version,
                    @JsonProperty("Row_format") String rowFormat,
-                   @JsonProperty("Rows") String rows,
+                   @JsonProperty("Rows") Long rows,
                    @JsonProperty("Avg_row_length") String avgRowLength,
                    @JsonProperty("Data_length") String dataLength,
                    @JsonProperty("Max_data_length") String maxDataLength,

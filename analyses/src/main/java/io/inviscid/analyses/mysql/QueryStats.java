@@ -83,8 +83,8 @@ public class QueryStats implements Comparable<QueryStats> {
   public String toString() {
     return "QueryStats{"
         + "digest='" + digest + '\''
-        + ", queryTime=" + queryTime.getMeanRate()
-        + ", lockTime=" + lockTime.getMeanRate()
+        + ", queryTime=" + queryTime.getMeanRate() * numQueries
+        + ", lockTime=" + lockTime.getMeanRate() * numQueries
         + ", rowsSent=" + rowsSent
         + ", rowsExamined=" + rowsExamined
         + ", numQueries=" + numQueries

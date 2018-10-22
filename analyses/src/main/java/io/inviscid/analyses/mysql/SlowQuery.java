@@ -70,7 +70,7 @@ public class SlowQuery {
       }
 
       MartTable martTable = new MartTable(martSchema, ts.name, columns,
-          primaryKey, secondaryKeys);
+          ts.options.rows.doubleValue(), primaryKey, secondaryKeys);
       martSchema.addTable(martTable);
     }
 

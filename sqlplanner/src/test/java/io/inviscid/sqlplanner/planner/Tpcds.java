@@ -113,7 +113,7 @@ public class Tpcds extends MartSchema {
         new MartColumn("i_container", Types.VARCHAR),
         new MartColumn("i_manager_id", Types.INTEGER),
         new MartColumn("i_product_name", Types.VARCHAR)
-    ), "i_item_id");
+    ), 100.0, "i_item_id");
 
     this.addTable(item);
 

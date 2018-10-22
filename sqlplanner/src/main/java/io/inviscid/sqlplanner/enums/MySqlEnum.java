@@ -9,7 +9,7 @@ public enum MySqlEnum implements QueryType {
     public boolean isPassed(RelNode relNode) {
       MySqlIndexVisitor visitor = new MySqlIndexVisitor();
       visitor.go(relNode);
-      return visitor.hasNoIndexScans();
+      return visitor.hasLessIndexScans();
     }
   }
 }
