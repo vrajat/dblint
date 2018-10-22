@@ -12,6 +12,8 @@ import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.schema.QueryableTable;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.schema.Schemas;
+import org.apache.calcite.schema.Statistic;
+import org.apache.calcite.schema.Statistics;
 import org.apache.calcite.schema.TranslatableTable;
 import org.apache.calcite.schema.impl.AbstractTable;
 import org.apache.calcite.util.ImmutableIntList;
@@ -34,6 +36,7 @@ public class MartTable extends AbstractTable
   protected final List<MartColumn> columns;
   final Integer primaryKey;
   final List<Integer> secondaryIndexes;
+  final Double rowCount;
 
   /**
    * Create a MartTable that stores information about a table.
@@ -42,7 +45,18 @@ public class MartTable extends AbstractTable
    * @param columns List of columns of type MartColumn
    */
   public MartTable(MartSchema schema, String name, List<MartColumn> columns) {
-    this(schema, name, columns, null, new ArrayList<>());
+    this(schema, name, columns, null, null, new ArrayList<>());
+  }
+
+  /**
+   * Create a MartTable that stores information about a table.
+   * @param schema Schema of the table.
+   * @param name Name of the table.
+   * @param columns List of columns of type MartColumn
+   * @param rowCount No. of rows in the table
+   */
+  public MartTable(MartSchema schema, String name, List<MartColumn> columns, Double rowCount) {
+    this(schema, name, columns, rowCount, null, new ArrayList<>());
   }
 
   /**
@@ -51,11 +65,12 @@ public class MartTable extends AbstractTable
    * @param schema Schema of the table
    * @param name Name of the table
    * @param columns List of columns of the table
+   * @param rowCount No. of rows in the table
    * @param primaryKey Primary key of the table
    */
-  public MartTable(MartSchema schema, String name, List<MartColumn> columns,
+  public MartTable(MartSchema schema, String name, List<MartColumn> columns, Double rowCount,
                    String primaryKey) {
-    this(schema, name, columns, primaryKey, new ArrayList<>());
+    this(schema, name, columns, rowCount, primaryKey, new ArrayList<>());
   }
 
   /**
@@ -64,14 +79,16 @@ public class MartTable extends AbstractTable
    * @param schema Schema of the table
    * @param name Name of the table
    * @param columns List of columns of the table
+   * @param rowCount No. of rows in the table
    * @param primaryKey Primary key of the table
    * @param secondaryIndexes List of secondary indexes
    */
-  public MartTable(MartSchema schema, String name, List<MartColumn> columns,
+  public MartTable(MartSchema schema, String name, List<MartColumn> columns, Double rowCount,
                    String primaryKey, List<String> secondaryIndexes) {
     this.schema = schema;
     this.name = name;
     this.columns = columns;
+    this.rowCount = rowCount;
     this.secondaryIndexes = new ArrayList<>();
     if (primaryKey != null) {
       this.primaryKey = getFieldOrdinal(primaryKey.toUpperCase());
@@ -147,6 +164,15 @@ public class MartTable extends AbstractTable
     }
 
     throw new RuntimeException("Column " + columnName + " not found in " + this.toString());
+  }
+
+  @Override
+  public Statistic getStatistic() {
+    if (rowCount != null) {
+      return Statistics.of(rowCount, new ArrayList<>());
+    } else {
+      return Statistics.UNKNOWN;
+    }
   }
 
   @Override

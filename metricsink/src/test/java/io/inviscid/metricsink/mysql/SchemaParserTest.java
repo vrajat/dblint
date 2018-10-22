@@ -87,6 +87,7 @@ class SchemaParserTest {
     SchemaParser.Options options = SchemaParser.parseOptions(byteArrayInputStream);
 
     assertEquals("indexed_table", options.name);
+    assertEquals(50, options.rows.intValue());
   }
 
   @Test

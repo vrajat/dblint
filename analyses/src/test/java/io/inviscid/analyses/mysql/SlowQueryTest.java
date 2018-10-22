@@ -45,8 +45,8 @@ public class SlowQueryTest {
     statsMap.entrySet().stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
         .limit(50)
-        .forEach((queryStats) -> {
-          logger.info(queryStats.toString());
+        .forEach((entry) -> {
+          logger.info(entry.getValue().toString());
         });
     registry.getCounters()
       .forEach((name, counter) -> logger.info(name + ":" + counter.getCount()));
