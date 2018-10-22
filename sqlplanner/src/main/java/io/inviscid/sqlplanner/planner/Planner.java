@@ -120,8 +120,8 @@ public class Planner {
   public String digest(String sql, SqlDialect dialect) throws SqlParseException,
       ValidationException, RelConversionException {
     RelNode relNode = this.optimize(sql);
-    RelToSqlConverter converter = new RelToSqlConverter(dialect);
-    final SqlNode sqlNode = converter.visitChild(0, relNode).asStatement();
+    IndexImplementor converter = new IndexImplementor(dialect);
+    final SqlNode sqlNode = converter.implement(relNode).asStatement();
     LiteralShuffle shuffle = new LiteralShuffle();
     final SqlNode replaced = sqlNode.accept(shuffle);
     return replaced.toSqlString(dialect).getSql();

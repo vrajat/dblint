@@ -99,9 +99,9 @@ class PlannerTest {
     assertEquals(
         "--Logical Plan\n"
             + "LogicalProject(I_COLOR=[$17])\n"
-            + "  LogicalIndexTableScan(table=[[tpcds, ITEM]], conditions=[[=(CAST($1):"
+            + "  LogicalIndexTableScan(table=[[tpcds, ITEM]], conditions=[=(CAST($1):"
             + "VARCHAR CHARACTER SET \"ISO-8859-1\" COLLATE "
-            + "\"ISO-8859-1$en_US$primary\", 'abc')]])\n", explainPlan);
+            + "\"ISO-8859-1$en_US$primary\", 'abc')])\n", explainPlan);
   }
 
   @Test
@@ -111,5 +111,36 @@ class PlannerTest {
     assertEquals("SELECT `I_COLOR`\n"
         + "FROM `tpcds`.`ITEM`\n"
         + "WHERE `I_COLOR` = ?", digest);
+  }
+
+  @Test
+  void digestWithIndexTest() throws SqlParseException, ValidationException, RelConversionException {
+    String digest = planner.digest("select i_color from item where i_item_id = 'abc'",
+        SqlDialect.DatabaseProduct.MYSQL.getDialect());
+    assertEquals("SELECT `I_COLOR`\n"
+        + "FROM `tpcds`.`ITEM`\n"
+        + "WHERE `I_ITEM_ID` = ?", digest);
+  }
+
+  @Test
+  void digestWithMultipleFilters() throws SqlParseException, ValidationException,
+      RelConversionException {
+    String digest = planner.digest("select i_color from item where i_item_id = 'abc' "
+            + "and i_color = 'blue'",
+        SqlDialect.DatabaseProduct.MYSQL.getDialect());
+    assertEquals("SELECT `I_COLOR`\n"
+        + "FROM `tpcds`.`ITEM`\n"
+        + "WHERE `I_ITEM_ID` = ? AND `I_COLOR` = ?", digest);
+  }
+
+  @Test
+  void digestWithIndexORTest() throws SqlParseException, ValidationException,
+      RelConversionException {
+    String digest = planner.digest("select i_color from item where i_item_id = 'abc' "
+            + "or i_item_id = 'def'",
+        SqlDialect.DatabaseProduct.MYSQL.getDialect());
+    assertEquals("SELECT `I_COLOR`\n"
+        + "FROM `tpcds`.`ITEM`\n"
+        + "WHERE `I_ITEM_ID` = ? OR `I_ITEM_ID` = ?", digest);
   }
 }
