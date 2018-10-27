@@ -6,6 +6,7 @@ import io.inviscid.metricsink.redshift.MySqlSink;
 import io.inviscid.metricsink.redshift.RedshiftDb;
 import io.inviscid.metricsink.redshift.UserQuery;
 import io.inviscid.sqlplanner.RedshiftClassifier;
+import io.inviscid.sqlplanner.enums.EnumContext;
 import io.inviscid.sqlplanner.enums.QueryType;
 import io.inviscid.sqlplanner.enums.RedshiftEnum;
 
@@ -54,7 +55,8 @@ public class BadQueriesCron extends Cron {
       long prevFound = numBadQueries.getCount();
       for (UserQuery userQuery : userQueryList) {
         try {
-          List<QueryType> queryTypes = redshiftClassier.classify(userQuery.query);
+          List<QueryType> queryTypes = redshiftClassier.classify(userQuery.query,
+              EnumContext.EMPTY_CONTEXT);
           if (queryTypes.contains(RedshiftEnum.BAD_TOOMANYJOINS)) {
             numBadQueries.inc();
             mySqlSink.insertBadQueries(userQuery);

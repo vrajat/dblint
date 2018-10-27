@@ -3,6 +3,7 @@ package io.inviscid.sqlplanner;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import io.inviscid.sqlplanner.enums.AnalyticsEnum;
+import io.inviscid.sqlplanner.enums.EnumContext;
 import io.inviscid.sqlplanner.enums.QueryType;
 import io.inviscid.sqlplanner.enums.RedshiftEnum;
 
@@ -29,7 +30,7 @@ class RedshiftClassifierTest {
         + "join a10 on a1.i9 = a10.i "
         + "join a11 on a1.i10 = a11.i "
         + "join a12 on a1.i11 = a12.i "
-        + "join a13 on a1.i12 = a13.i");
+        + "join a13 on a1.i12 = a13.i", EnumContext.EMPTY_CONTEXT);
     List<QueryType> expected = new ArrayList<>();
     expected.add(AnalyticsEnum.LOOKUP);
     expected.add(RedshiftEnum.BAD_TOOMANYJOINS);
@@ -50,7 +51,7 @@ class RedshiftClassifierTest {
         + "join a8 on a1.i7 = a8.i "
         + "join a9 on a1.i8 = a9.i "
         + "join a10 on a1.i9 = a10.i "
-        + "join a11 on a1.i10 = a11.i ");
+        + "join a11 on a1.i10 = a11.i ", EnumContext.EMPTY_CONTEXT);
     List<QueryType> expected = new ArrayList<>();
     expected.add(AnalyticsEnum.LOOKUP);
     assertIterableEquals(expected, queryTypeList);

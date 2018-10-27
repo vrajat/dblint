@@ -141,8 +141,8 @@ public class MartTable extends AbstractTable
     return typeFactory.createStructType(Pair.zip(names, types));
   }
 
-  public List<MartColumn> getColumns() {
-    return columns;
+  public MartColumn getColumn(int index) {
+    return columns.get(index);
   }
 
   public ImmutableIntList getKeyOrdinals() {
@@ -188,6 +188,11 @@ public class MartTable extends AbstractTable
     }
     MartTable other = (MartTable) obj;
     return schema.equals(other.schema) && name.equals(other.name) && columns.equals(other.columns);
+  }
+
+  @Override
+  public String toString() {
+    return schema + "." + name;
   }
 
   @Override

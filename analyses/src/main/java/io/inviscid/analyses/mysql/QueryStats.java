@@ -1,7 +1,10 @@
 package io.inviscid.analyses.mysql;
 
 import com.codahale.metrics.Timer;
+import io.inviscid.sqlplanner.visitors.MySqlIndexVisitor;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class QueryStats implements Comparable<QueryStats> {
@@ -12,6 +15,7 @@ public class QueryStats implements Comparable<QueryStats> {
   long rowsExamined;
   long numQueries;
   long indexUsed;
+  Set<MySqlIndexVisitor.Index> missingIndexes;
 
   QueryStats(String digest) {
     this.digest = digest;
@@ -21,6 +25,7 @@ public class QueryStats implements Comparable<QueryStats> {
     rowsExamined = 0;
     numQueries = 0;
     indexUsed = 0;
+    missingIndexes = new HashSet<>();
   }
 
   public QueryStats addQueryTime(Double time) {
@@ -53,6 +58,11 @@ public class QueryStats implements Comparable<QueryStats> {
     return this;
   }
 
+  public QueryStats addMissingIndex(MySqlIndexVisitor.Index index) {
+    missingIndexes.add(index);
+    return this;
+  }
+
   public String getDigest() {
     return digest;
   }
@@ -73,6 +83,14 @@ public class QueryStats implements Comparable<QueryStats> {
     return rowsExamined;
   }
 
+  public long getNumQueries() {
+    return numQueries;
+  }
+
+  public long getIndexUsed() {
+    return indexUsed;
+  }
+
   @Override
   public int compareTo(QueryStats other) {
     return (int) ((this.queryTime.getMeanRate() * this.numQueries
@@ -89,8 +107,7 @@ public class QueryStats implements Comparable<QueryStats> {
         + ", rowsExamined=" + rowsExamined
         + ", numQueries=" + numQueries
         + ", indexUsed=" + indexUsed
+        + ", missingIndexes=" + missingIndexes
         + '}';
   }
-
-
 }

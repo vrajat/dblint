@@ -13,6 +13,8 @@ import org.apache.calcite.rel.rel2sql.RelToSqlConverter;
 import org.apache.calcite.rel.rules.FilterAggregateTransposeRule;
 import org.apache.calcite.rel.rules.FilterJoinRule;
 import org.apache.calcite.rel.rules.FilterProjectTransposeRule;
+import org.apache.calcite.rel.rules.JoinPushExpressionsRule;
+import org.apache.calcite.rel.rules.JoinPushTransitivePredicatesRule;
 import org.apache.calcite.rel.rules.ReduceExpressionsRule;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.sql.SqlDialect;
@@ -39,7 +41,10 @@ public class Planner {
       ReduceExpressionsRule.FilterReduceExpressionsRule.FILTER_INSTANCE,
       FilterProjectTransposeRule.INSTANCE,
       FilterJoinRule.FILTER_ON_JOIN,
+      FilterJoinRule.JOIN,
       FilterAggregateTransposeRule.INSTANCE,
+      JoinPushExpressionsRule.INSTANCE,
+      JoinPushTransitivePredicatesRule.INSTANCE,
       IndexTableScanRule.INSTANCE
   );
 

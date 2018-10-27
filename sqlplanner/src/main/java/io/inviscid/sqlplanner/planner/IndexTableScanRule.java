@@ -81,7 +81,13 @@ public class IndexTableScanRule extends RelOptRule {
         new RexVisitorImpl<Void>(true) {
           @Override
           public Void visitCall(RexCall call) {
-            if (call.getOperator().equals(SqlStdOperatorTable.EQUALS)) {
+            if (call.getOperator().equals(SqlStdOperatorTable.EQUALS)
+                || call.getOperator().equals(SqlStdOperatorTable.GREATER_THAN)
+                || call.getOperator().equals(SqlStdOperatorTable.GREATER_THAN_OR_EQUAL)
+                || call.getOperator().equals(SqlStdOperatorTable.LESS_THAN)
+                || call.getOperator().equals(SqlStdOperatorTable.LESS_THAN_OR_EQUAL)
+                || call.getOperator().equals(SqlStdOperatorTable.BETWEEN)
+            ) {
               equalityOps.add(call);
             }
             super.visitCall(call);

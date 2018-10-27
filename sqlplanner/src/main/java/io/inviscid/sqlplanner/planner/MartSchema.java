@@ -50,6 +50,11 @@ public class MartSchema extends AbstractSchema {
   }
 
   @Override
+  public String toString() {
+    return name;
+  }
+
+  @Override
   public Map<String, Table> getTableMap() {
     return tableMap;
   }

@@ -1,5 +1,6 @@
 package io.inviscid.sqlplanner;
 
+import io.inviscid.sqlplanner.enums.EnumContext;
 import io.inviscid.sqlplanner.enums.MySqlEnum;
 import io.inviscid.sqlplanner.enums.QueryType;
 import io.inviscid.sqlplanner.planner.Planner;
@@ -26,7 +27,8 @@ public class MySqlClassifier extends Classifier {
   }
 
   @Override
-  public List<QueryType> classify(String sql) throws SqlParseException, QanException {
+  public List<QueryType> classify(String sql, EnumContext context)
+      throws SqlParseException, QanException {
     List<QueryType> queryTypes = new ArrayList<>();
     try {
       RelNode relNode = planner.optimize(sql);
@@ -35,7 +37,7 @@ public class MySqlClassifier extends Classifier {
           SqlExplainLevel.DIGEST_ATTRIBUTES));
 
       for (MySqlEnum sqlEnum : MySqlEnum.values()) {
-        if (sqlEnum.isPassed(relNode)) {
+        if (sqlEnum.isPassed(relNode, context)) {
           queryTypes.add(sqlEnum);
         }
       }

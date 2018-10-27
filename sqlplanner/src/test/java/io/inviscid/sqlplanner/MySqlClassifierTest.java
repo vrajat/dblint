@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.inviscid.sqlplanner.enums.MySqlEnum;
+import io.inviscid.sqlplanner.enums.MySqlEnumContext;
 import io.inviscid.sqlplanner.enums.QueryType;
 import io.inviscid.sqlplanner.planner.Tpcds;
 import org.apache.calcite.schema.SchemaPlus;
@@ -30,20 +31,24 @@ public class MySqlClassifierTest {
   @Test
   void indexScanTest() throws SqlParseException, QanException {
     MySqlClassifier classifier = new MySqlClassifier(tpcdsSchemaPlus);
+    MySqlEnumContext context = new MySqlEnumContext();
     List<QueryType>  queryTypes = classifier.classify(
-        "select i_color from item where i_item_id = 'abc'");
+        "select i_color from item where i_item_id = 'abc'", context);
 
     assertEquals(0, queryTypes.size());
+    assertEquals(0, context.getIndices().size());
   }
 
   @Test
   void simpleScanTest() throws SqlParseException, QanException {
     MySqlClassifier classifier = new MySqlClassifier(tpcdsSchemaPlus);
+    MySqlEnumContext context = new MySqlEnumContext();
     List<QueryType> queryTypes = classifier.classify(
-        "select d_date_id from date_dim where d_year = 2018");
+        "select d_date_id from date_dim where d_year = 2018", context);
 
     List<QueryType> expected = new ArrayList<>();
     expected.add(MySqlEnum.BAD_NOINDEX);
     assertIterableEquals(expected, queryTypes);
+    assertEquals(1, context.getIndices().size());
   }
 }
