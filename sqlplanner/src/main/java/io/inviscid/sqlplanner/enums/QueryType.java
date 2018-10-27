@@ -11,7 +11,7 @@ public interface QueryType {
     return false;
   }
 
-  default boolean isPassed(RelNode relNode) {
+  default boolean isPassed(RelNode relNode, EnumContext context) {
     return false;
   }
 }

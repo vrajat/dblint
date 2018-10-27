@@ -1,6 +1,7 @@
 package io.inviscid.sqlplanner;
 
 import io.inviscid.sqlplanner.enums.AnalyticsEnum;
+import io.inviscid.sqlplanner.enums.EnumContext;
 import io.inviscid.sqlplanner.enums.QueryType;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class AnalyticsClassifier extends Classifier {
   }
 
   @Override
-  public List<QueryType> classify(String sql) throws SqlParseException {
+  public List<QueryType> classify(String sql, EnumContext context) throws SqlParseException {
     return classifyImpl(parser.parse(sql));
   }
 

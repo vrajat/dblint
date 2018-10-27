@@ -6,6 +6,7 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.IntSummaryStatistics;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -66,5 +67,28 @@ public class MartColumn {
       throw new QanException("Type: " + typeStr + " is not supported");
     }
     return statistics.getMax();
+  }
+
+  @Override
+  public String toString() {
+    return name + "(" + type + ")";
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof MartColumn)) {
+      return false;
+    }
+    MartColumn that = (MartColumn) obj;
+    return type == that.type
+        && Objects.equals(name, that.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, type);
   }
 }

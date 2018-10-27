@@ -7,6 +7,7 @@ import io.inviscid.metricsink.mysql.UserQuery;
 import io.inviscid.sqlplanner.MySqlClassifier;
 import io.inviscid.sqlplanner.QanException;
 import io.inviscid.sqlplanner.enums.MySqlEnum;
+import io.inviscid.sqlplanner.enums.MySqlEnumContext;
 import io.inviscid.sqlplanner.enums.QueryType;
 import io.inviscid.sqlplanner.planner.MartColumn;
 import io.inviscid.sqlplanner.planner.MartSchema;
@@ -80,35 +81,36 @@ public class SlowQuery {
   void analyze(List<UserQuery> queries) {
     for (UserQuery query : queries) {
       if (query.getRowsExamined() > 1000) {
-        for (String sql : query.getQueries()) {
-          numQueries.inc();
-          logger.info(sql);
-          try {
-            String digest = classifier.planner.digest(sql,
-                SqlDialect.DatabaseProduct.MYSQL.getDialect());
-            List<QueryType> types = classifier.classify(sql);
-            QueryStats queryStats;
-            if (aggQueryStats.containsKey(digest)) {
-              queryStats = aggQueryStats.get(digest);
-            } else {
-              queryStats = new QueryStats(digest);
-              aggQueryStats.put(digest, queryStats);
-            }
-            queryStats.addLockTime(query.getLockTime())
-                .addQueryTime(query.getQueryTime())
-                .addNumQueries(1)
-                .addRowsSent(query.getRowsSent())
-                .addRowsExamined(query.getRowsExamined());
-            if (types.contains(MySqlEnum.BAD_NOINDEX)) {
-              logger.warn("Query has no index scans");
-            } else {
-              queryStats.addIndexUsed(1);
-            }
-          } catch (SqlParseException | ValidationException
-              | RelConversionException | QanException exc) {
-            logger.error("Failed to parse query", exc);
-            parseExceptions.inc();
+        String sql = String.join("\n", query.getQueries());
+        numQueries.inc();
+        logger.info(sql);
+        try {
+          String digest = classifier.planner.digest(sql,
+              SqlDialect.DatabaseProduct.MYSQL.getDialect());
+          MySqlEnumContext context = new MySqlEnumContext();
+          List<QueryType> types = classifier.classify(sql, context);
+          QueryStats queryStats;
+          if (aggQueryStats.containsKey(digest)) {
+            queryStats = aggQueryStats.get(digest);
+          } else {
+            queryStats = new QueryStats(digest);
+            aggQueryStats.put(digest, queryStats);
           }
+          queryStats.addLockTime(query.getLockTime())
+              .addQueryTime(query.getQueryTime())
+              .addNumQueries(1)
+              .addRowsSent(query.getRowsSent())
+              .addRowsExamined(query.getRowsExamined());
+          if (types.contains(MySqlEnum.BAD_NOINDEX)) {
+            logger.warn("Query has no index scans");
+            context.getIndices().forEach(index -> queryStats.addMissingIndex(index));
+          } else {
+            queryStats.addIndexUsed(1);
+          }
+        } catch (SqlParseException | ValidationException
+            | RelConversionException | QanException exc) {
+          logger.error("Failed to parse query", exc);
+          parseExceptions.inc();
         }
       }
     }

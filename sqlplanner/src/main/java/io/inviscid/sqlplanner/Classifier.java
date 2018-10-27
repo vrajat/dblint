@@ -1,5 +1,6 @@
 package io.inviscid.sqlplanner;
 
+import io.inviscid.sqlplanner.enums.EnumContext;
 import io.inviscid.sqlplanner.enums.QueryType;
 
 import java.util.List;
@@ -14,7 +15,8 @@ public abstract class Classifier {
     this.parser = new Parser();
   }
 
-  public abstract List<QueryType> classify(String sql) throws SqlParseException, QanException;
+  public abstract List<QueryType> classify(String sql, EnumContext context)
+      throws SqlParseException, QanException;
 
 
 }
