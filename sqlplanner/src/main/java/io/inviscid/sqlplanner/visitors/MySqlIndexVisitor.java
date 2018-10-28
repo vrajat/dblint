@@ -49,7 +49,7 @@ public class MySqlIndexVisitor extends RelVisitor {
 
     @Override
     public String toString() {
-      return "Index{"
+      return "{"
           + table
           + ", "
           + column

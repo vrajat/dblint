@@ -93,8 +93,8 @@ public class QueryStats implements Comparable<QueryStats> {
 
   @Override
   public int compareTo(QueryStats other) {
-    return (int) ((this.queryTime.getMeanRate() * this.numQueries
-        - (other.queryTime.getMeanRate() * other.numQueries)));
+    return Double.compare((this.queryTime.getMeanRate() * this.numQueries),
+        (other.queryTime.getMeanRate() * other.numQueries));
   }
 
   @Override

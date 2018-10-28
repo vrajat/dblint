@@ -71,7 +71,7 @@ public class MartColumn {
 
   @Override
   public String toString() {
-    return name + "(" + type + ")";
+    return name;
   }
 
   @Override
