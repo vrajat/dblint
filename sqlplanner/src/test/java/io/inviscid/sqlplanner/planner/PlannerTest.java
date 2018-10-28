@@ -105,6 +105,26 @@ class PlannerTest {
   }
 
   @Test
+  void optimizeJoinQuery() throws SqlParseException, ValidationException, RelConversionException {
+    RelNode relNode = planner.optimize("SELECT ss_quantity\n"
+        + "FROM customer LEFT OUTER JOIN store_sales "
+        + "ON c_customer_sk = ss_customer_sk\n"
+        + "WHERE (ss_list_price is null OR ss_list_price > 100.0) AND "
+        + "(c_birth_year is null OR c_birth_year = 1998)"
+    );
+    String explainPlan = RelOptUtil.dumpPlan("--Logical Plan", relNode,
+        SqlExplainFormat.TEXT, SqlExplainLevel.DIGEST_ATTRIBUTES);
+    assertNotNull(relNode);
+    assertEquals("--Logical Plan\n"
+        + "LogicalProject(SS_QUANTITY=[$28])\n"
+        + "  LogicalFilter(condition=[OR(IS NULL($30), >($30, 100.0))])\n"
+        + "    LogicalJoin(condition=[=($0, $21)], joinType=[left])\n"
+        + "      LogicalFilter(condition=[OR(IS NULL($13), =(CAST($13):INTEGER, 1998))])\n"
+        + "        LogicalTableScan(table=[[tpcds, CUSTOMER]])\n"
+        + "      LogicalTableScan(table=[[tpcds, STORE_SALES]])\n", explainPlan);
+  }
+
+  @Test
   void digestTest() throws SqlParseException, ValidationException, RelConversionException {
     String digest = planner.digest("select i_color from item where i_color = 'abc'",
         SqlDialect.DatabaseProduct.MYSQL.getDialect());
