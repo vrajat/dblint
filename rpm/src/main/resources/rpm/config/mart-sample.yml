@@ -35,8 +35,8 @@ mySql:
 logging:
   level: INFO
   loggers:
-    io.inviscid: INFO
-    io.inviscid.qan.Parser:
+    com.dblint: INFO
+    com.dblint.qan.Parser:
       level: ERROR
       additive: false
       appenders:
