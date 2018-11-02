@@ -1,7 +1,7 @@
 logging:
   level: INFO
   loggers:
-    io.inviscid: INFO
+    com.dblint: INFO
     com.flyway: INFO
 redshift:
   url: "jdbc:h2:mem:IntegrationTestRedshift"

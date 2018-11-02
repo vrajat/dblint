@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <artifactId>mart</artifactId>
-        <groupId>io.inviscid</groupId>
+        <groupId>com.dblint</groupId>
         <version>0.3.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -21,7 +21,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>1.3.5</dropwizard.version>
-        <mainClass>io.inviscid.mart.server.MartApplication</mainClass>
+        <mainClass>com.dblint.server.MartApplication</mainClass>
         <project.rootdir>${project.parent.basedir}</project.rootdir>
     </properties>
 
@@ -48,7 +48,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.inviscid</groupId>
+            <groupId>com.dblint</groupId>
             <artifactId>metricsink</artifactId>
             <version>0.3.1-SNAPSHOT</version>
             <scope>compile</scope>
@@ -66,7 +66,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.inviscid</groupId>
+            <groupId>com.dblint</groupId>
             <artifactId>sqlplanner</artifactId>
             <version>0.3.1-SNAPSHOT</version>
             <scope>compile</scope>

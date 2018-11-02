@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>mart</artifactId>
-        <groupId>io.inviscid</groupId>
+        <groupId>com.dblint</groupId>
         <version>0.3.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -18,7 +18,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.inviscid</groupId>
+            <groupId>com.dblint</groupId>
             <artifactId>server</artifactId>
             <version>0.3.1-SNAPSHOT</version>
         </dependency>
@@ -46,7 +46,7 @@
                             <directory>${app.home}/lib/</directory>
                             <dependency>
                                 <includes>
-                                    <include>io.inviscid:server</include>
+                                    <include>com.dblint:server</include>
                                 </includes>
                             </dependency>
                             <artifact />
