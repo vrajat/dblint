@@ -1,7 +1,9 @@
 package com.dblint.sqlplanner.planner;
 
+import com.dblint.sqlplanner.visitors.LiteralShuffle;
 import org.apache.calcite.avatica.util.Casing;
 import org.apache.calcite.avatica.util.Quoting;
+import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
@@ -73,5 +75,19 @@ public class Parser {
       logger.error(processedSql);
       throw parseExc;
     }
+  }
+
+  /**
+   * Create a query digest by replacing all constants.
+   * @param sql SQL Query
+   * @param dialect SQL dialect to use. For e.g. MySQL
+   * @return A string containing the query digest
+   * @throws SqlParseException If there is SQLParseException
+   */
+  public String digest(String sql, SqlDialect dialect) throws SqlParseException {
+    final SqlNode sqlNode = parse(sql);
+    LiteralShuffle shuffle = new LiteralShuffle();
+    final SqlNode replaced = sqlNode.accept(shuffle);
+    return replaced.toSqlString(dialect).getSql();
   }
 }

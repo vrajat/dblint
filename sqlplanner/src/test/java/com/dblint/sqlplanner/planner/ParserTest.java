@@ -1,5 +1,6 @@
 package com.dblint.sqlplanner.planner;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -10,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Tag;
@@ -78,4 +80,26 @@ class ParserTest {
     Parser parser = new Parser();
     assertThrows(SqlParseException.class, () -> parser.parse("select from"));
   }
+
+  @Test
+  void digestTest() throws SqlParseException {
+    Parser parser = new Parser();
+    String digest = parser.digest("select i_color from item where i_color = 'abc'",
+        SqlDialect.DatabaseProduct.MYSQL.getDialect());
+    assertEquals("SELECT `I_COLOR`\n"
+        + "FROM `ITEM`\n"
+        + "WHERE `I_COLOR` = ?", digest);
+  }
+
+  @Test
+  void digestWithMultipleFilters() throws SqlParseException {
+    Parser parser = new Parser();
+    String digest = parser.digest("select i_color from item where i_item_id = 'abc' "
+            + "and i_color = 'blue'",
+        SqlDialect.DatabaseProduct.MYSQL.getDialect());
+    assertEquals("SELECT `I_COLOR`\n"
+        + "FROM `ITEM`\n"
+        + "WHERE `I_ITEM_ID` = ? AND `I_COLOR` = ?", digest);
+  }
+
 }
