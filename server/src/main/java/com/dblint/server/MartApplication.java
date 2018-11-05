@@ -3,8 +3,10 @@ package com.dblint.server;
 import com.dblint.metricsink.redshift.MySqlSink;
 import com.dblint.metricsink.redshift.RedshiftDb;
 import com.dblint.server.configuration.JdbcConfiguration;
+import com.dblint.server.resources.DbLintResource;
 import com.dblint.server.resources.RedshiftResource;
 
+import com.dblint.sqlplanner.planner.Parser;
 import io.dropwizard.Application;
 import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
@@ -38,56 +40,64 @@ public class MartApplication extends Application<MartConfiguration> {
     JdbcConfiguration redShift = configuration.redshift;
     JdbcConfiguration mySql = configuration.mySql;
 
-    RedshiftDb redshiftDb = new RedshiftDb(redShift.getUrl(), redShift.getUser(),
-            redShift.getPassword(), environment.metrics());
-    MySqlSink mySqlSink = new MySqlSink(mySql.getUrl(), mySql.getUser(),
-            mySql.getPassword(), environment.metrics());
-    mySqlSink.initialize();
+    if (redShift != null && mySql != null) {
+      RedshiftDb redshiftDb = new RedshiftDb(redShift.getUrl(), redShift.getUser(),
+          redShift.getPassword(), environment.metrics());
+      MySqlSink mySqlSink = new MySqlSink(mySql.getUrl(), mySql.getUser(),
+          mySql.getPassword(), environment.metrics());
+      mySqlSink.initialize();
 
-    ScheduledExecutorServiceBuilder serviceBuilder = environment.lifecycle()
-        .scheduledExecutorService("mart_application");
-    ScheduledExecutorService scheduledExecutorService = serviceBuilder.build();
+      ScheduledExecutorServiceBuilder serviceBuilder = environment.lifecycle()
+          .scheduledExecutorService("mart_application");
+      ScheduledExecutorService scheduledExecutorService = serviceBuilder.build();
 
-    ExecutorServiceBuilder executorServiceBuilder = environment.lifecycle()
-        .executorService("mart_resource");
-    ExecutorService executorService = executorServiceBuilder.build();
+      ExecutorServiceBuilder executorServiceBuilder = environment.lifecycle()
+          .executorService("mart_resource");
+      ExecutorService executorService = executorServiceBuilder.build();
 
-    if (configuration.queryStatsCron != null) {
-      QueryStatsCron queryStatsCron = new QueryStatsCron(configuration.queryStatsCron.frequencyMin,
-          environment.metrics(), redshiftDb, mySqlSink);
+      if (configuration.queryStatsCron != null) {
+        QueryStatsCron cron = new QueryStatsCron(configuration.queryStatsCron.frequencyMin,
+            environment.metrics(), redshiftDb, mySqlSink);
 
-      scheduledExecutorService.scheduleAtFixedRate(queryStatsCron,
-          configuration.queryStatsCron.delayMin, configuration.queryStatsCron.frequencyMin,
-          TimeUnit.MINUTES);
-      environment.healthChecks().register("QueryStatsCron", new CronHealthCheck(queryStatsCron));
+        scheduledExecutorService.scheduleAtFixedRate(cron,
+            configuration.queryStatsCron.delayMin, configuration.queryStatsCron.frequencyMin,
+            TimeUnit.MINUTES);
+        environment.healthChecks().register("QueryStatsCron", new CronHealthCheck(cron));
+      }
 
-    }
+      if (configuration.badQueriesCron != null) {
+        BadQueriesCron cron = new BadQueriesCron(configuration.badQueriesCron.frequencyMin,
+            environment.metrics(), redshiftDb, mySqlSink);
 
-    if (configuration.badQueriesCron != null) {
-      BadQueriesCron badQueriesCron = new BadQueriesCron(configuration.badQueriesCron.frequencyMin,
-          environment.metrics(), redshiftDb, mySqlSink);
+        scheduledExecutorService.scheduleAtFixedRate(cron,
+            configuration.badQueriesCron.delayMin, configuration.badQueriesCron.frequencyMin,
+            TimeUnit.MINUTES);
+        environment.healthChecks().register("BadQueriesCron", new CronHealthCheck(cron));
+      }
 
-      scheduledExecutorService.scheduleAtFixedRate(badQueriesCron,
-          configuration.badQueriesCron.delayMin, configuration.badQueriesCron.frequencyMin,
-          TimeUnit.MINUTES);
-      environment.healthChecks().register("BadQueriesCron", new CronHealthCheck(badQueriesCron));
-    }
+      if (configuration.connectionsCron != null) {
+        ConnectionsCron cron = new ConnectionsCron(mySqlSink, redshiftDb,
+            configuration.connectionsCron.frequencyMin, environment.metrics());
 
-    if (configuration.connectionsCron != null) {
-      ConnectionsCron connectionsCron = new ConnectionsCron(mySqlSink, redshiftDb,
-          configuration.connectionsCron.frequencyMin, environment.metrics());
+        scheduledExecutorService.scheduleAtFixedRate(cron,
+            configuration.connectionsCron.delayMin, configuration.connectionsCron.frequencyMin,
+            TimeUnit.MINUTES);
+        environment.healthChecks().register("ConnectionsCron", new CronHealthCheck(cron));
+      }
 
-      scheduledExecutorService.scheduleAtFixedRate(connectionsCron,
-          configuration.connectionsCron.delayMin, configuration.connectionsCron.frequencyMin,
-          TimeUnit.MINUTES);
-      environment.healthChecks().register("ConnectionsCron", new CronHealthCheck(connectionsCron));
+      {
+        ConnectionsCron cron = new ConnectionsCron(mySqlSink, redshiftDb, 0, environment.metrics());
+        RedshiftResource resource = new RedshiftResource(cron, executorService);
+        environment.jersey().register(resource);
+        environment.healthChecks().register("Redshift Resource High CPU",
+            new CronHealthCheck(cron));
+      }
     }
 
     {
-      ConnectionsCron cron = new ConnectionsCron(mySqlSink, redshiftDb, 0, environment.metrics());
-      RedshiftResource resource = new RedshiftResource(cron, executorService);
+      DbLintResource resource = new DbLintResource(new Parser());
       environment.jersey().register(resource);
-      environment.healthChecks().register("Redshift Resource High CPU", new CronHealthCheck(cron));
+      environment.jersey().register(new SqlParseExceptionMapper());
     }
   }
 }

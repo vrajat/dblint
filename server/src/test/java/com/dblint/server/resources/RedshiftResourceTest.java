@@ -1,4 +1,4 @@
-package com.dblint.server.resources.redshift;
+package com.dblint.server.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
