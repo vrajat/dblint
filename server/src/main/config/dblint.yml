@@ -1,0 +1,52 @@
+######## SYSTEM SECTION ########################
+# Logging, metrics and Dropwizard configuration
+# You should not need to edit this section.
+################################################
+logging:
+  level: INFO
+  loggers:
+    com.dblint: INFO
+    com.dblint.qan.Parser:
+      level: ERROR
+      additive: false
+      appenders:
+        - type: file
+          currentLogFilename: /var/log/mart/sqlplanner.log
+          archive: true
+          archivedLogFilenamePattern: /var/log/mart/sqlplanner-%d.log
+          archivedFileCount: 5
+          timeZone: UTC
+          immediateFlush: true
+  appenders:
+    - type: file
+      currentLogFilename: /var/log/mart/server.log
+      threshold: ALL
+      queueSize: 512
+      discardingThreshold: 0
+      archive: true
+      archivedLogFilenamePattern: /var/log/mart/server-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
+      bufferSize: 8KB
+      immediateFlush: true
+server:
+  requestLog:
+    appenders:
+    - type: file
+      currentLogFilename: /var/log/mart/request.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: /var/log/mart/request-%d.log
+      archivedFileCount: 5
+      timeZone: UTC
+      immediateFlush: true
+metrics:
+  frequency: 1 minute
+  reporters:
+    - type: csv
+      file: /var/log/mart/metrics
+      includes:
+        - inviscid.*
+      useRegexFilters: true
+
+
