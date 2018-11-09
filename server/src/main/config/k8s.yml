@@ -1,0 +1,44 @@
+kind: Service # kubernetes service definition
+apiVersion: v1
+metadata:
+  name: dblint-dw
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: http-app
+    protocol: TCP
+  selector: # this service selects all pods with the label, app=dblint-dw
+    app: dblint-dw
+---
+kind: Deployment # kubernetes deployment definition
+apiVersion: extensions/v1beta1
+metadata:
+  name: dblint-dw
+spec:
+  replicas: 2 # the number of pods we wish to run
+  revisionHistoryLimit: 5
+  strategy:
+    rollingUpdate: # controls update strategy
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      name: dblint-dw
+      labels:
+        app: dblint-dw # this label is used to select the dblint-dw pods in the service definition above
+    spec:
+      containers: # list of containers to run within the pod. We'll run just a single container, i.e. our dropwizard service
+      - name: dblint-dw
+        image: us.gcr.io/${gcloud.project}/server:${project.version} # the image name of the dropwizard service. The property placeholders get resolved at build time
+        imagePullPolicy: IfNotPresent
+        readinessProbe: # these probes are used to indicate whether or not the pod is ready to receive traffic
+          httpGet: # make an http GET to the dropwizard healthcheck endpoint, if we get a 2xx back (i.e. all checks passed), then this pod will receive traffic
+            path: /healthcheck
+            port: 8081
+        ports: # the ports that we want exposed on the IP assigned to the pod
+        - name: http-app # the dropwizard application port
+          containerPort: 8080
+        - name: http-admin # the dropwizard admin port
+          containerPort: 8081
