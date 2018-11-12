@@ -90,4 +90,15 @@ public class Parser {
     final SqlNode replaced = sqlNode.accept(shuffle);
     return replaced.toSqlString(dialect).getSql();
   }
+
+  /**
+   * Pretty Print a SQL Query.
+   * @param sql SQL Query
+   * @param dialect SQL dialect to use. For e.g. MySQL
+   * @return A string containing the pretty printed query
+   * @throws SqlParseException If there is SQLParseException
+   */
+  public String pretty(String sql, SqlDialect dialect) throws SqlParseException {
+    return parse(sql).toSqlString(dialect).getSql();
+  }
 }

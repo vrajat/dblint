@@ -27,4 +27,12 @@ public class DbLintResource {
   public String digest(String sql) throws SqlParseException {
     return parser.digest(sql, SqlDialect.DatabaseProduct.MYSQL.getDialect());
   }
+
+  @POST
+  @Path("/pretty")
+  @Metered
+  @ExceptionMetered
+  public String pretty(String sql) throws SqlParseException {
+    return parser.pretty(sql, SqlDialect.DatabaseProduct.MYSQL.getDialect());
+  }
 }

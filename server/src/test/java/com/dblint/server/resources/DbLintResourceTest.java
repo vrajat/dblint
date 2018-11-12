@@ -60,4 +60,17 @@ public class DbLintResourceTest {
     assertEquals("Redshift HighCpuEvent Capture initiated", response);
     RESOURCE.after();
   }
+
+  @Test
+  public void callPrettyTest() throws Throwable {
+    RESOURCE.before();
+    String sql = "select a from t where i = 5";
+    String response = RESOURCE.target("/dblint/pretty")
+        .request().post(Entity.json(sql)).readEntity(String.class);
+    assertEquals(
+        "SELECT `A`\n" +
+            "FROM `T`\n" +
+            "WHERE `I` = 5", response);
+    RESOURCE.after();
+  }
 }
