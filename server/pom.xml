@@ -140,7 +140,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <repository>us.gcr.io/${gcloud.project}/${project.artifactId}</repository>
+                            <repository>us.gcr.io/${gcloud.project}/dblint-dw</repository>
                             <tag>${project.version}</tag>
                             <buildArgs>
                                 <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
