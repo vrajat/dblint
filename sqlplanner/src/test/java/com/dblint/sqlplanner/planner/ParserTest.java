@@ -102,4 +102,13 @@ class ParserTest {
         + "WHERE `I_ITEM_ID` = ? AND `I_COLOR` = ?", digest);
   }
 
+  @Test
+  void prettyTest() throws SqlParseException {
+    Parser parser = new Parser();
+    String digest = parser.pretty("select i_color from item where i_color = 'abc'",
+        SqlDialect.DatabaseProduct.MYSQL.getDialect());
+    assertEquals("SELECT `I_COLOR`\n"
+        + "FROM `ITEM`\n"
+        + "WHERE `I_COLOR` = 'abc'", digest);
+  }
 }
