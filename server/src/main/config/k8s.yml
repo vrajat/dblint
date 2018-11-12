@@ -31,7 +31,7 @@ spec:
     spec:
       containers: # list of containers to run within the pod. We'll run just a single container, i.e. our dropwizard service
       - name: dblint-dw
-        image: us.gcr.io/${gcloud.project}/server:${project.version} # the image name of the dropwizard service. The property placeholders get resolved at build time
+        image: us.gcr.io/${gcloud.project}/dblint-dw:${project.version} # the image name of the dropwizard service. The property placeholders get resolved at build time
         imagePullPolicy: IfNotPresent
         readinessProbe: # these probes are used to indicate whether or not the pod is ready to receive traffic
           httpGet: # make an http GET to the dropwizard healthcheck endpoint, if we get a 2xx back (i.e. all checks passed), then this pod will receive traffic
