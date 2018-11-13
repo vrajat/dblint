@@ -6,6 +6,7 @@ import com.dblint.server.configuration.JdbcConfiguration;
 import com.dblint.server.resources.DbLintResource;
 import com.dblint.server.resources.RedshiftResource;
 
+import com.dblint.server.resources.RootResource;
 import com.dblint.sqlplanner.planner.Parser;
 import io.dropwizard.Application;
 import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
@@ -95,8 +96,10 @@ public class MartApplication extends Application<MartConfiguration> {
     }
 
     {
+      RootResource rootResource = new RootResource();
       DbLintResource resource = new DbLintResource(new Parser());
       environment.jersey().register(resource);
+      environment.jersey().register(rootResource);
       environment.jersey().register(new SqlParseExceptionMapper());
     }
   }

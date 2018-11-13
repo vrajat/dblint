@@ -1,0 +1,13 @@
+kind: Service # kubernetes service definition
+apiVersion: v1
+metadata:
+  name: dblint-dw
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  selector: # this service selects all pods with the label, app=dblint-dw
+    app: dblint-dw

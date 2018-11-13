@@ -1,16 +1,3 @@
-kind: Service # kubernetes service definition
-apiVersion: v1
-metadata:
-  name: dblint-dw
-spec:
-  ports:
-  - name: http
-    port: 80
-    targetPort: http-app
-    protocol: TCP
-  selector: # this service selects all pods with the label, app=dblint-dw
-    app: dblint-dw
----
 kind: Deployment # kubernetes deployment definition
 apiVersion: extensions/v1beta1
 metadata:
