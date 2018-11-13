@@ -42,7 +42,7 @@ public class DbLintResourceTest {
   public void callDigestTest() throws Throwable {
     RESOURCE.before();
     String sql = "select a from t where i = 5";
-    String response = RESOURCE.target("/dblint/digest")
+    String response = RESOURCE.target("/api/dblint/digest")
         .request().post(Entity.json(sql)).readEntity(String.class);
     assertEquals(
         "SELECT `A`\n" +
@@ -55,7 +55,7 @@ public class DbLintResourceTest {
   @Test
   public void exceptionTest() throws Throwable {
     RESOURCE.before();
-    String response = RESOURCE.target("/dblint/digest")
+    String response = RESOURCE.target("/api/dblint/digest")
         .request().post(Entity.json("select a from where i")).readEntity(String.class);
     assertEquals("Redshift HighCpuEvent Capture initiated", response);
     RESOURCE.after();
@@ -65,7 +65,7 @@ public class DbLintResourceTest {
   public void callPrettyTest() throws Throwable {
     RESOURCE.before();
     String sql = "select a from t where i = 5";
-    String response = RESOURCE.target("/dblint/pretty")
+    String response = RESOURCE.target("/api/dblint/pretty")
         .request().post(Entity.json(sql)).readEntity(String.class);
     assertEquals(
         "SELECT `A`\n" +
