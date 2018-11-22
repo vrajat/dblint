@@ -3,17 +3,21 @@ package com.dblint.server;
 import com.dblint.metricsink.redshift.MySqlSink;
 import com.dblint.metricsink.redshift.RedshiftDb;
 import com.dblint.server.configuration.JdbcConfiguration;
+import com.dblint.server.pojo.GitState;
 import com.dblint.server.resources.DbLintResource;
 import com.dblint.server.resources.RedshiftResource;
 
 import com.dblint.server.resources.RootResource;
 import com.dblint.sqlplanner.planner.Parser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.Application;
 import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +40,8 @@ public class MartApplication extends Application<MartConfiguration> {
 
   @Override
   public void run(final MartConfiguration configuration,
-                  final Environment environment) {
+                  final Environment environment)
+      throws IOException {
 
     JdbcConfiguration redShift = configuration.redshift;
     JdbcConfiguration mySql = configuration.mySql;
@@ -96,8 +101,11 @@ public class MartApplication extends Application<MartConfiguration> {
     }
 
     {
+      InputStream stream =  getClass().getClassLoader().getResourceAsStream("git.properties");
+      GitState gitState = new ObjectMapper().readValue(stream, GitState.class);
+
       RootResource rootResource = new RootResource();
-      DbLintResource resource = new DbLintResource(new Parser());
+      DbLintResource resource = new DbLintResource(new Parser(), gitState);
       environment.jersey().register(resource);
       environment.jersey().register(rootResource);
       environment.jersey().register(new SqlParseExceptionMapper());
