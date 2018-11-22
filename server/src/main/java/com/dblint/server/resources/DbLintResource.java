@@ -2,12 +2,13 @@ package com.dblint.server.resources;
 
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Metered;
+import com.dblint.server.pojo.GitState;
 import com.dblint.server.pojo.QueryResponse;
 import com.dblint.server.pojo.SqlQuery;
 import com.dblint.sqlplanner.planner.Parser;
 import org.apache.calcite.sql.SqlDialect;
-import org.apache.calcite.sql.parser.SqlParseException;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -17,9 +18,11 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class DbLintResource {
   final Parser parser;
+  final GitState gitState;
 
-  public DbLintResource(Parser parser) {
+  public DbLintResource(Parser parser, GitState gitState) {
     this.parser = parser;
+    this.gitState = gitState;
   }
 
   /**
@@ -58,5 +61,12 @@ public class DbLintResource {
     } catch (Exception exc) {
       return new QueryResponse(exc.getMessage(), false);
     }
+  }
+
+  @GET
+  @Path("/version")
+  @Metered
+  public GitState version() {
+    return gitState;
   }
 }
