@@ -2,6 +2,8 @@ package com.dblint.server.resources;
 
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Metered;
+import com.dblint.server.pojo.QueryResponse;
+import com.dblint.server.pojo.SqlQuery;
 import com.dblint.sqlplanner.planner.Parser;
 import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlParseException;
@@ -20,19 +22,41 @@ public class DbLintResource {
     this.parser = parser;
   }
 
+  /**
+   * Return a digest of the Sql Query.
+   * @param sql SqlQuery object with SQL string and other properties
+   * @return SQL Digest if successful else an error message
+   */
   @POST
   @Path("/digest")
   @Metered
   @ExceptionMetered
-  public String digest(String sql) throws SqlParseException {
-    return parser.digest(sql, SqlDialect.DatabaseProduct.MYSQL.getDialect());
+  public QueryResponse digest(SqlQuery sql) {
+    try {
+      String digest = parser.digest(sql.sql,
+              SqlDialect.DatabaseProduct.valueOf(sql.dialect.toUpperCase()).getDialect());
+      return new QueryResponse(digest, true);
+    } catch (Exception exc) {
+      return new QueryResponse(exc.getMessage(), false);
+    }
   }
 
+  /**
+   * Return a pretty of the Sql Query.
+   * @param sql SqlQuery object with SQL string and other properties
+   * @return Pretty Printed if successful else an error message
+   */
   @POST
   @Path("/pretty")
   @Metered
   @ExceptionMetered
-  public String pretty(String sql) throws SqlParseException {
-    return parser.pretty(sql, SqlDialect.DatabaseProduct.MYSQL.getDialect());
+  public QueryResponse pretty(SqlQuery sql) {
+    try {
+      String pretty = parser.pretty(sql.sql,
+              SqlDialect.DatabaseProduct.valueOf(sql.dialect.toUpperCase()).getDialect());
+      return new QueryResponse(pretty, true);
+    } catch (Exception exc) {
+      return new QueryResponse(exc.getMessage(), false);
+    }
   }
 }
