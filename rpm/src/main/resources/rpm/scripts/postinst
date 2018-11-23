@@ -1,1 +1,0 @@
-cp /usr/lib/mart/bin/mart.service /etc/init.d
