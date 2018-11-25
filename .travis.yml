@@ -29,4 +29,4 @@ deploy:
     tags: true
 before_install:
 - openssl aes-256-cbc -K $encrypted_06d29828bf05_key -iv $encrypted_06d29828bf05_iv
-  -in auth.json.enc -out server/src/main/ops/auth.json -d
+  -in server/src/main/ops/auth.json.enc -out server/src/main/ops/auth.json -d
