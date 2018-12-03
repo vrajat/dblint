@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -ex
+cd server
 docker build -t us.gcr.io/${PROJECT_ID_PROD}/${DOCKER_IMAGE_NAME}:$TRAVIS_TAG .
 
 gcloud auth activate-service-account --key-file server/src/main/ops/auth.json
@@ -14,4 +15,4 @@ gcloud --quiet container clusters get-credentials $CLUSTER_NAME_PROD
 gcloud auth configure-docker
 docker push us.gcr.io/${PROJECT_ID_PROD}/${DOCKER_IMAGE_NAME}:$TRAVIS_TAG
 
-# kubectl set image deployment/${KUBE_DEPLOYMENT_NAME} ${KUBE_DEPLOYMENT_CONTAINER_NAME}=us.gcr.io/${PROJECT_NAME_PROD}/${DOCKER_IMAGE_NAME}:$TRAVIS_TAG
+kubectl set image deployment/${KUBE_DEPLOYMENT_NAME} ${KUBE_DEPLOYMENT_CONTAINER_NAME}=us.gcr.io/${PROJECT_NAME_PROD}/${DOCKER_IMAGE_NAME}:$TRAVIS_TAG
