@@ -5,41 +5,21 @@
 logging:
   level: INFO
   loggers:
-    com.dblint: INFO
-    com.dblint.qan.Parser:
-      level: ERROR
-      additive: false
-      appenders:
-        - type: file
-          currentLogFilename: /var/log/mart/sqlplanner.log
-          archive: true
-          archivedLogFilenamePattern: /var/log/mart/sqlplanner-%d.log
-          archivedFileCount: 5
-          timeZone: UTC
-          immediateFlush: true
+    io.dblint: INFO
   appenders:
-    - type: file
-      currentLogFilename: /var/log/mart/server.log
-      threshold: ALL
-      queueSize: 512
-      discardingThreshold: 0
-      archive: true
-      archivedLogFilenamePattern: /var/log/mart/server-%d.log
-      archivedFileCount: 5
+    - type: console
       timeZone: UTC
-      bufferSize: 8KB
-      immediateFlush: true
+      layout:
+        type: json
+
 server:
   requestLog:
     appenders:
-    - type: file
-      currentLogFilename: /var/log/mart/request.log
-      threshold: ALL
-      archive: true
-      archivedLogFilenamePattern: /var/log/mart/request-%d.log
-      archivedFileCount: 5
-      timeZone: UTC
-      immediateFlush: true
+     - type: console
+       timeZone: UTC
+       layout:
+         type: access-json
+
 metrics:
   frequency: 1 minute
   reporters:
