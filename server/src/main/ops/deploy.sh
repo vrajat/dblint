@@ -15,5 +15,5 @@ gcloud --quiet container clusters get-credentials $CLUSTER_NAME_PROD
 gcloud auth configure-docker
 docker push us.gcr.io/${PROJECT_ID_PROD}/${DOCKER_IMAGE_NAME}:$TRAVIS_TAG
 
-export GOOGLE_APPLICATION_CREDENTIALS=ops/auth.json
+export GOOGLE_APPLICATION_CREDENTIALS=src/main/ops/auth.json
 kubectl set image deployment/${KUBE_DEPLOYMENT_NAME} ${KUBE_DEPLOYMENT_CONTAINER_NAME}=us.gcr.io/${PROJECT_NAME_PROD}/${DOCKER_IMAGE_NAME}:$TRAVIS_TAG
