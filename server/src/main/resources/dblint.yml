@@ -20,13 +20,3 @@ server:
        layout:
          type: access-json
 
-metrics:
-  frequency: 1 minute
-  reporters:
-    - type: csv
-      file: /var/log/mart/metrics
-      includes:
-        - inviscid.*
-      useRegexFilters: true
-
-
