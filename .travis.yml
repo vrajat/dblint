@@ -24,6 +24,7 @@ before_deploy:
 - sudo apt-get install kubectl
 - openssl aes-256-cbc -K $encrypted_06d29828bf05_key -iv $encrypted_06d29828bf05_iv
   -in server/src/main/ops/auth.json.enc -out server/src/main/ops/auth.json -d
+- mvn clean package -DskipTests
 
 deploy:
   - provider: script
