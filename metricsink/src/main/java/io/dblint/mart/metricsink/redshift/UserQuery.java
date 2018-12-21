@@ -3,6 +3,7 @@ package io.dblint.mart.metricsink.redshift;
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 
 public class UserQuery implements Jdbi {
@@ -48,6 +49,45 @@ public class UserQuery implements Jdbi {
 
   public void addQueryFragment(String fragment) {
     this.query += fragment;
+  }
+
+  @Override
+  public String toString() {
+    return "UserQuery{"
+        + "queryId=" + queryId
+        + ", userId=" + userId
+        + ", transactionId=" + transactionId
+        + ", pid=" + pid
+        + ", startTime=" + startTime
+        + ", endTime=" + endTime
+        + ", duration=" + duration
+        + ", db='" + db + '\''
+        + ", aborted=" + aborted
+        + ", query='" + query + '\''
+        + '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    UserQuery userQuery = (UserQuery) o;
+    return queryId == userQuery.queryId &&
+        userId == userQuery.userId &&
+        transactionId == userQuery.transactionId &&
+        pid == userQuery.pid &&
+        Double.compare(userQuery.duration, duration) == 0 &&
+        aborted == userQuery.aborted &&
+        Objects.equals(startTime, userQuery.startTime) &&
+        Objects.equals(endTime, userQuery.endTime) &&
+        Objects.equals(db, userQuery.db) &&
+        Objects.equals(query, userQuery.query);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(queryId, userId, transactionId, pid, startTime, endTime, duration,
+        db, aborted, query);
   }
 
   static String getExtractQuery(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
