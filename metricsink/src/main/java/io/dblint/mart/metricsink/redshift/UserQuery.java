@@ -12,10 +12,10 @@ public class UserQuery implements Jdbi {
   public final int pid;
   public final LocalDateTime startTime;
   public final LocalDateTime endTime;
-  public final long duration;
+  public final double duration;
   public final String db;
   public final boolean aborted;
-  public final String query;
+  public String query;
 
   /**
    * Construct a UserQuery Row.
@@ -33,7 +33,7 @@ public class UserQuery implements Jdbi {
   @JdbiConstructor
   public UserQuery(
       int queryId, int userId, int transactionId, int pid, LocalDateTime startTime,
-      LocalDateTime endTime, long duration, String db, boolean aborted, String query) {
+      LocalDateTime endTime, double duration, String db, boolean aborted, String query) {
     this.queryId = queryId;
     this.userId = userId;
     this.transactionId = transactionId;
@@ -44,6 +44,10 @@ public class UserQuery implements Jdbi {
     this.db = db;
     this.aborted = aborted;
     this.query = query;
+  }
+
+  public void addQueryFragment(String fragment) {
+    this.query += fragment;
   }
 
   static String getExtractQuery(LocalDateTime rangeStart, LocalDateTime rangeEnd) {

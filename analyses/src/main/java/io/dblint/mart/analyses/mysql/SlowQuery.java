@@ -40,8 +40,8 @@ public class SlowQuery {
     schema = createSchema(database);
     classifier = new MySqlClassifier(schema);
     aggQueryStats = new HashMap<>();
-    numQueries = registry.counter("inviscid.slowQuery.numQueries");
-    parseExceptions = registry.counter("inviscid.slowQuery.parseExceptions");
+    numQueries = registry.counter("io.dblint.slowQuery.numQueries");
+    parseExceptions = registry.counter("io.dblint.slowQuery.parseExceptions");
   }
 
   private SchemaPlus createSchema(SchemaParser.Database database) throws QanException {

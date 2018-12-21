@@ -3,6 +3,8 @@ package io.dblint.mart.metricsink.redshift;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RedshiftCsv {
+  private static Logger logger = LoggerFactory.getLogger(RedshiftCsv.class);
 
   /**
    * Parse CSV file and map to SplitUserQuery.
@@ -29,6 +32,7 @@ public class RedshiftCsv {
       queries.add(iterator.next());
     }
 
+    logger.debug("NumSplitQueries: " + queries.size());
     return queries;
   }
 }
