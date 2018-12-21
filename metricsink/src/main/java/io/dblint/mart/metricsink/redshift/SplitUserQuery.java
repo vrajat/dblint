@@ -3,13 +3,15 @@ package io.dblint.mart.metricsink.redshift;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class SplitUserQuery implements Jdbi {
+import java.time.LocalDateTime;
+
+public class SplitUserQuery implements Jdbi, Comparable {
   public final int queryId;
   public final int sequence;
   public final int userId;
-  public final String startTime;
-  public final String endTime;
-  public final long duration;
+  public final LocalDateTime startTime;
+  public final LocalDateTime endTime;
+  public final double duration;
   public final String db;
   public final String query;
 
@@ -30,14 +32,14 @@ public class SplitUserQuery implements Jdbi {
                         @JsonProperty("user_id") int userId,
                         @JsonProperty("start_time") String startTime,
                         @JsonProperty("end_time") String endTime,
-                        @JsonProperty("duration") long duration,
+                        @JsonProperty("duration") double duration,
                         @JsonProperty("db") String db,
                         @JsonProperty("query") String query) {
     this.queryId = queryId;
     this.userId = userId;
     this.sequence = sequence;
-    this.startTime = startTime;
-    this.endTime = endTime;
+    this.startTime = LocalDateTime.parse(startTime, dateTimeFormatter);
+    this.endTime = LocalDateTime.parse(endTime, dateTimeFormatter);
     this.duration = duration;
     this.db = db;
     this.query = query;
@@ -65,5 +67,17 @@ public class SplitUserQuery implements Jdbi {
         + ", db='" + db + '\''
         + ", query='" + query + '\''
         + '}';
+  }
+
+  @Override
+  public int compareTo(Object object) {
+    SplitUserQuery query = (SplitUserQuery) object;
+
+    int comparator = Integer.compare(this.queryId, query.queryId);
+    if (comparator == 0) {
+      return Integer.compare(this.sequence, query.sequence);
+    }
+
+    return comparator;
   }
 }

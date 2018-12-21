@@ -1,5 +1,6 @@
 package io.dblint.mart.sqlplanner.enums;
 
+import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
 import io.dblint.mart.sqlplanner.visitors.LookupVisitor;
 import org.apache.calcite.sql.SqlNode;
 
@@ -13,6 +14,14 @@ public enum AnalyticsEnum implements QueryType {
       LookupVisitor lookupVisitor = new LookupVisitor();
       sqlNode.accept(lookupVisitor);
       return lookupVisitor.isPassed();
+    }
+  },
+  INSERT {
+    @Override
+    public boolean isPassed(SqlNode sqlNode) {
+      InsertVisitor visitor = new InsertVisitor();
+      sqlNode.accept(visitor);
+      return visitor.isPassed();
     }
   }
 }
