@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/vrajat/dblint.svg?branch=master)](https://travis-ci.org/vrajat/mart)
-[![codecov](https://codecov.io/gh/vrajat/mart/branch/master/graph/badge.svg)](https://codecov.io/gh/vrajat/mart)
+[![Build Status](https://travis-ci.org/dblintio/mart.svg?branch=master)](https://travis-ci.org/dblintio/mart)
+[![codecov](https://codecov.io/gh/dblintio/mart/branch/master/graph/badge.svg)](https://codecov.io/gh/dblintio/mart)
 
 # Mart
 
