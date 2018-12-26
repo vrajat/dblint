@@ -22,6 +22,12 @@
             <version>1.17.0</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
@@ -32,7 +38,6 @@
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 </project>
