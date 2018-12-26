@@ -68,20 +68,24 @@ public class UserQuery implements Jdbi {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    UserQuery userQuery = (UserQuery) o;
-    return queryId == userQuery.queryId &&
-        userId == userQuery.userId &&
-        transactionId == userQuery.transactionId &&
-        pid == userQuery.pid &&
-        Double.compare(userQuery.duration, duration) == 0 &&
-        aborted == userQuery.aborted &&
-        Objects.equals(startTime, userQuery.startTime) &&
-        Objects.equals(endTime, userQuery.endTime) &&
-        Objects.equals(db, userQuery.db) &&
-        Objects.equals(query, userQuery.query);
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    UserQuery userQuery = (UserQuery) obj;
+    return queryId == userQuery.queryId
+        && userId == userQuery.userId
+        && transactionId == userQuery.transactionId
+        && pid == userQuery.pid
+        && Double.compare(userQuery.duration, duration) == 0
+        && aborted == userQuery.aborted
+        && Objects.equals(startTime, userQuery.startTime)
+        && Objects.equals(endTime, userQuery.endTime)
+        && Objects.equals(db, userQuery.db)
+        && Objects.equals(query, userQuery.query);
   }
 
   @Override
