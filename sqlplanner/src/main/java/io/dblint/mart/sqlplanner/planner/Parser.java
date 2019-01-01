@@ -7,7 +7,8 @@ import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.apache.calcite.sql.parser.SqlParser;
-import org.apache.calcite.sql.parser.impl.SqlParserImpl;
+import org.apache.calcite.sql.parser.SqlParserImplFactory;
+import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
 import org.apache.calcite.sql.validate.SqlConformance;
 import org.apache.calcite.sql.validate.SqlConformanceEnum;
 import org.slf4j.Logger;
@@ -19,7 +20,7 @@ import java.util.List;
 public class Parser {
   private static Logger logger = LoggerFactory.getLogger(Parser.class);
 
-  public final SqlParser sqlParser;
+  public final SqlParserImplFactory factory;
 
   Quoting quoting = Quoting.DOUBLE_QUOTE;
   Casing unquotedCasing = Casing.TO_UPPER;
@@ -30,15 +31,24 @@ public class Parser {
    * Sole Constructor for a SQL Parser based on Apache Calcite.
    * Uses default values for various parameters for the Calcite Parser.
    */
-  public Parser() {
-    this.sqlParser = SqlParser.create("",
+  public Parser(SqlParserImplFactory factory) {
+    this.factory = factory;
+  }
+
+  SqlParser getParser(String sql) {
+    return SqlParser.create(sql,
         SqlParser.configBuilder()
-            .setParserFactory(SqlParserImpl.FACTORY)
+            .setParserFactory(factory)
             .setQuoting(quoting)
             .setUnquotedCasing(unquotedCasing)
             .setQuotedCasing(quotedCasing)
             .setConformance(conformance)
+            .setCaseSensitive(false)
             .build());
+  }
+
+  public Parser() {
+    this(SqlBabelParserImpl.FACTORY);
   }
 
   private String trim(String sql) {
@@ -70,7 +80,7 @@ public class Parser {
   public SqlNode parse(String sql) throws SqlParseException {
     String processedSql = trim(handleNewLine(sql));
     try {
-      return sqlParser.parseQuery(processedSql);
+      return getParser(processedSql).parseStmt();
     } catch (SqlParseException parseExc) {
       logger.error(processedSql);
       throw parseExc;

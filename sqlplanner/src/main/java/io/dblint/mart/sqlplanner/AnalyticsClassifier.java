@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
+import org.apache.calcite.sql.parser.SqlParserImplFactory;
+import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
 
 /**
  * Created by rvenkatesh on 9/9/18.
@@ -21,6 +23,11 @@ public class AnalyticsClassifier extends Classifier {
   @Override
   public List<QueryType> classify(String sql, EnumContext context) throws SqlParseException {
     return classifyImpl(parser.parse(sql));
+  }
+
+  @Override
+  protected SqlParserImplFactory getFactory() {
+    return SqlBabelParserImpl.FACTORY;
   }
 
   List<QueryType> classifyImpl(SqlNode parseTree) {

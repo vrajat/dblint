@@ -10,6 +10,8 @@ import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.sql.SqlExplainFormat;
 import org.apache.calcite.sql.SqlExplainLevel;
 import org.apache.calcite.sql.parser.SqlParseException;
+import org.apache.calcite.sql.parser.SqlParserImplFactory;
+import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
 import org.apache.calcite.tools.RelConversionException;
 import org.apache.calcite.tools.ValidationException;
 import org.slf4j.Logger;
@@ -24,6 +26,11 @@ public class MySqlClassifier extends Classifier {
 
   public MySqlClassifier(SchemaPlus schemaPlus) {
     planner = new Planner(schemaPlus);
+  }
+
+  @Override
+  protected SqlParserImplFactory getFactory() {
+    return SqlBabelParserImpl.FACTORY;
   }
 
   @Override

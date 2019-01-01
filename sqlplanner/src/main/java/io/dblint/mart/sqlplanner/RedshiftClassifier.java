@@ -5,10 +5,12 @@ import io.dblint.mart.sqlplanner.enums.RedshiftEnum;
 
 import java.util.List;
 
+import io.dblint.mart.sqlplanner.planner.RedshiftParser;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
 import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
+import org.apache.calcite.sql.parser.SqlParserImplFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +19,11 @@ public class RedshiftClassifier extends AnalyticsClassifier {
 
   public RedshiftClassifier() {
     super();
+  }
+
+  @Override
+  protected SqlParserImplFactory getFactory() {
+    return RedshiftParser.FACTORY;
   }
 
   @Override
