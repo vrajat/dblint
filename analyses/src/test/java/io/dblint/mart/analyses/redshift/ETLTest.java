@@ -1,6 +1,9 @@
 package io.dblint.mart.analyses.redshift;
 
 import com.codahale.metrics.MetricRegistry;
+import io.dblint.mart.metricsink.redshift.Agent;
+import io.dblint.mart.metricsink.redshift.RedshiftCsv;
+import io.dblint.mart.metricsink.util.MetricAgentException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,13 +22,14 @@ public class ETLTest {
   @Disabled
   @Tag("cmdLine")
   @Test
-  void cmdLineTest() throws IOException {
+  void cmdLineTest() throws IOException, MetricAgentException {
     assertNotNull(System.getProperty("csvFile"));
     logger.info(System.getProperty("csvFile"));
     InputStream inputStream = new FileInputStream(System.getProperty("csvFile"));
     MetricRegistry registry = new MetricRegistry();
 
     Etl etl = new Etl(registry);
-    etl.analyze(inputStream);
+    Agent agent = new RedshiftCsv(inputStream);
+    etl.analyze(agent);
   }
 }

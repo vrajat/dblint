@@ -4,8 +4,9 @@ import com.google.common.graph.ImmutableGraph;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
-import io.dblint.mart.metricsink.redshift.RedshiftCsv;
+import io.dblint.mart.metricsink.redshift.Agent;
 import io.dblint.mart.metricsink.redshift.UserQuery;
+import io.dblint.mart.metricsink.util.MetricAgentException;
 import io.dblint.mart.sqlplanner.RedshiftClassifier;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
 import org.apache.calcite.sql.parser.SqlParseException;
@@ -13,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +39,8 @@ public class Etl {
     classifier = new RedshiftClassifier();
   }
 
-  void analyze(InputStream is) throws IOException {
-    List<UserQuery> userQueries = RedshiftCsv.getQueries(is);
+  void analyze(Agent agent) throws IOException, MetricAgentException {
+    List<UserQuery> userQueries = agent.getQueries();
     numQueries.inc(userQueries.size());
 
     List<QueryInfo> queryInfos = null;
