@@ -3,6 +3,7 @@ package io.dblint.mart.metricsink.redshift;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import io.dblint.mart.metricsink.util.MetricAgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,17 +14,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class RedshiftCsv {
+public class RedshiftCsv implements Agent {
   private static Logger logger = LoggerFactory.getLogger(RedshiftCsv.class);
+
+  final InputStream inputStream;
+
+  public RedshiftCsv(InputStream is) {
+    this.inputStream = is;
+  }
 
   /**
    * Parse CSV file and map to SplitUserQuery.
    * In SplitUserQuery, query text is not already combined
-   * @param inputStream Inputstream of CSV source
    * @return A list of SplitUserQueries
    * @throws IOException Exception thrown if source cannot be read successfully.
    */
-  public static List<SplitUserQuery> getSplitQueries(InputStream inputStream) throws IOException {
+  List<SplitUserQuery> getSplitQueries() throws IOException {
     CsvMapper mapper = new CsvMapper();
     CsvSchema schema = CsvSchema.emptySchema().withHeader();
     MappingIterator<SplitUserQuery> iterator = mapper.readerFor(SplitUserQuery.class).with(schema)
@@ -38,8 +44,13 @@ public class RedshiftCsv {
     return queries;
   }
 
-  public static List<UserQuery> getQueries(InputStream inputStream) throws IOException {
-    return combineSplits(getSplitQueries(inputStream));
+  @Override
+  public List<UserQuery> getQueries() throws MetricAgentException {
+    try {
+      return combineSplits(getSplitQueries());
+    } catch (IOException exc) {
+      throw new MetricAgentException(exc);
+    }
   }
 
   private static List<UserQuery> combineSplits(List<SplitUserQuery> splitUserQueries) {

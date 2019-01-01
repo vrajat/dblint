@@ -61,10 +61,12 @@ class RedshiftDbTest {
   @Test
   void queryStatsTest() {
     MetricRegistry metricRegistry = new MetricRegistry();
-    RedshiftDb redshiftDb = new RedshiftDb(url, "", "", metricRegistry);
-    List<QueryStats> queryStatsList = redshiftDb.getQueryStats(true,
+    RedshiftDb redshiftDb = new RedshiftDb(url, "", "",
         LocalDateTime.of(2018, 9, 13, 12, 0, 0),
-        LocalDateTime.of(2018, 9, 13, 13, 0, 0));
+        LocalDateTime.of(2018, 9, 13, 13, 0, 0),
+        metricRegistry);
+
+    List<QueryStats> queryStatsList = redshiftDb.getQueryStats(true);
 
     assertEquals(1, queryStatsList.size());
 
@@ -89,11 +91,12 @@ class RedshiftDbTest {
   @Test
   void userQueryTest() {
     MetricRegistry metricRegistry = new MetricRegistry();
-    RedshiftDb redshiftDb = new RedshiftDb(url, "", "", metricRegistry);
-
-    List<UserQuery> userQueries = redshiftDb.getQueries(
+    RedshiftDb redshiftDb = new RedshiftDb(url, "", "",
         LocalDateTime.of(2018, 9, 19, 11, 0, 0),
-        LocalDateTime.of(2018, 9, 19, 16, 0, 0));
+        LocalDateTime.of(2018, 9, 19, 16, 0, 0),
+        metricRegistry);
+
+    List<UserQuery> userQueries = redshiftDb.getQueries();
 
     UserQuery userQuery0 = userQueries.get(0);
     UserQuery userQuery1 = userQueries.get(1);
@@ -125,7 +128,10 @@ class RedshiftDbTest {
   @Test
   void connectionTest() {
     MetricRegistry metricRegistry = new MetricRegistry();
-    RedshiftDb redshiftDb = new RedshiftDb(url, "", "", metricRegistry);
+    RedshiftDb redshiftDb = new RedshiftDb(url, "", "",
+        LocalDateTime.of(2018, 9, 19, 11, 0, 0),
+        LocalDateTime.of(2018, 9, 19, 16, 0, 0),
+        metricRegistry);
 
     List<UserConnection> userConnections = redshiftDb.getUserConnections();
 
@@ -143,7 +149,10 @@ class RedshiftDbTest {
   @Test
   void runningQueriesTest() {
     MetricRegistry metricRegistry = new MetricRegistry();
-    RedshiftDb redshiftDb = new RedshiftDb(url, "", "", metricRegistry);
+    RedshiftDb redshiftDb = new RedshiftDb(url, "", "",
+        LocalDateTime.of(2018, 9, 19, 11, 0, 0),
+        LocalDateTime.of(2018, 9, 19, 16, 0, 0),
+        metricRegistry);
 
     List<RunningQuery> queries = redshiftDb.getRunningQueries();
 

@@ -1,5 +1,6 @@
 package io.dblint.mart.metricsink.redshift;
 
+import io.dblint.mart.metricsink.util.MetricAgentException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ class RedshiftCsvTest {
   @Test
   void splitQuery12Test() throws IOException {
     InputStream inputStream = getClass().getClassLoader().getResourceAsStream("redshift_queries.csv");
-    List<SplitUserQuery> queryList = RedshiftCsv.getSplitQueries(inputStream);
+    List<SplitUserQuery> queryList = new RedshiftCsv(inputStream).getSplitQueries();
     Iterator<SplitUserQuery> iterator = queryList.iterator();
     while(iterator.hasNext()) {
       logger.debug(iterator.next().toString());
@@ -39,9 +40,9 @@ class RedshiftCsvTest {
       + "revenueratio\nLIMIT 100;\n"
   );
   @Test
-  void query12Test() throws IOException {
+  void query12Test() throws MetricAgentException {
     InputStream inputStream = getClass().getClassLoader().getResourceAsStream("redshift_queries.csv");
-    List<UserQuery> userQueries = RedshiftCsv.getQueries(inputStream);
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream).getQueries();
 
     assertEquals(1, userQueries.size());
     assertEquals(userQuery, userQueries.get(0));

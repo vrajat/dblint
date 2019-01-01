@@ -65,11 +65,10 @@ class CommonCronTest {
   @DisplayName("{arguments}")
   @MethodSource("cronProvider")
   void singleRunExceptionTest(Cron cron) {
-    when(cron.redshiftDb.getQueryStats(eq(false),
-        any(LocalDateTime.class), any(LocalDateTime.class)))
+    when(cron.redshiftDb.getQueryStats(eq(false)))
         .thenThrow(new RuntimeException("Mock Exception"));
 
-    when(cron.redshiftDb.getQueries(any(LocalDateTime.class), any(LocalDateTime.class)))
+    when(cron.redshiftDb.getQueries())
         .thenThrow(new RuntimeException("Mock Exception"));
 
     when(cron.redshiftDb.getUserConnections()).thenThrow(new RuntimeException("Mock Exception"));
