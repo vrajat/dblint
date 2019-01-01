@@ -1,7 +1,7 @@
 package io.dblint.mart.analyses.mysql;
 
 import com.codahale.metrics.Timer;
-import io.dblint.mart.sqlplanner.visitors.MySqlIndexVisitor;
+import io.dblint.mart.sqlplanner.visitors.IndexVisitor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +15,7 @@ public class QueryStats implements Comparable<QueryStats> {
   long rowsExamined;
   long numQueries;
   long indexUsed;
-  Set<MySqlIndexVisitor.Index> missingIndexes;
+  Set<IndexVisitor.Index> missingIndexes;
 
   QueryStats(String digest) {
     this.digest = digest;
@@ -58,7 +58,7 @@ public class QueryStats implements Comparable<QueryStats> {
     return this;
   }
 
-  public QueryStats addMissingIndex(MySqlIndexVisitor.Index index) {
+  public QueryStats addMissingIndex(IndexVisitor.Index index) {
     missingIndexes.add(index);
     return this;
   }

@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class MySqlIndexVisitor extends RelVisitor {
-  private static Logger logger = LoggerFactory.getLogger(MySqlIndexVisitor.class);
+public class IndexVisitor extends RelVisitor {
+  private static Logger logger = LoggerFactory.getLogger(IndexVisitor.class);
 
   private static List<SqlOperator> indexOperators = Arrays.asList(
       SqlStdOperatorTable.EQUALS,

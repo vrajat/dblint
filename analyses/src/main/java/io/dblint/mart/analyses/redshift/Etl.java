@@ -7,8 +7,8 @@ import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.metricsink.redshift.Agent;
 import io.dblint.mart.metricsink.redshift.UserQuery;
 import io.dblint.mart.metricsink.util.MetricAgentException;
-import io.dblint.mart.sqlplanner.RedshiftClassifier;
-import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
+import io.dblint.mart.sqlplanner.redshift.QueryClasses;
+import io.dblint.mart.sqlplanner.redshift.RedshiftClassifier;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +26,7 @@ public class Etl {
   Counter numInserts;
   Counter numInsertsWithSelects;
   Counter numLongInserts;
+  Counter numMaintenanceQueries;
 
   RedshiftClassifier classifier;
 
@@ -35,6 +36,7 @@ public class Etl {
     numInserts = registry.counter("io.dblint.DagGenerator.numInserts");
     numInsertsWithSelects = registry.counter("io.dblint.DagGenerator.numInsertSelects");
     numLongInserts = registry.counter("io.dblint.DagGenerator.numLongInserts");
+    numMaintenanceQueries = registry.counter("io.dblint.DagGenerator.numMaintenanceQueries");
 
     classifier = new RedshiftClassifier();
   }
@@ -54,6 +56,7 @@ public class Etl {
     }
 
     logger.info("numQueries: " + numQueries.getCount());
+    logger.info("numMaintenanceQueries: " + numMaintenanceQueries.getCount());
     logger.info("numParsed: " + numParsed.getCount());
     logger.info("numInserts: " + numInserts.getCount());
     logger.info("numInsertWithSelects: " + numInsertsWithSelects.getCount());
@@ -72,14 +75,21 @@ public class Etl {
     List<QueryInfo> queryInfos = new ArrayList<>();
     queries.forEach((query) -> {
       try {
-        InsertVisitor visitor = classifier.classifyInsert(query.query);
+        QueryClasses classes = classifier.classify(query.query);
         numParsed.inc();
 
-        if (visitor.isPassed()) {
-          if (visitor.getSources().size() > 0) {
+        if (classes.maintenanceContext.isPassed()) {
+          numMaintenanceQueries.inc();
+        }
+
+        if (classes.insertContext.isPassed()) {
+          logger.debug("Passed Insert Query");
+          logger.debug(classes.insertContext.getTargetTable());
+          if (classes.insertContext.getSources().size() > 0) {
+            logger.debug("Num Sources: " + classes.insertContext.getSources().size());
             numInsertsWithSelects.inc();
             if (Duration.between(query.endTime, query.startTime).getSeconds() > 60) {
-              queryInfos.add(new QueryInfo(query, visitor.getTargetTable(), visitor.getSources()));
+              queryInfos.add(new QueryInfo(query, classes));
               numLongInserts.inc();
             }
           }

@@ -8,7 +8,7 @@ import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Test;
 
-public class RedshiftTooManyJoinsVisitorTest {
+public class TooManyJoinsVisitorTest {
   @Test
   public void elevenJoinTest() throws SqlParseException {
     Parser parser = new Parser();
@@ -24,9 +24,9 @@ public class RedshiftTooManyJoinsVisitorTest {
         + "join a10 on a1.i9 = a10.i "
         + "join a11 on a1.i10 = a11.i "
         + "join a12 on a1.i11 = a12.i");
-    RedshiftTooManyJoinsVisitor redshiftTooManyJoinsVisitor = new RedshiftTooManyJoinsVisitor();
-    parseTree.accept(redshiftTooManyJoinsVisitor);
-    assertTrue(redshiftTooManyJoinsVisitor.isPassed());
+    TooManyJoinsVisitor tooManyJoinsVisitor = new TooManyJoinsVisitor();
+    parseTree.accept(tooManyJoinsVisitor);
+    assertTrue(tooManyJoinsVisitor.isPassed());
   }
 
   @Test
@@ -43,9 +43,9 @@ public class RedshiftTooManyJoinsVisitorTest {
         + "join a9 on a1.i8 = a9.i "
         + "join a10 on a1.i9 = a10.i "
         + "join a11 on a1.i10 = a11.i");
-    RedshiftTooManyJoinsVisitor redshiftTooManyJoinsVisitor = new RedshiftTooManyJoinsVisitor();
-    parseTree.accept(redshiftTooManyJoinsVisitor);
-    assertFalse(redshiftTooManyJoinsVisitor.isPassed());
+    TooManyJoinsVisitor tooManyJoinsVisitor = new TooManyJoinsVisitor();
+    parseTree.accept(tooManyJoinsVisitor);
+    assertFalse(tooManyJoinsVisitor.isPassed());
   }
 
   @Test
@@ -56,9 +56,9 @@ public class RedshiftTooManyJoinsVisitorTest {
         + "join a3 on a1.i2 = a3.i "
         + "join a4 on a1.i3 = a4.i ");
 
-    RedshiftTooManyJoinsVisitor redshiftTooManyJoinsVisitor = new RedshiftTooManyJoinsVisitor(2);
-    parseTree.accept(redshiftTooManyJoinsVisitor);
-    assertTrue(redshiftTooManyJoinsVisitor.isPassed());
+    TooManyJoinsVisitor tooManyJoinsVisitor = new TooManyJoinsVisitor(2);
+    parseTree.accept(tooManyJoinsVisitor);
+    assertTrue(tooManyJoinsVisitor.isPassed());
   }
 
   @Test
@@ -68,8 +68,8 @@ public class RedshiftTooManyJoinsVisitorTest {
         + "a1 join a2 on a1.i1 = a2.i "
         + "join a3 on a1.i2 = a3.i ");
 
-    RedshiftTooManyJoinsVisitor redshiftTooManyJoinsVisitor = new RedshiftTooManyJoinsVisitor(2);
-    parseTree.accept(redshiftTooManyJoinsVisitor);
-    assertFalse(redshiftTooManyJoinsVisitor.isPassed());
+    TooManyJoinsVisitor tooManyJoinsVisitor = new TooManyJoinsVisitor(2);
+    parseTree.accept(tooManyJoinsVisitor);
+    assertFalse(tooManyJoinsVisitor.isPassed());
   }
 }

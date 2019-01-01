@@ -4,6 +4,7 @@ import com.google.common.graph.GraphBuilder;
 import com.google.common.graph.ImmutableGraph;
 import com.google.common.graph.MutableGraph;
 
+import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,11 @@ public class DagGenerator {
    */
   public static ImmutableGraph<String> buildGraph(List<QueryInfo> infos) {
     MutableGraph<String> dag = GraphBuilder.directed().allowsSelfLoops(true).build();
-    infos.forEach(info -> info.sources.forEach(src -> dag.putEdge(src, info.targetTable)));
+    infos.forEach((info) -> {
+          InsertVisitor visitor = info.classes.insertContext;
+          visitor.getSources().forEach(src -> dag.putEdge(src, visitor.getTargetTable()));
+        }
+    );
     logger.info(dag.toString());
     return ImmutableGraph.copyOf(dag);
   }

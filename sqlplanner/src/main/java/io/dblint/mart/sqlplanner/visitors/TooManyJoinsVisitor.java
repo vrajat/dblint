@@ -3,15 +3,15 @@ package io.dblint.mart.sqlplanner.visitors;
 import org.apache.calcite.sql.SqlCall;
 import org.apache.calcite.sql.SqlJoin;
 
-public class RedshiftTooManyJoinsVisitor extends ClassifyingVisitor {
+public class TooManyJoinsVisitor extends ClassifyingVisitor {
   int numJoins = 0;
   public final int limit;
 
-  public RedshiftTooManyJoinsVisitor() {
+  public TooManyJoinsVisitor() {
     this(10);
   }
 
-  public RedshiftTooManyJoinsVisitor(int limit) {
+  public TooManyJoinsVisitor(int limit) {
     super(true);
     this.limit = limit;
   }
