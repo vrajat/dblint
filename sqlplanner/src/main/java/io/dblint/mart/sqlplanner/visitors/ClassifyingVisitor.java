@@ -8,7 +8,7 @@ import org.apache.calcite.sql.util.SqlBasicVisitor;
 public abstract class ClassifyingVisitor extends SqlBasicVisitor<Void> {
   protected boolean passed;
 
-  ClassifyingVisitor(boolean passed) {
+  protected ClassifyingVisitor(boolean passed) {
     this.passed = passed;
   }
 

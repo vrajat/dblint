@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ETLTest {
   Logger logger = LoggerFactory.getLogger(ETLTest.class);
 
-  @Disabled
+  //@Disabled
   @Tag("cmdLine")
   @Test
   void cmdLineTest() throws IOException, MetricAgentException {

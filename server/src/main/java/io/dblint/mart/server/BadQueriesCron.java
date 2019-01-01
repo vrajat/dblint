@@ -5,7 +5,7 @@ import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.metricsink.redshift.MySqlSink;
 import io.dblint.mart.metricsink.redshift.RedshiftDb;
 import io.dblint.mart.metricsink.redshift.UserQuery;
-import io.dblint.mart.sqlplanner.RedshiftClassifier;
+import io.dblint.mart.sqlplanner.AnalyticsClassifier;
 import io.dblint.mart.sqlplanner.enums.EnumContext;
 import io.dblint.mart.sqlplanner.enums.QueryType;
 import io.dblint.mart.sqlplanner.enums.RedshiftEnum;
@@ -20,7 +20,7 @@ import java.util.List;
 public class BadQueriesCron extends Cron {
   private static Logger logger = LoggerFactory.getLogger(BadQueriesCron.class);
 
-  RedshiftClassifier redshiftClassier;
+  AnalyticsClassifier redshiftClassier;
   Counter numQueriesProcessed;
   Counter numBadQueries;
   Counter parseExceptions;
@@ -29,7 +29,7 @@ public class BadQueriesCron extends Cron {
                  RedshiftDb redshiftDb, MySqlSink mySqlSink) {
     super(mySqlSink, redshiftDb, frequency, metricRegistry, "badQueriesCron");
 
-    redshiftClassier = new RedshiftClassifier();
+    redshiftClassier = new AnalyticsClassifier();
     numQueriesProcessed = metricRegistry.counter("inviscid.bad_queries_cron.num_queries_processed");
     numBadQueries = metricRegistry.counter("inviscid.bad_queries_cron.num_bad_queries");
     parseExceptions = metricRegistry.counter("inviscid.bad_queries_cron.num_parse_exception");

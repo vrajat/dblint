@@ -41,6 +41,7 @@
   nonReservedKeywords: [
     "A"
     "C"
+    "DATE"
     "EXCEPTION"
     "IF"
     "LEFT"

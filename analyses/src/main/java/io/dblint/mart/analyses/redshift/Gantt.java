@@ -12,8 +12,10 @@ public class Gantt {
 
   static void sort(List<QueryInfo> queries) {
     queries.sort(Comparator.naturalOrder());
-    queries.forEach(q -> logger.info(q.targetTable
-        + "(" + q.sources.stream().collect(Collectors.joining(",")) + "),"
+    queries.forEach(q -> logger.info(q.classes.insertContext.getTargetTable()
+        + "("
+        + q.classes.insertContext.getSources().stream().collect(Collectors.joining(","))
+        + "),"
         + q.query.startTime + ","
         + q.query.endTime));
   }

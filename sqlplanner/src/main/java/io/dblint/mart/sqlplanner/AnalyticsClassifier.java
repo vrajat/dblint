@@ -16,7 +16,7 @@ import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
  * Created by rvenkatesh on 9/9/18.
  */
 public class AnalyticsClassifier extends Classifier {
-  AnalyticsClassifier() {
+  public AnalyticsClassifier() {
     super();
   }
 

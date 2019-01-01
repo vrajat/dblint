@@ -1,18 +1,17 @@
 package io.dblint.mart.analyses.redshift;
 
 import io.dblint.mart.metricsink.redshift.UserQuery;
+import io.dblint.mart.sqlplanner.redshift.QueryClasses;
 
 import java.util.List;
 
 class QueryInfo implements Comparable<QueryInfo> {
   final UserQuery query;
-  final String targetTable;
-  final List<String> sources;
+  final QueryClasses classes;
 
-  public QueryInfo(UserQuery query, String targetTable, List<String> sources) {
+  public QueryInfo(UserQuery query, QueryClasses classes) {
     this.query = query;
-    this.targetTable = targetTable;
-    this.sources = sources;
+    this.classes = classes;
   }
 
   @Override
