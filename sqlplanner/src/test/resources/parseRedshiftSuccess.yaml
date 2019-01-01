@@ -1,0 +1,30 @@
+- name: A
+  query: select a.id from tbl a
+- name: C
+  query: select c.id from tbl c
+- name: left
+  query: select a, left(str, 6) from sch.tbl
+- name: name
+  query: select a, b from sch.tbl where name='abc'
+- name: rowCount
+  query: select a, row_count from sch.tbl
+- name: state
+  query: select a, state from sch.tbl
+- name: value
+  query: select a, sum(value) from sch.tbl group by b
+- name: quotes
+  query: select "a", "b" from sch.tbl group by "b"
+- name: insertSelectDual
+  query: insert into emps("x", "y") select 1,2
+- name: ctas
+  query: create table tbl as select id, dep from emps where id = 10
+- name: ctas_temp
+  query: create temp table tbl as select id, dep from emps where id = 10
+- name: ctas_quoted
+  query: create table tbl as select "id", "dep" from "emps" where "id" = 10
+- name: ctas_temp
+  query: create temp table tbl as select "id", "dep" from emps where "id" = 10
+- name: month
+  query: select a, sum(month) from sch.tbl group by b
+- name: exception
+  query: select a, sum(exception) from sch.tbl group by b

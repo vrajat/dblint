@@ -86,7 +86,9 @@ public class Etl {
           numInserts.inc();
         }
       } catch (SqlParseException exception) {
-        // logger.warn(exception.getMessage());
+        logger.warn(query.query);
+        logger.warn(exception.getMessage());
+        logger.warn("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
       }
     });
     return queryInfos;
