@@ -5,23 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.dblint.mart.sqlplanner.enums.AnalyticsEnum;
-import io.dblint.mart.sqlplanner.enums.EnumContext;
-import io.dblint.mart.sqlplanner.enums.QueryType;
-import io.dblint.mart.sqlplanner.enums.RedshiftEnum;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import io.dblint.mart.sqlplanner.redshift.QueryClasses;
 import io.dblint.mart.sqlplanner.redshift.RedshiftClassifier;
+import io.dblint.mart.sqlplanner.visitors.CtasVisitor;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Test;
 
 class RedshiftClassifierTest {
   @Test
-  public void overLimitTest() throws SqlParseException {
+  void selectQuery() throws SqlParseException {
     RedshiftClassifier redshiftClassifier = new RedshiftClassifier();
 
     QueryClasses classes = redshiftClassifier.classify("select x from "
@@ -41,7 +37,7 @@ class RedshiftClassifierTest {
   }
 
   @Test
-  public void underLimitTest() throws SqlParseException {
+  public void insertTest() throws SqlParseException {
     RedshiftClassifier redshiftClassifier = new RedshiftClassifier();
 
     QueryClasses classes = redshiftClassifier.classify(
@@ -55,5 +51,28 @@ class RedshiftClassifierTest {
     expectedSources.add("B");
 
     assertIterableEquals(expectedSources, visitor.getSources());
+
+    assertFalse(classes.ctasContext.isPassed());
+    assertFalse(classes.maintenanceContext.isPassed());
+  }
+
+  @Test
+  public void ctasTest() throws SqlParseException {
+    RedshiftClassifier redshiftClassifier = new RedshiftClassifier();
+
+    QueryClasses classes = redshiftClassifier.classify(
+        "create table c as select * from a join b on a.id = b.id");
+    CtasVisitor visitor = classes.ctasContext;
+    assertTrue(visitor.isPassed());
+    assertEquals(visitor.getTargetTable(), "C");
+
+    List<String> expectedSources = new ArrayList<>();
+    expectedSources.add("A");
+    expectedSources.add("B");
+
+    assertIterableEquals(expectedSources, visitor.getSources());
+
+    assertFalse(classes.insertContext.isPassed());
+    assertFalse(classes.maintenanceContext.isPassed());
   }
 }

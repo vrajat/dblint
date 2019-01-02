@@ -2,6 +2,7 @@ package io.dblint.mart.sqlplanner.redshift;
 
 import io.dblint.mart.sqlplanner.planner.Parser;
 import io.dblint.mart.sqlplanner.planner.RedshiftParser;
+import io.dblint.mart.sqlplanner.visitors.CtasVisitor;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
@@ -25,13 +26,15 @@ public class RedshiftClassifier {
 
     MaintenanceVisitor maintenanceVisitor = new MaintenanceVisitor();
     InsertVisitor insertVisitor = new InsertVisitor();
+    CtasVisitor ctasVisitor = new CtasVisitor();
     maintenanceVisitor.visit(query);
 
     if (!maintenanceVisitor.isPassed()) {
       SqlNode sqlNode = parser.parse(query);
       sqlNode.accept(insertVisitor);
+      sqlNode.accept(ctasVisitor);
     }
 
-    return new QueryClasses(insertVisitor, maintenanceVisitor);
+    return new QueryClasses(insertVisitor, maintenanceVisitor, ctasVisitor);
   }
 }

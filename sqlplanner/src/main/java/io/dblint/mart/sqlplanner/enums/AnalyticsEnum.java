@@ -1,7 +1,7 @@
 package io.dblint.mart.sqlplanner.enums;
 
-import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
 import io.dblint.mart.sqlplanner.visitors.LookupVisitor;
+import io.dblint.mart.sqlplanner.visitors.TooManyJoinsVisitor;
 import org.apache.calcite.sql.SqlNode;
 
 /**
@@ -16,12 +16,12 @@ public enum AnalyticsEnum implements QueryType {
       return lookupVisitor.isPassed();
     }
   },
-  INSERT {
+  BAD_TOOMANYJOINS {
     @Override
     public boolean isPassed(SqlNode sqlNode) {
-      InsertVisitor visitor = new InsertVisitor();
-      sqlNode.accept(visitor);
-      return visitor.isPassed();
+      TooManyJoinsVisitor tooManyJoinsVisitor = new TooManyJoinsVisitor();
+      sqlNode.accept(tooManyJoinsVisitor);
+      return tooManyJoinsVisitor.isPassed();
     }
   }
 }
