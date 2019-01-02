@@ -6,9 +6,9 @@ import io.dblint.mart.metricsink.redshift.MySqlSink;
 import io.dblint.mart.metricsink.redshift.RedshiftDb;
 import io.dblint.mart.metricsink.redshift.UserQuery;
 import io.dblint.mart.sqlplanner.AnalyticsClassifier;
+import io.dblint.mart.sqlplanner.enums.AnalyticsEnum;
 import io.dblint.mart.sqlplanner.enums.EnumContext;
 import io.dblint.mart.sqlplanner.enums.QueryType;
-import io.dblint.mart.sqlplanner.enums.RedshiftEnum;
 
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class BadQueriesCron extends Cron {
         try {
           List<QueryType> queryTypes = redshiftClassier.classify(userQuery.query,
               EnumContext.EMPTY_CONTEXT);
-          if (queryTypes.contains(RedshiftEnum.BAD_TOOMANYJOINS)) {
+          if (queryTypes.contains(AnalyticsEnum.BAD_TOOMANYJOINS)) {
             numBadQueries.inc();
             mySqlSink.insertBadQueries(userQuery);
           }

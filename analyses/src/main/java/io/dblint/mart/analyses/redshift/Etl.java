@@ -18,25 +18,27 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Etl {
+class Etl {
   private static Logger logger = LoggerFactory.getLogger(Etl.class);
 
-  Counter numQueries;
-  Counter numParsed;
-  Counter numInserts;
-  Counter numInsertsWithSelects;
-  Counter numLongInserts;
-  Counter numMaintenanceQueries;
+  private Counter numQueries;
+  private Counter numParsed;
+  private Counter numInserts;
+  private Counter numInsertsWithSelects;
+  private Counter numLongDml;
+  private Counter numMaintenanceQueries;
+  private Counter numCtasQueries;
 
-  RedshiftClassifier classifier;
+  private RedshiftClassifier classifier;
 
   Etl(MetricRegistry registry) {
-    numQueries = registry.counter("io.dblint.dagGenerator.numQueries");
-    numParsed = registry.counter("io.dblint.dagGenerator.numParsed");
-    numInserts = registry.counter("io.dblint.DagGenerator.numInserts");
-    numInsertsWithSelects = registry.counter("io.dblint.DagGenerator.numInsertSelects");
-    numLongInserts = registry.counter("io.dblint.DagGenerator.numLongInserts");
-    numMaintenanceQueries = registry.counter("io.dblint.DagGenerator.numMaintenanceQueries");
+    numQueries = registry.counter("io.dblint.Etl.numQueries");
+    numParsed = registry.counter("io.dblint.Etl.numParsed");
+    numInserts = registry.counter("io.dblint.Etl.numInserts");
+    numInsertsWithSelects = registry.counter("io.dblint.Etl.numInsertSelects");
+    numLongDml = registry.counter("io.dblint.Etl.numLongDml");
+    numMaintenanceQueries = registry.counter("io.dblint.Etl.numMaintenanceQueries");
+    numCtasQueries = registry.counter("io.dblint.Etl.numCtas");
 
     classifier = new RedshiftClassifier();
   }
@@ -50,7 +52,7 @@ public class Etl {
       longRunningQueries(userQueries);
       queryInfos = parse(userQueries);
       ImmutableGraph<String> dag = DagGenerator.buildGraph(queryInfos);
-      Gantt.sort(queryInfos);
+      //Gantt.sort(queryInfos);
     } catch (Exception exc) {
       logger.error(exc.getMessage(), exc);
     }
@@ -60,7 +62,8 @@ public class Etl {
     logger.info("numParsed: " + numParsed.getCount());
     logger.info("numInserts: " + numInserts.getCount());
     logger.info("numInsertWithSelects: " + numInsertsWithSelects.getCount());
-    logger.info("numLongInserts: " + numLongInserts.getCount());
+    logger.info("numCtas: " + numCtasQueries.getCount());
+    logger.info("numLongDml: " + numLongDml.getCount());
   }
 
   private void longRunningQueries(List<UserQuery> queries) {
@@ -71,7 +74,7 @@ public class Etl {
         .forEach(q -> logger.info(q.toString()));
   }
 
-  private List<QueryInfo> parse(List<UserQuery> queries) {
+  List<QueryInfo> parse(List<UserQuery> queries) {
     List<QueryInfo> queryInfos = new ArrayList<>();
     queries.forEach((query) -> {
       try {
@@ -88,12 +91,20 @@ public class Etl {
           if (classes.insertContext.getSources().size() > 0) {
             logger.debug("Num Sources: " + classes.insertContext.getSources().size());
             numInsertsWithSelects.inc();
-            if (Duration.between(query.endTime, query.startTime).getSeconds() > 60) {
+            if (Duration.between(query.startTime, query.endTime).getSeconds() > 60) {
               queryInfos.add(new QueryInfo(query, classes));
-              numLongInserts.inc();
+              numLongDml.inc();
             }
           }
           numInserts.inc();
+        }
+
+        if (classes.ctasContext.isPassed()) {
+          numCtasQueries.inc();
+          if (Duration.between(query.startTime, query.endTime).getSeconds() > 60) {
+            queryInfos.add(new QueryInfo(query, classes));
+            numLongDml.inc();
+          }
         }
       } catch (SqlParseException exception) {
         logger.warn(query.query);
