@@ -32,7 +32,7 @@ class BadQueriesCronTest {
 
     when(userQueryList.size()).thenReturn(2);
     when(userQueryList.iterator()).thenReturn(mockIterator);
-    when(redshiftDb.getQueries())
+    when(redshiftDb.getQueries(any(LocalDateTime.class), any(LocalDateTime.class)))
         .thenReturn(userQueryList);
 
     BadQueriesCron badQueriesCron = new BadQueriesCron(60, metricRegistry, redshiftDb, mySqlSink);
@@ -57,7 +57,7 @@ class BadQueriesCronTest {
             10, "db", false, "select x1 tbl where h = 0")
     );
 
-    when(redshiftDb.getQueries())
+    when(redshiftDb.getQueries(any(LocalDateTime.class), any(LocalDateTime.class)))
         .thenReturn(userQueryList);
 
     BadQueriesCron badQueriesCron = new BadQueriesCron(60, metricRegistry, redshiftDb, mySqlSink);

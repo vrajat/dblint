@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,8 @@ public class RedshiftCsv implements Agent {
   }
 
   @Override
-  public List<UserQuery> getQueries() throws MetricAgentException {
+  public List<UserQuery> getQueries(LocalDateTime rangeStart, LocalDateTime rangeEnd)
+      throws MetricAgentException {
     try {
       return combineSplits(getSplitQueries());
     } catch (IOException exc) {

@@ -42,7 +42,10 @@ class RedshiftCsvTest {
   @Test
   void query12Test() throws MetricAgentException {
     InputStream inputStream = getClass().getClassLoader().getResourceAsStream("redshift_queries.csv");
-    List<UserQuery> userQueries = new RedshiftCsv(inputStream).getQueries();
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream).getQueries(
+        LocalDateTime.of(2018,12,19, 0, 0),
+        LocalDateTime.of(2018,12,21, 0, 0)
+    );
 
     assertEquals(1, userQueries.size());
     assertEquals(userQuery, userQueries.get(0));

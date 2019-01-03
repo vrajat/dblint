@@ -62,11 +62,11 @@ class RedshiftDbTest {
   void queryStatsTest() {
     MetricRegistry metricRegistry = new MetricRegistry();
     RedshiftDb redshiftDb = new RedshiftDb(url, "", "",
-        LocalDateTime.of(2018, 9, 13, 12, 0, 0),
-        LocalDateTime.of(2018, 9, 13, 13, 0, 0),
         metricRegistry);
 
-    List<QueryStats> queryStatsList = redshiftDb.getQueryStats(true);
+    List<QueryStats> queryStatsList = redshiftDb.getQueryStats(true,
+        LocalDateTime.of(2018, 9, 13, 12, 0, 0),
+        LocalDateTime.of(2018, 9, 13, 13, 0, 0));
 
     assertEquals(1, queryStatsList.size());
 
@@ -92,11 +92,11 @@ class RedshiftDbTest {
   void userQueryTest() {
     MetricRegistry metricRegistry = new MetricRegistry();
     RedshiftDb redshiftDb = new RedshiftDb(url, "", "",
-        LocalDateTime.of(2018, 9, 19, 11, 0, 0),
-        LocalDateTime.of(2018, 9, 19, 16, 0, 0),
         metricRegistry);
 
-    List<UserQuery> userQueries = redshiftDb.getQueries();
+    List<UserQuery> userQueries = redshiftDb.getQueries(
+        LocalDateTime.of(2018, 9, 19, 11, 0, 0),
+        LocalDateTime.of(2018, 9, 19, 16, 0, 0));
 
     UserQuery userQuery0 = userQueries.get(0);
     UserQuery userQuery1 = userQueries.get(1);
@@ -129,8 +129,6 @@ class RedshiftDbTest {
   void connectionTest() {
     MetricRegistry metricRegistry = new MetricRegistry();
     RedshiftDb redshiftDb = new RedshiftDb(url, "", "",
-        LocalDateTime.of(2018, 9, 19, 11, 0, 0),
-        LocalDateTime.of(2018, 9, 19, 16, 0, 0),
         metricRegistry);
 
     List<UserConnection> userConnections = redshiftDb.getUserConnections();
@@ -150,8 +148,6 @@ class RedshiftDbTest {
   void runningQueriesTest() {
     MetricRegistry metricRegistry = new MetricRegistry();
     RedshiftDb redshiftDb = new RedshiftDb(url, "", "",
-        LocalDateTime.of(2018, 9, 19, 11, 0, 0),
-        LocalDateTime.of(2018, 9, 19, 16, 0, 0),
         metricRegistry);
 
     List<RunningQuery> queries = redshiftDb.getRunningQueries();
