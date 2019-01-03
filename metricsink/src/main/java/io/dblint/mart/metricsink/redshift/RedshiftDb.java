@@ -14,29 +14,6 @@ public class RedshiftDb implements Agent {
   final String user;
   final String password;
   final Jdbi jdbi;
-  LocalDateTime rangeStart;
-  LocalDateTime rangeEnd;
-
-  /**
-   * Manage a connection to a Redshift database.
-   * @param url URL of the Redshift database
-   * @param user User of the Redshift database
-   * @param password Password of the Redshift database
-   * @param rangeStart Start time of time window
-   * @param rangeEnd End time of time window
-   * @param metricRegistry MetricRegistry for JDBI metrics
-   */
-  public RedshiftDb(String url, String user, String password,
-                    LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                    MetricRegistry metricRegistry) {
-    this.url = url;
-    this.user = user;
-    this.password = password;
-    this.rangeStart = rangeStart;
-    this.rangeEnd = rangeEnd;
-    this.jdbi = Jdbi.create(url, user, password);
-    jdbi.setSqlLogger(new JdbiTimer(metricRegistry));
-  }
 
   /**
    * Manage a connection to a Redshift database.
@@ -50,8 +27,6 @@ public class RedshiftDb implements Agent {
     this.url = url;
     this.user = user;
     this.password = password;
-    this.rangeStart = null;
-    this.rangeEnd = null;
     this.jdbi = Jdbi.create(url, user, password);
     jdbi.setSqlLogger(new JdbiTimer(metricRegistry));
   }
@@ -61,7 +36,8 @@ public class RedshiftDb implements Agent {
    * @param inTest Test parameter to choose a H2 compliant sql
    * @return List of QueryStats
    */
-  public List<QueryStats> getQueryStats(boolean inTest) {
+  public List<QueryStats> getQueryStats(boolean inTest,
+                                        LocalDateTime rangeStart, LocalDateTime rangeEnd) {
     return jdbi.withHandle(handle -> {
       handle.registerRowMapper(ConstructorMapper.factory(QueryStats.class));
       return handle.createQuery(inTest ? QueryStats.getExtractQueryinTest(rangeStart, rangeEnd)
@@ -73,10 +49,12 @@ public class RedshiftDb implements Agent {
 
   /**
    * Get all UserQueries for a specific time period from RedShift.
+   * @param rangeStart Start time of time window
+   * @param rangeEnd End time of time window
    * @return List of User Queries
    */
   @Override
-  public List<UserQuery> getQueries() {
+  public List<UserQuery> getQueries(LocalDateTime rangeStart, LocalDateTime rangeEnd) {
     return jdbi.withHandle(handle -> {
       handle.registerRowMapper(ConstructorMapper.factory(UserQuery.class));
       return handle.createQuery(UserQuery.getExtractQuery(rangeStart, rangeEnd))
@@ -109,13 +87,5 @@ public class RedshiftDb implements Agent {
           .mapTo(RunningQuery.class)
           .list();
     });
-  }
-
-  public void setRangeStart(LocalDateTime rangeStart) {
-    this.rangeStart = rangeStart;
-  }
-
-  public void setRangeEnd(LocalDateTime rangeEnd) {
-    this.rangeEnd = rangeEnd;
   }
 }

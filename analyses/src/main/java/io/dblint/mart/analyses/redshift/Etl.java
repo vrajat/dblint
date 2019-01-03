@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +45,10 @@ class Etl {
   }
 
   void analyze(Agent agent) throws IOException, MetricAgentException {
-    List<UserQuery> userQueries = agent.getQueries();
+    List<UserQuery> userQueries = agent.getQueries(
+        LocalDateTime.of(2018, 12, 10, 0, 0),
+        LocalDateTime.of(2018, 12, 25, 0, 0)
+    );
     numQueries.inc(userQueries.size());
 
     List<QueryInfo> queryInfos = null;

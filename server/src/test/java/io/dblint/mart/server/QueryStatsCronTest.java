@@ -32,7 +32,7 @@ class QueryStatsCronTest {
 
     when(queryStatsList.size()).thenReturn(2);
     when(queryStatsList.iterator()).thenReturn(mockIterator);
-    when(redshiftDb.getQueryStats(anyBoolean()))
+    when(redshiftDb.getQueryStats(anyBoolean(), any(LocalDateTime.class), any(LocalDateTime.class)))
         .thenReturn(queryStatsList);
 
     QueryStatsCron queryStatsCron = new QueryStatsCron(60, metricRegistry, redshiftDb, mySqlSink);

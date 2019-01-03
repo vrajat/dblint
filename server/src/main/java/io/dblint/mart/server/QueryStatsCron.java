@@ -34,9 +34,8 @@ public class QueryStatsCron extends Cron {
 
     try {
       iterations.inc();
-      redshiftDb.setRangeStart(startRange);
-      redshiftDb.setRangeEnd(endRange);
-      List<QueryStats> queryStatsList = redshiftDb.getQueryStats(false);
+      List<QueryStats> queryStatsList = redshiftDb.getQueryStats(false,
+          startRange, endRange);
       numQueries.inc(queryStatsList.size());
       logger.info("Processing " + queryStatsList.size() + " queries");
       for (QueryStats queryStats : queryStatsList) {

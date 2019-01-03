@@ -47,9 +47,7 @@ public class BadQueriesCron extends Cron {
 
     try {
       iterations.inc();
-      redshiftDb.setRangeStart(startRange);
-      redshiftDb.setRangeEnd(endRange);
-      List<UserQuery> userQueryList = redshiftDb.getQueries();
+      List<UserQuery> userQueryList = redshiftDb.getQueries(startRange, endRange);
 
       numQueriesProcessed.inc(userQueryList.size());
       logger.info("Processing " + userQueryList.size() + " queries" );
