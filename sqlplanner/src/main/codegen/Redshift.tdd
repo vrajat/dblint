@@ -40,20 +40,25 @@
   # List of keywords from "keywords" section that are not reserved.
   nonReservedKeywords: [
     "A"
+    "ACTION"
+    "ATOMIC"
     "C"
     "DATE"
+    "DAY"
     "EXCEPTION"
+    "FORMAT"
     "IF"
     "LEFT"
+    "MEMBER"
     "NAME"
     "NAMES"
     "MONTH"
+    "RANK"
     "ROW_COUNT"
     "STATE"
     "STORED"
     "TEMP"
     "VALUE"
-    "VALUES"
     "VIRTUAL"
   ]
 

@@ -1,5 +1,7 @@
 package io.dblint.mart.metricsink.redshift;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -18,10 +20,25 @@ import java.util.stream.Collectors;
 public class RedshiftCsv implements Agent {
   private static Logger logger = LoggerFactory.getLogger(RedshiftCsv.class);
 
-  final InputStream inputStream;
+  private final InputStream inputStream;
+  private final Counter numSplits;
+  private final Counter numQueries;
+  private final Counter numSplitEndsWithSlash;
 
-  public RedshiftCsv(InputStream is) {
+  /**
+   * Process a CSV with redshift queries.
+   * @param is InputStream that points to the CSV
+   * @param registry Global metric registry that manages all metrics
+   */
+  public RedshiftCsv(InputStream is, MetricRegistry registry) {
     this.inputStream = is;
+    this.numSplits = registry.counter(MetricRegistry.name("numSplits",
+        "io", "dblint", "RedshiftCsv"));
+    this.numQueries = registry.counter(MetricRegistry.name("numQueries",
+        "io", "dblint", "RedshiftCsv"));
+    this.numSplitEndsWithSlash = registry.counter(MetricRegistry.name("numSplitEndsWithSlash",
+        "io", "dblint", "RedshiftCsv"));
+
   }
 
   /**
@@ -41,21 +58,34 @@ public class RedshiftCsv implements Agent {
       queries.add(iterator.next());
     }
 
-    logger.debug("NumSplitQueries: " + queries.size());
+    numSplits.inc(queries.size());
     return queries;
   }
 
+  /**
+   * Get all UserQueries for a specific time period from RedShift.
+   * @param rangeStart Start time of time window
+   * @param rangeEnd End time of time window
+   * @return List of User Queries
+   * @throws MetricAgentException Throw an exception if csv cannot be read
+   */
   @Override
   public List<UserQuery> getQueries(LocalDateTime rangeStart, LocalDateTime rangeEnd)
       throws MetricAgentException {
     try {
-      return combineSplits(getSplitQueries());
+      final List<UserQuery> queries = combineSplits(getSplitQueries());
+
+      logger.info("numSplits: " + numSplits.getCount());
+      logger.info("numSplitEndsWithSlash:" + numSplitEndsWithSlash.getCount());
+      logger.info("numQueries:" + numQueries.getCount());
+
+      return queries;
     } catch (IOException exc) {
       throw new MetricAgentException(exc);
     }
   }
 
-  private static List<UserQuery> combineSplits(List<SplitUserQuery> splitUserQueries) {
+  private List<UserQuery> combineSplits(List<SplitUserQuery> splitUserQueries) {
     Map<Integer, List<SplitUserQuery>> groupByQueryId = splitUserQueries.stream().collect(
         Collectors.groupingBy(e -> e.queryId)
     );
@@ -78,8 +108,16 @@ public class RedshiftCsv implements Agent {
           splitUserQuery.startTime, splitUserQuery.endTime, splitUserQuery.duration,
           splitUserQuery.db, false, "");
 
-      value.stream().forEach(s -> userQuery.addQueryFragment(s.query.replace("\\n", "\n")));
+      value.stream().forEach((split) -> {
+        String query = split.query.replace("\\n", "\n");
+        if (query.endsWith("\\")) {
+          this.numSplitEndsWithSlash.inc();
+          query = query.substring(0, query.length() - 1);
+        }
+        userQuery.addQueryFragment(query);
+      });
       userQueries.add(userQuery);
+      this.numQueries.inc();
     });
 
     return userQueries;
