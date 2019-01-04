@@ -25,7 +25,7 @@ public class Parser {
   Quoting quoting = Quoting.DOUBLE_QUOTE;
   Casing unquotedCasing = Casing.TO_UPPER;
   Casing quotedCasing = Casing.UNCHANGED;
-  SqlConformance conformance = SqlConformanceEnum.DEFAULT;
+  SqlConformance conformance = SqlConformanceEnum.LENIENT;
 
   /**
    * Sole Constructor for a SQL Parser based on Apache Calcite.

@@ -1,6 +1,8 @@
 package io.dblint.mart.metricsink.redshift;
 
+import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.metricsink.util.MetricAgentException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,15 +17,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RedshiftCsvTest {
   Logger logger = LoggerFactory.getLogger(RedshiftCsvTest.class);
+  InputStream inputStream;
+  MetricRegistry registry;
+
+  @BeforeEach
+  void setUp() {
+    inputStream = getClass().getClassLoader().getResourceAsStream("redshift_queries.csv");
+    registry = new MetricRegistry();
+  }
+
   @Test
   void splitQuery12Test() throws IOException {
-    InputStream inputStream = getClass().getClassLoader().getResourceAsStream("redshift_queries.csv");
-    List<SplitUserQuery> queryList = new RedshiftCsv(inputStream).getSplitQueries();
+    List<SplitUserQuery> queryList = new RedshiftCsv(inputStream, registry).getSplitQueries();
     Iterator<SplitUserQuery> iterator = queryList.iterator();
     while(iterator.hasNext()) {
       logger.debug(iterator.next().toString());
     }
-    assertEquals(4, queryList.size());
+    assertEquals(8, queryList.size());
   }
 
   private static UserQuery userQuery = new UserQuery(
@@ -41,13 +51,13 @@ class RedshiftCsvTest {
   );
   @Test
   void query12Test() throws MetricAgentException {
-    InputStream inputStream = getClass().getClassLoader().getResourceAsStream("redshift_queries.csv");
-    List<UserQuery> userQueries = new RedshiftCsv(inputStream).getQueries(
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream, registry).getQueries(
         LocalDateTime.of(2018,12,19, 0, 0),
         LocalDateTime.of(2018,12,21, 0, 0)
     );
 
-    assertEquals(1, userQueries.size());
+    assertEquals(2, userQueries.size());
     assertEquals(userQuery, userQueries.get(0));
+    assertEquals(userQuery.query, userQueries.get(1).query);
   }
 }

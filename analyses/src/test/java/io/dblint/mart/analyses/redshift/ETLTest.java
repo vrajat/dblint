@@ -41,9 +41,8 @@ public class ETLTest {
     assertNotNull(System.getProperty("csvFile"));
     logger.info(System.getProperty("csvFile"));
     InputStream inputStream = new FileInputStream(System.getProperty("csvFile"));
-    MetricRegistry registry = new MetricRegistry();
 
-    Agent agent = new RedshiftCsv(inputStream);
+    Agent agent = new RedshiftCsv(inputStream, registry);
     etl.analyze(agent);
   }
 
