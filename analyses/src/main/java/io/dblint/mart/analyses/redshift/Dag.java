@@ -10,22 +10,29 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class DagGenerator {
-  private static Logger logger = LoggerFactory.getLogger(DagGenerator.class);
+public class Dag {
+  private static Logger logger = LoggerFactory.getLogger(Dag.class);
+
+  static class Graph {
+    public final ImmutableGraph<String> dag;
+
+    public Graph(ImmutableGraph<String> dag) {
+      this.dag = dag;
+    }
+  }
 
   /**
    * Generate a di-graph with tables as nodes and insert data movement as dependency.
    * @param infos Query information POJO
    * @return A Guava immutable graph of inserts
    */
-  public static ImmutableGraph<String> buildGraph(List<QueryInfo> infos) {
+  public static Graph buildGraph(List<QueryInfo> infos) {
     MutableGraph<String> dag = GraphBuilder.directed().allowsSelfLoops(true).build();
     infos.forEach((info) -> {
           InsertVisitor visitor = info.classes.insertContext;
           visitor.getSources().forEach(src -> dag.putEdge(src, visitor.getTargetTable()));
         }
     );
-    logger.info(dag.toString());
-    return ImmutableGraph.copyOf(dag);
+    return new Graph(ImmutableGraph.copyOf(dag));
   }
 }
