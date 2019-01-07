@@ -13,13 +13,23 @@ import org.apache.calcite.sql.parser.SqlParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 class Etl {
+
+  static class Result {
+    public final List<Gantt.Entry> gantt;
+    public final Dag.Graph dag;
+
+    public Result(List<Gantt.Entry> gantt, Dag.Graph dag) {
+      this.gantt = gantt;
+      this.dag = dag;
+    }
+  }
+
   private static Logger logger = LoggerFactory.getLogger(Etl.class);
 
   private Counter numQueries;
@@ -44,7 +54,7 @@ class Etl {
     classifier = new RedshiftClassifier();
   }
 
-  void analyze(Agent agent) throws IOException, MetricAgentException {
+  Result analyze(Agent agent) throws MetricAgentException {
     List<UserQuery> userQueries = agent.getQueries(
         LocalDateTime.of(2018, 12, 10, 0, 0),
         LocalDateTime.of(2018, 12, 25, 0, 0)
@@ -52,14 +62,10 @@ class Etl {
     numQueries.inc(userQueries.size());
 
     List<QueryInfo> queryInfos = null;
-    try {
-      longRunningQueries(userQueries);
-      queryInfos = parse(userQueries);
-      ImmutableGraph<String> dag = DagGenerator.buildGraph(queryInfos);
-      //Gantt.sort(queryInfos);
-    } catch (Exception exc) {
-      logger.error(exc.getMessage(), exc);
-    }
+    longRunningQueries(userQueries);
+    queryInfos = parse(userQueries);
+    final Dag.Graph dag = Dag.buildGraph(queryInfos);
+    final List<Gantt.Entry> gantt = Gantt.sort(queryInfos);
 
     logger.info("numQueries: " + numQueries.getCount());
     logger.info("numMaintenanceQueries: " + numMaintenanceQueries.getCount());
@@ -68,6 +74,7 @@ class Etl {
     logger.info("numInsertWithSelects: " + numInsertsWithSelects.getCount());
     logger.info("numCtas: " + numCtasQueries.getCount());
     logger.info("numLongDml: " + numLongDml.getCount());
+    return new Result(gantt, dag);
   }
 
   private void longRunningQueries(List<UserQuery> queries) {

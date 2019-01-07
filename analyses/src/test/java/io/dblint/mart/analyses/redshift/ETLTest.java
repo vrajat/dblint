@@ -1,6 +1,8 @@
 package io.dblint.mart.analyses.redshift;
 
 import com.codahale.metrics.MetricRegistry;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.dblint.mart.metricsink.redshift.Agent;
 import io.dblint.mart.metricsink.redshift.RedshiftCsv;
 import io.dblint.mart.metricsink.redshift.UserQuery;
@@ -13,8 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ETLTest {
-  Logger logger = LoggerFactory.getLogger(ETLTest.class);
+  private Logger logger = LoggerFactory.getLogger(ETLTest.class);
 
-  MetricRegistry registry;
-  Etl etl;
+  private MetricRegistry registry;
+  private Etl etl;
 
   @BeforeEach
   void setUp() {
@@ -39,11 +43,28 @@ public class ETLTest {
   @Test
   void cmdLineTest() throws IOException, MetricAgentException {
     assertNotNull(System.getProperty("csvFile"));
+    assertNotNull(System.getProperty("ganttFile"));
+    assertNotNull(System.getProperty("dagFile"));
+
     logger.info(System.getProperty("csvFile"));
+    logger.info(System.getProperty("ganttFile"));
+    logger.info(System.getProperty("dagFile"));
+
     InputStream inputStream = new FileInputStream(System.getProperty("csvFile"));
 
     Agent agent = new RedshiftCsv(inputStream, registry);
-    etl.analyze(agent);
+    Etl.Result result = etl.analyze(agent);
+
+    ObjectMapper mapper = new ObjectMapper();
+
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(Dag.Graph.class, new GraphSerializer());
+    mapper.registerModule(module);
+
+    mapper.writeValue(new FileOutputStream(System.getProperty("ganttFile")), result.gantt);
+
+    OutputStream dagO = new FileOutputStream(System.getProperty("dagFile"));
+    mapper.writeValue(dagO, result.dag);
   }
 
   private UserQuery getUserQuery(String query) {
