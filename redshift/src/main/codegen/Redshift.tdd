@@ -16,8 +16,8 @@
 
 {
   # Generated parser implementation class package and name
-  package: "io.dblint.mart.sqlplanner.planner",
-  class: "RedshiftParser",
+  package: "io.dblint.mart.redshift",
+  class: "SqlRedshiftParser",
 
   # List of import statements.
   imports: [

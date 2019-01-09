@@ -1,7 +1,6 @@
 package io.dblint.mart.sqlplanner.visitors;
 
 import io.dblint.mart.sqlplanner.planner.Parser;
-import io.dblint.mart.sqlplanner.utils.SqlProvider;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.dblint.mart.sqlplanner.utils.SqlProvider;
 
 import java.util.Iterator;
 import java.util.List;
