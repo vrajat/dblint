@@ -42,3 +42,5 @@
   query: select a, sum(exception) from sch.tbl group by b
 - name: insertValues
   query: insert into emps("x", "y") values(1,2)
+- name: unload
+  query: unload('select a, b from c') to 's3://bucket/dir' iam_role '' delimiter '^' ALLOWOVERWRITE ESCAPE PARALLEL OFF NULL AS ''

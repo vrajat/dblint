@@ -162,3 +162,38 @@ SqlCreate SqlCreateTable(Span s, boolean replace) :
             tableElementList, query);
     }
 }
+
+SqlUnload SqlUnloadStmt() :
+{
+    final SqlNode selectStmt;
+    final SqlNode s3Loc;
+    final SqlNode role;
+    final SqlNode delim;
+    final SqlNode nullAs;
+    final Span s;
+}
+{
+    <UNLOAD>
+    {
+        s = span();
+    }
+        <LPAREN>
+            selectStmt = StringLiteral()
+        <RPAREN>
+    <TO>
+        s3Loc = StringLiteral()
+    <IAM_ROLE>
+        role = StringLiteral()
+    <DELIMITER>
+        delim = StringLiteral()
+    <ALLOWOVERWRITE> <ESCAPE> <PARALLEL> <OFF> <NULL> <AS>
+        nullAs = StringLiteral()
+    {
+        return new SqlUnload(s.end(this),
+            selectStmt,
+            s3Loc,
+            role,
+            delim,
+            nullAs);
+    }
+}
