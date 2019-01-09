@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class MySqlSinkTest {
-  private static final String url = "jdbc:h2:mem:com.dblint.metricsink.sinks.MySqlSinkTest";
+  private static final String url = "jdbc:h2:mem:io.dblint.metricsink.sinks.MySqlSinkTest";
 
   private MetricRegistry metricRegistry;
   private Connection h2db;

@@ -1,7 +1,7 @@
 package io.dblint.mart.sqlplanner.redshift;
 
+import io.dblint.mart.redshift.SqlRedshiftParser;
 import io.dblint.mart.sqlplanner.planner.Parser;
-import io.dblint.mart.sqlplanner.planner.RedshiftParser;
 import io.dblint.mart.sqlplanner.visitors.CtasVisitor;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
 import org.apache.calcite.sql.SqlNode;
@@ -12,7 +12,7 @@ public class RedshiftClassifier {
   public final Parser parser;
 
   public RedshiftClassifier() {
-    parser = new Parser(RedshiftParser.FACTORY);
+    parser = new Parser(SqlRedshiftParser.FACTORY);
   }
 
   /**
