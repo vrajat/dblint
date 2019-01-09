@@ -25,14 +25,21 @@
     "org.apache.calcite.sql.SqlCreate"
     "org.apache.calcite.sql.SqlDrop"
     "org.apache.calcite.sql.ddl.SqlDdlNodes"
+    "io.dblint.mart.redshift.SqlUnload"
     "java.util.Map"
     "java.util.HashMap"
   ]
 
   # List of keywords.
   keywords: [
+    "ALLOWOVERWRITE"
+    "DELIMITER"
+    "IAM_ROLE"
     "IF"
+    "OFF"
+    "PARALLEL"
     "STORED"
+    "UNLOAD"
     "VIRTUAL"
     "TEMP"
   ]
@@ -41,23 +48,29 @@
   nonReservedKeywords: [
     "A"
     "ACTION"
+    "ALLOWOVERWRITE"
     "ATOMIC"
     "C"
     "DATE"
     "DAY"
+    "DELIMITER"
     "EXCEPTION"
     "FORMAT"
+    "IAM_ROLE"
     "IF"
     "LEFT"
     "MEMBER"
+    "MONTH"
     "NAME"
     "NAMES"
-    "MONTH"
+    "OFF"
+    "PARALLEL"
     "RANK"
     "ROW_COUNT"
     "STATE"
     "STORED"
     "TEMP"
+    "UNLOAD"
     "VALUE"
     "VIRTUAL"
   ]
@@ -69,6 +82,7 @@
 
   # List of methods for parsing custom SQL statements.
   statementParserMethods: [
+    "SqlUnloadStmt()"
   ]
 
   # List of methods for parsing custom literals.
