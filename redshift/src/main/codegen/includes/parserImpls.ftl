@@ -197,3 +197,201 @@ SqlUnload SqlUnloadStmt() :
             nullAs);
     }
 }
+
+void Authorization(SqlCopy.Credentials credentials) :
+{
+    final SqlNode credentialNode;
+}
+{
+    <CREDENTIALS> credentialNode = StringLiteral()
+    {
+        credentials.credentials = (SqlLiteral) credentialNode;
+    }
+}
+
+void parseConversionParams(SqlCopy.ConversionParams conversionParams, SqlCopy.LoadParams loadParams) :
+{
+    SqlNode acceptInvChars = null;
+    SqlNode dateFormat = null;
+    int ignoreAsHeaders = RelDataType.PRECISION_NOT_SPECIFIED;
+    SqlNode nullAs = null;
+    SqlNode timeFormat = null;
+    int compRows = RelDataType.PRECISION_NOT_SPECIFIED;
+    int maxError = RelDataType.PRECISION_NOT_SPECIFIED;
+}
+{
+    (
+        <ACCEPTANYDATE> {conversionParams.acceptAnyDate = true;}
+    |
+        <ACCEPTINVCHARS>
+        (
+            [ <AS> ] acceptInvChars = StringLiteral()
+            {
+                conversionParams.acceptInvChars = true;
+                conversionParams.acceptInvCharsValue = (SqlLiteral) acceptInvChars;
+            }
+        |
+            {
+                conversionParams.acceptInvChars = true;
+            }
+        )
+    |
+        <BLANKSASNULL> {conversionParams.blanksAsNull = true;}
+    |
+        <DATEFORMAT> [ <AS> ] dateFormat = StringLiteral()
+        {
+            conversionParams.dateFormat = (SqlLiteral) dateFormat;
+        }
+    |
+        <EMPTYASNULL> {conversionParams.emptyAsNull = true;}
+    |
+        <ESCAPE> {conversionParams.escape = true;}
+    |
+        <EXPLICIT_IDS> {conversionParams.explicitIds = true;}
+    |
+        <FILLRECORD> {conversionParams.fillRecord = true;}
+    |
+        <IGNOREBLANKLINES> {conversionParams.ignoreBlankLines = true;}
+    |
+        <IGNOREHEADER> [ <AS> ] ignoreAsHeaders = UnsignedIntLiteral()
+        {
+            conversionParams.ignoreAsHeaders = ignoreAsHeaders;
+        }
+    |
+        <NULL> [ <AS> ] nullAs = StringLiteral()
+        {
+            conversionParams.nullAs = (SqlLiteral) nullAs;
+        }
+    |
+        <REMOVEQUOTES> {conversionParams.removeQuotes = true;}
+    |
+        <ROUNDEC> {conversionParams.roundec = true;}
+    |
+        <TIMEFORMAT> [ <AS> ] timeFormat = StringLiteral()
+        {
+            conversionParams.timeFormat = (SqlLiteral) timeFormat;
+        }
+    |
+        <TRIMBLANKS> {conversionParams.trimBlanks = true;}
+    |
+        <TRUNCATECOLUMNS> {conversionParams.truncateColumns = true;}
+    |
+        <COMPROWS> compRows = UnsignedIntLiteral()
+        {
+            loadParams.compRows = compRows;
+        }
+    |
+        <COMPUPDATE>
+        (
+            <ON> {loadParams.compUpdate = true;}
+        |
+            <TRUE> {loadParams.compUpdate = true;}
+        |
+            <OFF> {loadParams.compUpdate = false;}
+        |
+            <FALSE> {loadParams.compUpdate = false;}
+        )
+    |
+        <MAXERROR> maxError = UnsignedIntLiteral()
+        {
+            loadParams.maxError = maxError;
+        }
+    |
+        <NOLOAD> {loadParams.noLoad = true;}
+    |
+        <STATUPDATE>
+        (
+            <ON> {loadParams.compUpdate = true;}
+        |
+            <TRUE> {loadParams.compUpdate = true;}
+        |
+            <OFF> {loadParams.compUpdate = false;}
+        |
+            <FALSE> {loadParams.compUpdate = false;}
+        )
+    |
+        copyFormat(conversionParams.format)
+    )*
+}
+
+void copyFormat(SqlCopy.Format format) :
+{
+    final SqlNode delimiter;
+    final SqlNode json;
+}
+{
+    [ <FORMAT> [ <AS> ] ]
+    (
+        <CSV>
+        {
+            format.csv = true;
+        }
+    |
+        <DELIMITER> [ <AS> ] delimiter = StringLiteral()
+        {
+            format.delimiter = (SqlLiteral) delimiter;
+        }
+    |
+        <JSON> [ <AS> ] json = StringLiteral()
+        {
+            format.json = (SqlLiteral) json;
+        }
+    )
+}
+
+void copyDataSource(SqlCopy.DataSource source) :
+{
+    final SqlNode s3Loc;
+    SqlNode region = null;
+}
+{
+    <FROM> s3Loc = StringLiteral()
+    {
+        source.s3Loc = (SqlLiteral) s3Loc;
+    }
+    Authorization(source.credentials)
+    (
+        <MANIFEST> {source.manifest = true;}
+    |
+        <ENCRYPTED> {source.encrypted = true;}
+    |
+        <REGION> [ <AS> ] region = StringLiteral()
+        {
+            source.region = (SqlLiteral) region;
+        }
+    |
+        copyFormat(source.format)
+    )*
+}
+
+SqlCopy SqlCopyStmt() :
+{
+    final SqlNode table;
+    SqlNodeList columnList = null;
+    final Span s;
+    SqlCopy.DataSource dataSource = new SqlCopy.DataSource();
+    SqlCopy.ConversionParams conversionParams = new SqlCopy.ConversionParams();
+    SqlCopy.LoadParams loadParams = new SqlCopy.LoadParams();
+}
+{
+    <COPY>
+    {
+        s = span();
+    }
+        table = CompoundIdentifier()
+    [
+        LOOKAHEAD(2)
+        { final Pair<SqlNodeList, SqlNodeList> p; }
+        p = ParenthesizedCompoundIdentifierList() {
+            if (p.left.size() > 0) {
+                columnList = p.left;
+            }
+        }
+    ]
+    copyDataSource(dataSource)
+    parseConversionParams(conversionParams, loadParams)
+    {
+        return new SqlCopy(s.end(this), table, columnList,
+            dataSource, conversionParams, loadParams);
+    }
+}

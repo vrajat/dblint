@@ -41,6 +41,7 @@ public class RedshiftParserTest {
             .setConformance(conformance)
             .setCaseSensitive(false)
             .build());
+
     SqlNode sqlNode = parser.parseStmt();
     assertNotNull(sqlNode);
   }
