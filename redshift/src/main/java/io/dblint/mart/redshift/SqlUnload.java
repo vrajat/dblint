@@ -15,9 +15,9 @@ public class SqlUnload extends SqlCall {
   private final SqlSpecialOperator operator;
   private final SqlLiteral sqlStmt;
   private final SqlLiteral s3Loc;
-  private final SqlNode role;
-  private final SqlNode delim;
-  private final SqlNode nullAs;
+  private final SqlLiteral role;
+  private final SqlLiteral delim;
+  private final SqlLiteral nullAs;
 
   /**
    * Represents an UNLOAD statement.
@@ -40,9 +40,9 @@ public class SqlUnload extends SqlCall {
 
     this.sqlStmt = (SqlLiteral) sqlStmt;
     this.s3Loc = (SqlLiteral) s3Loc;
-    this.role = role;
-    this.delim = delim;
-    this.nullAs = nullAs;
+    this.role = (SqlLiteral) role;
+    this.delim = (SqlLiteral) delim;
+    this.nullAs = (SqlLiteral) nullAs;
 
     operator = new SqlSpecialOperator("UNLOAD", SqlKind.OTHER);
   }
