@@ -3171,6 +3171,14 @@ List<Object> Expression2(ExprContext exprContext) :
                 }
                 Expression2b(ExprContext.ACCEPT_SUB_QUERY, list)
             |
+                <DOUBLE_COLON> e = DataType()
+                {
+                    list.add(
+                        new SqlParserUtil.ToTreeListItem(
+                            CustomSqlOperatorTable.DOUBLE_COLON_CAST, getPos()));
+                    list.add(e);
+                }
+            |
                 <LBRACKET>
                 e = Expression(ExprContext.ACCEPT_SUB_QUERY)
                 <RBRACKET> {
@@ -6844,6 +6852,7 @@ void NonReservedKeyWord2of3() :
 |   < CONCAT: "||" >
 |   < NAMED_ARGUMENT_ASSIGNMENT: "=>" >
 |   < DOUBLE_PERIOD: ".." >
+|   < DOUBLE_COLON: "::" >
 |   < QUOTE: "'" >
 |   < DOUBLE_QUOTE: "\"" >
 |   < VERTICAL_BAR: "|" >
