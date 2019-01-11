@@ -62,3 +62,5 @@
   query: copy a.b(c, d, e) from 's3://bucket/dir' CREDENTIALS '' delimiter ',' REMOVEQUOTES ACCEPTINVCHARS IGNOREHEADER 1
 - name: copy_format_end
   query: copy a.b(c, d, e) from 's3://bucket/dir' CREDENTIALS '' ACCEPTINVCHARS IGNOREHEADER 1 CSV
+- name: cast
+  query: select a::abc, b::abc from c
