@@ -1033,6 +1033,14 @@ SqlSelect SqlSelect() :
         }
     )?
     (
+        {
+            int i = 0;
+        }
+        <TOP> i = UnsignedIntLiteral() {
+            keywords.add(SqlSelectKeyword.STREAM.symbol(getPos()));
+        }
+    )?
+    (
         <DISTINCT> {
             keywords.add(SqlSelectKeyword.DISTINCT.symbol(getPos()));
         }

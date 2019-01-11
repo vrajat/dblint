@@ -64,3 +64,5 @@
   query: copy a.b(c, d, e) from 's3://bucket/dir' CREDENTIALS '' ACCEPTINVCHARS IGNOREHEADER 1 CSV
 - name: cast
   query: select a::abc, b::abc from c
+- name: select_top
+  query: select top 5 a, b from d where e = 5
