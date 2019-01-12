@@ -56,4 +56,12 @@ public class SqlUnload extends SqlCall {
   public List<SqlNode> getOperandList() {
     return ImmutableNullableList.of(sqlStmt, s3Loc, role, delim, nullAs);
   }
+
+  public SqlLiteral getSqlStmt() {
+    return sqlStmt;
+  }
+
+  public SqlLiteral getS3Loc() {
+    return s3Loc;
+  }
 }

@@ -110,4 +110,24 @@ public class SqlCopy extends SqlCall {
         table,
         columnList);
   }
+
+  public SqlIdentifier getTable() {
+    return table;
+  }
+
+  public DataSource getDataSource() {
+    return dataSource;
+  }
+
+  public SqlNodeList getColumnList() {
+    return columnList;
+  }
+
+  public ConversionParams getConversionParams() {
+    return conversionParams;
+  }
+
+  public LoadParams getLoadParams() {
+    return loadParams;
+  }
 }

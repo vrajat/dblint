@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CtasVisitorTest {
+class DmlVisitorTest {
   private static Logger logger = LoggerFactory.getLogger(InsertVisitorTest.class);
 
   private static Parser parser;
@@ -43,7 +43,7 @@ class CtasVisitorTest {
     logger.debug("Actual: " + visitor.getSources().size());
 
     assertTrue(visitor.passed);
-    assertEquals(targetTable, visitor.getTargetTable().toString());
+    assertEquals(targetTable, visitor.getTargetTable());
 
     Iterator<String> expected = sourceTables.iterator();
     Iterator<String> actual = visitor.getSources().iterator();
@@ -52,6 +52,45 @@ class CtasVisitorTest {
     }
     assertFalse(expected.hasNext());
     assertFalse(actual.hasNext());
+  }
+
+  @ParameterizedTest(name="[{index}] {0}")
+  @ArgumentsSource(SqlProvider.class)
+  @Tags({@Tag("/uploadSuccess.yaml")})
+  void uploadTest(String name, String targetTable,
+                  List<String> sourceTables, String query) throws SqlParseException {
+    SqlNode node = parser.parse(query);
+    UnloadVisitor visitor = new UnloadVisitor();
+    node.accept(visitor);
+
+    logger.debug("Expected:" + sourceTables.size());
+    logger.debug("Actual: " + visitor.getSources().size());
+
+    assertTrue(visitor.passed);
+    assertEquals(targetTable, visitor.getS3Location());
+
+    Iterator<String> expected = sourceTables.iterator();
+    Iterator<String> actual = visitor.getSources().iterator();
+    while (expected.hasNext() && actual.hasNext()) {
+      assertEquals(expected.next(), actual.next());
+    }
+    assertFalse(expected.hasNext());
+    assertFalse(actual.hasNext());
+  }
+
+   @ParameterizedTest(name="[{index}] {0}")
+  @ArgumentsSource(SqlProvider.class)
+  @Tags({@Tag("/copySuccess.yaml")})
+  void copyTest(String name, String targetTable,
+                  List<String> sourceTables, String query) throws SqlParseException {
+    SqlNode node = parser.parse(query);
+    CopyVisitor visitor = new CopyVisitor();
+    node.accept(visitor);
+
+    assertTrue(visitor.passed);
+    assertEquals(targetTable, visitor.getTargetTable());
+
+    assertEquals(sourceTables.get(0), visitor.getS3Location());
   }
 
   @Test
