@@ -79,7 +79,10 @@ public class RedshiftCsv implements Agent {
       logger.info("numSplitEndsWithSlash:" + numSplitEndsWithSlash.getCount());
       logger.info("numQueries:" + numQueries.getCount());
 
-      return queries;
+      return queries.stream().filter(q ->
+          (q.startTime.isEqual(rangeStart) || q.startTime.isAfter(rangeStart))
+              && q.startTime.isBefore(rangeEnd))
+          .collect(Collectors.toList());
     } catch (IOException exc) {
       throw new MetricAgentException(exc);
     }

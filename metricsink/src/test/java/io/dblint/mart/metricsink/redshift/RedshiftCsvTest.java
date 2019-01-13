@@ -52,12 +52,71 @@ class RedshiftCsvTest {
   @Test
   void query12Test() throws MetricAgentException {
     List<UserQuery> userQueries = new RedshiftCsv(inputStream, registry).getQueries(
-        LocalDateTime.of(2018,12,19, 0, 0),
-        LocalDateTime.of(2018,12,21, 0, 0)
+        LocalDateTime.of(2018,9,19, 0, 0),
+        LocalDateTime.of(2018,9,21, 0, 0)
     );
 
     assertEquals(2, userQueries.size());
     assertEquals(userQuery, userQueries.get(0));
     assertEquals(userQuery.query, userQueries.get(1).query);
+  }
+
+  @Test
+  void rangeStartBeforeTest() throws MetricAgentException {
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream, registry).getQueries(
+        LocalDateTime.of(2018,9,19, 13, 0),
+        LocalDateTime.of(2018,9,21, 0, 0)
+    );
+
+    assertEquals(2, userQueries.size());
+  }
+
+  @Test
+  void rangeStartExactTest() throws MetricAgentException {
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream, registry).getQueries(
+        LocalDateTime.of(2018,9,19, 13, 8, 3),
+        LocalDateTime.of(2018,9,21, 0, 0)
+    );
+
+    assertEquals(2, userQueries.size());
+  }
+
+  @Test
+  void rangeStartAfterTest() throws MetricAgentException {
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream, registry).getQueries(
+        LocalDateTime.of(2018,9,19, 13, 8, 4),
+        LocalDateTime.of(2018,9,21, 0, 0)
+    );
+
+    assertEquals(1, userQueries.size());
+  }
+
+  @Test
+  void rangeEndAfterTest() throws MetricAgentException {
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream, registry).getQueries(
+        LocalDateTime.of(2018,9,19, 13, 0),
+        LocalDateTime.of(2018,9,20, 13, 47)
+    );
+
+    assertEquals(2, userQueries.size());
+  }
+
+  @Test
+  void rangeEndExactTest() throws MetricAgentException {
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream, registry).getQueries(
+        LocalDateTime.of(2018,9,19, 13, 0),
+        LocalDateTime.of(2018,9,20, 13, 8, 3)
+    );
+
+    assertEquals(1, userQueries.size());
+  }
+  @Test
+  void rangeEndBeforeTest() throws MetricAgentException {
+    List<UserQuery> userQueries = new RedshiftCsv(inputStream, registry).getQueries(
+        LocalDateTime.of(2018,9,19, 13, 0),
+        LocalDateTime.of(2018,9,20, 13, 7)
+    );
+
+    assertEquals(1, userQueries.size());
   }
 }

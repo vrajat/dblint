@@ -53,7 +53,9 @@ public class ETLTest {
     InputStream inputStream = new FileInputStream(System.getProperty("csvFile"));
 
     Agent agent = new RedshiftCsv(inputStream, registry);
-    Etl.Result result = etl.analyze(agent);
+    Etl.Result result = etl.analyze(agent.getQueries(
+        LocalDateTime.of(2018, 12, 12, 0, 0),
+        LocalDateTime.of(2018, 12, 13, 0, 0)));
 
     ObjectMapper mapper = new ObjectMapper();
 
