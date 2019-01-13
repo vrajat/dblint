@@ -2,6 +2,7 @@ package io.dblint.mart.metricsink.redshift;
 
 import org.jdbi.v3.core.mapper.reflect.JdbiConstructor;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -47,8 +48,12 @@ public class UserQuery implements Jdbi {
     this.query = query;
   }
 
-  public void addQueryFragment(String fragment) {
+  void addQueryFragment(String fragment) {
     this.query += fragment;
+  }
+
+  public long getDuration() {
+    return Duration.between(this.startTime, this.endTime).getSeconds();
   }
 
   @Override

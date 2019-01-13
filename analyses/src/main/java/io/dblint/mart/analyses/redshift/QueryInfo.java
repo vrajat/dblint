@@ -6,7 +6,7 @@ import io.dblint.mart.sqlplanner.redshift.QueryClasses;
 import java.util.List;
 
 class QueryInfo implements Comparable<QueryInfo> {
-  final UserQuery query;
+  public final UserQuery query;
   final QueryClasses classes;
 
   public QueryInfo(UserQuery query, QueryClasses classes) {
