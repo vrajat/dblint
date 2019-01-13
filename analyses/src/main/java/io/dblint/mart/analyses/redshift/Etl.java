@@ -54,11 +54,7 @@ class Etl {
     classifier = new RedshiftClassifier();
   }
 
-  Result analyze(Agent agent) throws MetricAgentException {
-    List<UserQuery> userQueries = agent.getQueries(
-        LocalDateTime.of(2018, 12, 10, 0, 0),
-        LocalDateTime.of(2018, 12, 25, 0, 0)
-    );
+  Result analyze(List<UserQuery> userQueries) {
     numQueries.inc(userQueries.size());
 
     List<QueryInfo> queryInfos = null;
