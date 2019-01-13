@@ -26,7 +26,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ETLTest {
+class ETLTest {
   private Logger logger = LoggerFactory.getLogger(ETLTest.class);
 
   private MetricRegistry registry;
@@ -44,18 +44,24 @@ public class ETLTest {
   void cmdLineTest() throws IOException, MetricAgentException {
     assertNotNull(System.getProperty("csvFile"));
     assertNotNull(System.getProperty("ganttFile"));
+    assertNotNull(System.getProperty("histogramFile"));
     assertNotNull(System.getProperty("dagFile"));
+    assertNotNull(System.getProperty("phasesFile"));
+    assertNotNull(System.getProperty("queriesFile"));
 
     logger.info(System.getProperty("csvFile"));
     logger.info(System.getProperty("ganttFile"));
+    logger.info(System.getProperty("histogramFile"));
     logger.info(System.getProperty("dagFile"));
+    logger.info(System.getProperty("phasesFile"));
+    logger.info(System.getProperty("queriesFile"));
 
     InputStream inputStream = new FileInputStream(System.getProperty("csvFile"));
 
     Agent agent = new RedshiftCsv(inputStream, registry);
     Etl.Result result = etl.analyze(agent.getQueries(
-        LocalDateTime.of(2018, 12, 12, 0, 0),
-        LocalDateTime.of(2018, 12, 13, 0, 0)));
+        LocalDateTime.of(2018, 12, 12, 2, 0),
+        LocalDateTime.of(2018, 12, 12, 10, 0)));
 
     ObjectMapper mapper = new ObjectMapper();
 
@@ -64,6 +70,13 @@ public class ETLTest {
     mapper.registerModule(module);
 
     mapper.writeValue(new FileOutputStream(System.getProperty("ganttFile")), result.gantt);
+    mapper.writeValue(new FileOutputStream(System.getProperty("histogramFile")),
+        result.timeSlices);
+    mapper.writeValue(new FileOutputStream(System.getProperty("phasesFile")),
+        result.phases);
+
+    mapper.writeValue(new FileOutputStream(System.getProperty("queriesFile")),
+        result.queries);
 
     OutputStream dagO = new FileOutputStream(System.getProperty("dagFile"));
     mapper.writeValue(dagO, result.dag);
@@ -109,14 +122,21 @@ public class ETLTest {
     userQueries.add(getUserQuery("insert into a(b) select 1"));
     userQueries.add(getUserQuery("create table a as select b,c from results"));
     userQueries.add(getUserQuery("create table a (b int)"));
+    userQueries.add(getUserQuery("copy a.b(c, d, e) from 's3://bucket/dir' CREDENTIALS '' "
+            + "ACCEPTINVCHARS IGNOREHEADER 1 CSV"));
+
+    userQueries.add(getUserQuery("unload('select a, b from c') to 's3://bucket/dir' iam_role '' "
+            + "delimiter '^' ALLOWOVERWRITE ESCAPE PARALLEL OFF NULL AS ''"));
 
     List<QueryInfo> queryInfos = etl.parse(userQueries);
-    assertEquals(2, queryInfos.size());
-    assertEquals(4, registry.counter("io.dblint.Etl.numParsed").getCount());
+    assertEquals(4, queryInfos.size());
+    assertEquals(6, registry.counter("io.dblint.Etl.numParsed").getCount());
     assertEquals(0, registry.counter("io.dblint.Etl.numMaintenanceQueries").getCount());
     assertEquals(2, registry.counter("io.dblint.Etl.numInserts").getCount());
     assertEquals(1, registry.counter("io.dblint.Etl.numInsertSelects").getCount());
     assertEquals(1, registry.counter("io.dblint.Etl.numCtas").getCount());
+    assertEquals(1, registry.counter("io.dblint.Etl.numUnload").getCount());
+    assertEquals(1, registry.counter("io.dblint.Etl.numCopy").getCount());
   }
 
   @Test
