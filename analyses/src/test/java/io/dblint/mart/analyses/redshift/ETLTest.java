@@ -61,7 +61,7 @@ class ETLTest {
     Agent agent = new RedshiftCsv(inputStream, registry);
     Etl.Result result = etl.analyze(agent.getQueries(
         LocalDateTime.of(2018, 12, 12, 2, 0),
-        LocalDateTime.of(2018, 12, 12, 10, 0)));
+        LocalDateTime.of(2018, 12, 12, 14, 0)));
 
     ObjectMapper mapper = new ObjectMapper();
 
