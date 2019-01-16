@@ -39,7 +39,7 @@ class InsertVisitorTest {
     logger.debug("Actual: " + visitor.getSources().size());
 
     assertTrue(visitor.passed);
-    assertEquals(targetTable, visitor.getTargetTable().toString());
+    assertEquals(targetTable, visitor.getTargetTable());
 
     Iterator<String> expected = sourceTables.iterator();
     Iterator<String> actual = visitor.getSources().iterator();

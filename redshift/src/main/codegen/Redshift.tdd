@@ -29,6 +29,7 @@
     "io.dblint.mart.redshift.CustomSqlOperatorTable"
     "io.dblint.mart.redshift.SqlUnload"
     "io.dblint.mart.redshift.SqlCopy"
+    "io.dblint.mart.redshift.SqlSelectInto"
     "java.util.Map"
     "java.util.HashMap"
   ]

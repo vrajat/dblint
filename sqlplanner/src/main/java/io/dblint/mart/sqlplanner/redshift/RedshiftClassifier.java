@@ -5,6 +5,7 @@ import io.dblint.mart.sqlplanner.planner.Parser;
 import io.dblint.mart.sqlplanner.visitors.CopyVisitor;
 import io.dblint.mart.sqlplanner.visitors.CtasVisitor;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
+import io.dblint.mart.sqlplanner.visitors.SelectIntoVisitor;
 import io.dblint.mart.sqlplanner.visitors.UnloadVisitor;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.calcite.sql.parser.SqlParseException;
@@ -31,6 +32,7 @@ public class RedshiftClassifier {
     CtasVisitor ctasVisitor = new CtasVisitor();
     UnloadVisitor unloadVisitor = new UnloadVisitor();
     CopyVisitor copyVisitor = new CopyVisitor();
+    SelectIntoVisitor selectIntoVisitor = new SelectIntoVisitor();
 
     maintenanceVisitor.visit(query);
 
@@ -40,9 +42,10 @@ public class RedshiftClassifier {
       sqlNode.accept(ctasVisitor);
       sqlNode.accept(unloadVisitor);
       sqlNode.accept(copyVisitor);
+      sqlNode.accept(selectIntoVisitor);
     }
 
     return new QueryClasses(insertVisitor, maintenanceVisitor, ctasVisitor,
-        unloadVisitor, copyVisitor);
+        unloadVisitor, copyVisitor, selectIntoVisitor);
   }
 }

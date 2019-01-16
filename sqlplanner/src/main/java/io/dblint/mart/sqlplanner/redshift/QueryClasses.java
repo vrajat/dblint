@@ -3,6 +3,7 @@ package io.dblint.mart.sqlplanner.redshift;
 import io.dblint.mart.sqlplanner.visitors.CopyVisitor;
 import io.dblint.mart.sqlplanner.visitors.CtasVisitor;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
+import io.dblint.mart.sqlplanner.visitors.SelectIntoVisitor;
 import io.dblint.mart.sqlplanner.visitors.UnloadVisitor;
 
 public class QueryClasses {
@@ -11,6 +12,7 @@ public class QueryClasses {
   public final CtasVisitor ctasContext;
   public final UnloadVisitor unloadContext;
   public final CopyVisitor copyContext;
+  public final SelectIntoVisitor selectIntoContext;
 
   /**
    * Holds context of a query. The valid context depends on the type of query.
@@ -19,16 +21,19 @@ public class QueryClasses {
    * @param ctasContext Context if it is a CTAS query
    * @param unloadContext Context if it is an UNLOAD query
    * @param copyContext Context if it is a COPY query
+   * @param selectIntoContext Context if it is a SELECT .. INTO query
    */
   public QueryClasses(InsertVisitor insertContext,
                       MaintenanceVisitor maintenanceContext,
                       CtasVisitor ctasContext,
                       UnloadVisitor unloadContext,
-                      CopyVisitor copyContext) {
+                      CopyVisitor copyContext,
+                      SelectIntoVisitor selectIntoContext) {
     this.insertContext = insertContext;
     this.maintenanceContext = maintenanceContext;
     this.ctasContext = ctasContext;
     this.unloadContext = unloadContext;
     this.copyContext = copyContext;
+    this.selectIntoContext = selectIntoContext;
   }
 }
