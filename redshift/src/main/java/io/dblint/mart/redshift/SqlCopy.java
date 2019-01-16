@@ -15,10 +15,6 @@ import java.util.List;
 
 public class SqlCopy extends SqlCall {
 
-  public static class Credentials {
-    public SqlLiteral credentials = null;
-  }
-
   public static class Format {
     public boolean csv = false;
     public SqlLiteral delimiter = null;

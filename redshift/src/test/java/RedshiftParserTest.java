@@ -43,7 +43,12 @@ public class RedshiftParserTest {
             .setCaseSensitive(false)
             .build());
 
-    SqlNode sqlNode = parser.parseStmt();
-    assertNotNull(sqlNode);
+    try {
+      SqlNode sqlNode = parser.parseStmt();
+      assertNotNull(sqlNode);
+    } catch (SqlParseException parseExc) {
+      logger.error(parseExc.getMessage(), parseExc);
+      throw parseExc;
+    }
   }
 }

@@ -1019,6 +1019,7 @@ SqlSelect SqlSelect() :
     final SqlNodeList groupBy;
     final SqlNode having;
     final SqlNodeList windowDecls;
+    SqlNode intoTable;
     final Span s;
 }
 {
@@ -1053,6 +1054,8 @@ SqlSelect SqlSelect() :
     }
     selectList = SelectList()
     (
+        LOOKAHEAD(2)
+        [ <INTO> intoTable = TableRef() ]
         <FROM> fromClause = FromClause()
         where = WhereOpt()
         groupBy = GroupByOpt()
