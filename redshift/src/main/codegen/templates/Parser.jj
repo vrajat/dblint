@@ -1834,7 +1834,8 @@ SqlNode TableRef2(boolean lateral) :
 }
 {
     (
-        LOOKAHEAD(2)
+        LOOKAHEAD(3)
+        [ <HASH> ]
         tableRef = CompoundIdentifier()
         [
             [ <EXTEND> ]
@@ -6866,6 +6867,7 @@ void NonReservedKeyWord2of3() :
 |   < VERTICAL_BAR: "|" >
 |   < CARET: "^" >
 |   < DOLLAR: "$" >
+|   < HASH: "#" >
 }
 
 

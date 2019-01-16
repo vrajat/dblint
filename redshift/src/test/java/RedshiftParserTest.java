@@ -32,6 +32,7 @@ public class RedshiftParserTest {
   public void parseSuccessTest(String name, String targetTable,
                                List<String> sources, String query) throws SqlParseException {
     logger.info(name);
+    logger.info(query);
     SqlParser parser = SqlParser.create(query,
         SqlParser.configBuilder()
             .setParserFactory(SqlRedshiftParser.FACTORY)
