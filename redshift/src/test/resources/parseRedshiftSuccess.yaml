@@ -4,6 +4,8 @@
   query: select action from tbl a
 - name: atomic
   query: select a.id from tbl atomic
+- name: attribute
+  query: select a.id, attribute from tbl atomic
 - name: C
   query: select c.id from tbl c
 - name: day
@@ -32,6 +34,10 @@
   query: select a, sum(value) from sch.tbl group by b
 - name: version
   query: select a, sum(version) from sch.tbl group by b
+- name: week
+  query: select a, b.week from sch.tbl group by b
+- name: year
+  query: select a, b.year from sch.tbl group by b
 - name: quotes
   query: select "a", "b" from sch.tbl group by "b"
 - name: insertSelectDual
@@ -66,3 +72,5 @@
   query: select a::abc, b::abc from c
 - name: select_top
   query: select top 5 a, b from d where e = 5
+- name: hash_identifier
+  query: "select a, b from d join #e_hash"
