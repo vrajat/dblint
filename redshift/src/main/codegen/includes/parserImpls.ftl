@@ -167,9 +167,13 @@ SqlUnload SqlUnloadStmt() :
 {
     final SqlNode selectStmt;
     final SqlNode s3Loc;
-    final SqlNode role;
-    final SqlNode delim;
-    final SqlNode nullAs;
+    SqlNode delim = null;
+    SqlNode nullAs = null;
+    SqlNode fixedW = null;
+    SqlNode region = null;
+    int maxFileSize = RelDataType.PRECISION_NOT_SPECIFIED;
+    SqlUnload.Params params = new SqlUnload.Params();
+    Credentials credentials = new Credentials();
     final Span s;
 }
 {
@@ -182,31 +186,77 @@ SqlUnload SqlUnloadStmt() :
         <RPAREN>
     <TO>
         s3Loc = StringLiteral()
-    <IAM_ROLE>
-        role = StringLiteral()
-    <DELIMITER>
-        delim = StringLiteral()
-    <ALLOWOVERWRITE> <ESCAPE> <PARALLEL> <OFF> <NULL> <AS>
-        nullAs = StringLiteral()
+    Authorization(credentials)
+    (
+        <MANIFEST> [ <VERBOSE> ] { params.manifest = true; }
+    |
+        <DELIMITER> [ <AS> ] delim = StringLiteral()
+    |
+        <FIXEDWIDTH> [ <AS> ] fixedW = StringLiteral()
+    |
+        <ENCRYPTED> { params.encrypt = true; }
+    |
+        <BZIP2>  { params.bzip2 = true; }
+    |
+        <GZIP> { params.gzip = true; }
+    |
+        <ADDQUOTES> { params.addQuotes = false; }
+    |
+        <NULL> [ <AS> ] nullAs = StringLiteral()
+    |
+        <ESCAPE> { params.escape = false; }
+    |
+        <ALLOWOVERWRITE> { params.allowOverWrite = false; }
+    |
+        <PARALLEL>
+        (
+            <ON> {params.parallel = true;}
+        |
+            <TRUE> {params.parallel = true;}
+        |
+            <OFF> {params.parallel = false;}
+        |
+            <FALSE> {params.parallel = false;}
+        )
+    |
+        <MAXFILESIZE> [ <AS> ] maxFileSize = UnsignedIntLiteral()
+        (
+            <MB>
+        |
+            <GB>
+        )
+    |
+        <REGION> [ <AS> ] region = StringLiteral()
+    )*
     {
         return new SqlUnload(s.end(this),
             selectStmt,
             s3Loc,
-            role,
             delim,
-            nullAs);
+            nullAs,
+            fixedW,
+            region,
+            maxFileSize,
+            params, credentials);
     }
 }
 
-void Authorization(SqlCopy.Credentials credentials) :
+void Authorization(Credentials credentials) :
 {
-    final SqlNode credentialNode;
+    final SqlNode sqlNode;
 }
 {
-    <CREDENTIALS> credentialNode = StringLiteral()
-    {
-        credentials.credentials = (SqlLiteral) credentialNode;
-    }
+    (
+        <CREDENTIALS> sqlNode = StringLiteral()
+        {
+            credentials.credentials = (SqlLiteral) sqlNode;
+        }
+    |
+        <IAM_ROLE> sqlNode = StringLiteral()
+        {
+            credentials.iamRole = (SqlLiteral) sqlNode;
+        }
+    )
 }
 
 void parseConversionParams(SqlCopy.ConversionParams conversionParams, SqlCopy.LoadParams loadParams) :
