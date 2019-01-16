@@ -32,15 +32,17 @@ class Gantt {
     public final long numQueries;
     public final long numInserts;
     public final long numCtas;
+    public final long numSelectInto;
     public final long numUnloads;
     public final long numCopy;
 
     public TimeSlice(LocalDateTime time, long numQueries, long numInserts,
-                     long numCtas, long numUnloads, long numCopy) {
+                     long numSelectInto, long numCtas, long numUnloads, long numCopy) {
       this.time = time.format(formatter);
       this.numQueries = numQueries;
       this.numInserts = numInserts;
       this.numCtas = numCtas;
+      this.numSelectInto = numSelectInto;
       this.numUnloads = numUnloads;
       this.numCopy = numCopy;
     }
@@ -55,12 +57,15 @@ class Gantt {
       assert (query.classes.insertContext.isPassed()
           || query.classes.ctasContext.isPassed()
           || query.classes.unloadContext.isPassed()
-          || query.classes.copyContext.isPassed());
+          || query.classes.copyContext.isPassed()
+          || query.classes.selectIntoContext.isPassed());
 
       if (query.classes.insertContext.isPassed()) {
         target = query.classes.insertContext.getTargetTable();
       } else if (query.classes.ctasContext.isPassed()) {
         target = query.classes.ctasContext.getTargetTable();
+      } else if (query.classes.selectIntoContext.isPassed()) {
+        target = query.classes.selectIntoContext.getTargetTable();
       } else if (query.classes.copyContext.isPassed()) {
         target = query.classes.copyContext.getTargetTable();
       } else if (query.classes.unloadContext.isPassed()) {
@@ -89,6 +94,7 @@ class Gantt {
       long numQueries = 0;
       long numInserts = 0;
       long numCtas = 0;
+      long numSelectInto = 0;
       long numUnloads = 0;
       long numCopy = 0;
 
@@ -102,6 +108,8 @@ class Gantt {
             numInserts++;
           } else if (query.classes.ctasContext.isPassed()) {
             numCtas++;
+          } else if (query.classes.selectIntoContext.isPassed()) {
+            numSelectInto++;
           } else if (query.classes.unloadContext.isPassed()) {
             numUnloads++;
           } else if (query.classes.copyContext.isPassed()) {
@@ -115,7 +123,7 @@ class Gantt {
       }
 
       timeSlices.add(new TimeSlice(currentTime, numQueries, numInserts, numCtas,
-          numUnloads, numCopy));
+          numSelectInto, numUnloads, numCopy));
       currentTime = currentTime.plusSeconds(15);
     }
 

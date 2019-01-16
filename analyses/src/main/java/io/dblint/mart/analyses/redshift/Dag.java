@@ -9,6 +9,7 @@ import com.codahale.metrics.Histogram;
 import io.dblint.mart.sqlplanner.visitors.CopyVisitor;
 import io.dblint.mart.sqlplanner.visitors.CtasVisitor;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
+import io.dblint.mart.sqlplanner.visitors.SelectIntoVisitor;
 import io.dblint.mart.sqlplanner.visitors.UnloadVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,6 +127,20 @@ public class Dag {
         node.updateExecutionTimes(info.query.getDuration());
       } else if (info.classes.unloadContext.isPassed()) {
         UnloadVisitor visitor = info.classes.unloadContext;
+        visitor.getSources().forEach((src) -> {
+          if (!nodeMap.containsKey(src)) {
+            nodeMap.put(src, new Node(src));
+          }
+        });
+      } else if (info.classes.selectIntoContext.isPassed()) {
+        SelectIntoVisitor visitor = info.classes.selectIntoContext;
+        String targetTable = visitor.getTargetTable();
+        if (!nodeMap.containsKey(targetTable)) {
+          nodeMap.put(targetTable, new Node(targetTable));
+        }
+        Node node = nodeMap.get(targetTable);
+        node.addStartTime(info.query.startTime);
+        node.updateExecutionTimes(info.query.getDuration());
         visitor.getSources().forEach((src) -> {
           if (!nodeMap.containsKey(src)) {
             nodeMap.put(src, new Node(src));

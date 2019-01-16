@@ -121,6 +121,7 @@ class ETLTest {
     userQueries.add(getUserQuery("insert into a select b,c from results"));
     userQueries.add(getUserQuery("insert into a(b) select 1"));
     userQueries.add(getUserQuery("create table a as select b,c from results"));
+    userQueries.add(getUserQuery("select b,c into a from results"));
     userQueries.add(getUserQuery("create table a (b int)"));
     userQueries.add(getUserQuery("copy a.b(c, d, e) from 's3://bucket/dir' CREDENTIALS '' "
             + "ACCEPTINVCHARS IGNOREHEADER 1 CSV"));
@@ -129,12 +130,13 @@ class ETLTest {
             + "delimiter '^' ALLOWOVERWRITE ESCAPE PARALLEL OFF NULL AS ''"));
 
     List<QueryInfo> queryInfos = etl.parse(userQueries);
-    assertEquals(4, queryInfos.size());
-    assertEquals(6, registry.counter("io.dblint.Etl.numParsed").getCount());
+    assertEquals(5, queryInfos.size());
+    assertEquals(7, registry.counter("io.dblint.Etl.numParsed").getCount());
     assertEquals(0, registry.counter("io.dblint.Etl.numMaintenanceQueries").getCount());
     assertEquals(2, registry.counter("io.dblint.Etl.numInserts").getCount());
     assertEquals(1, registry.counter("io.dblint.Etl.numInsertSelects").getCount());
     assertEquals(1, registry.counter("io.dblint.Etl.numCtas").getCount());
+    assertEquals(1, registry.counter("io.dblint.Etl.numSelectInto").getCount());
     assertEquals(1, registry.counter("io.dblint.Etl.numUnload").getCount());
     assertEquals(1, registry.counter("io.dblint.Etl.numCopy").getCount());
   }
