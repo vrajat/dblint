@@ -38,11 +38,11 @@ class Etl {
   private Counter numParsed;
   private Counter numInserts;
   private Counter numInsertsWithSelects;
-  private Counter numLongDml;
   private Counter numMaintenanceQueries;
   private Counter numCtasQueries;
   private Counter numUnloadQueries;
   private Counter numCopyQueries;
+  private Counter numSelectInto;
 
   private RedshiftClassifier classifier;
 
@@ -51,11 +51,11 @@ class Etl {
     numParsed = registry.counter("io.dblint.Etl.numParsed");
     numInserts = registry.counter("io.dblint.Etl.numInserts");
     numInsertsWithSelects = registry.counter("io.dblint.Etl.numInsertSelects");
-    numLongDml = registry.counter("io.dblint.Etl.numLongDml");
     numMaintenanceQueries = registry.counter("io.dblint.Etl.numMaintenanceQueries");
     numCtasQueries = registry.counter("io.dblint.Etl.numCtas");
     numUnloadQueries = registry.counter("io.dblint.Etl.numUnload");
     numCopyQueries = registry.counter("io.dblint.Etl.numCopy");
+    numSelectInto = registry.counter("io.dblint.Etl.numSelectInto");
 
     classifier = new RedshiftClassifier();
   }
@@ -84,7 +84,8 @@ class Etl {
     logger.info("numCtas: " + numCtasQueries.getCount());
     logger.info("numUnload: " + numUnloadQueries.getCount());
     logger.info("numCopy: " + numCopyQueries.getCount());
-    logger.info("numLongDml: " + numLongDml.getCount());
+    logger.info("numSelectInto" + numSelectInto.getCount());
+
     return new Result(gantt, timeSlices, dag, phases, queryInfos);
   }
 
@@ -114,7 +115,6 @@ class Etl {
             logger.debug("Num Sources: " + classes.insertContext.getSources().size());
             numInsertsWithSelects.inc();
             queryInfos.add(new QueryInfo(query, classes));
-            numLongDml.inc();
           }
           numInserts.inc();
         }
@@ -122,23 +122,25 @@ class Etl {
         if (classes.ctasContext.isPassed()) {
           numCtasQueries.inc();
           queryInfos.add(new QueryInfo(query, classes));
-          numLongDml.inc();
         }
 
         if (classes.unloadContext.isPassed()) {
-          logger.info("Unload duration:" + query.getDuration());
+          logger.debug("Unload duration:" + query.getDuration());
           numUnloadQueries.inc();
           queryInfos.add(new QueryInfo(query, classes));
-          numLongDml.inc();
         }
 
         if (classes.copyContext.isPassed()) {
           numCopyQueries.inc();
-          logger.info("Copy duration:" + query.getDuration());
+          logger.debug("Copy duration:" + query.getDuration());
           queryInfos.add(new QueryInfo(query, classes));
-          numLongDml.inc();
         }
 
+        if (classes.selectIntoContext.isPassed()) {
+          numSelectInto.inc();
+          logger.debug("Select INTO duration:" + query.getDuration());
+          queryInfos.add(new QueryInfo(query, classes));
+        }
       } catch (SqlParseException exception) {
         logger.warn(query.query);
         logger.warn(exception.getMessage());
