@@ -1009,7 +1009,7 @@ SqlNode SqlStmtEof() :
 /**
  * Parses a leaf SELECT expression without ORDER BY.
  */
-SqlSelect SqlSelect() :
+SqlSelectInto SqlSelect() :
 {
     final List<SqlLiteral> keywords = new ArrayList<SqlLiteral>();
     final SqlNodeList keywordList;
@@ -1019,7 +1019,7 @@ SqlSelect SqlSelect() :
     final SqlNodeList groupBy;
     final SqlNode having;
     final SqlNodeList windowDecls;
-    SqlNode intoTable;
+    SqlNode intoTable = null;
     final Span s;
 }
 {
@@ -1071,9 +1071,9 @@ SqlSelect SqlSelect() :
         }
     )
     {
-        return new SqlSelect(s.end(this), keywordList,
+        return new SqlSelectInto(s.end(this), keywordList,
             new SqlNodeList(selectList, Span.of(selectList).pos()),
-            fromClause, where, groupBy, having, windowDecls, null, null, null);
+            fromClause, where, groupBy, having, windowDecls, null, null, null, intoTable);
     }
 }
 

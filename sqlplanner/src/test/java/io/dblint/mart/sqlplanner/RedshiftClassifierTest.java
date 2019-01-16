@@ -13,6 +13,7 @@ import io.dblint.mart.sqlplanner.redshift.RedshiftClassifier;
 import io.dblint.mart.sqlplanner.visitors.CopyVisitor;
 import io.dblint.mart.sqlplanner.visitors.CtasVisitor;
 import io.dblint.mart.sqlplanner.visitors.InsertVisitor;
+import io.dblint.mart.sqlplanner.visitors.SelectIntoVisitor;
 import io.dblint.mart.sqlplanner.visitors.UnloadVisitor;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,7 @@ class RedshiftClassifierTest {
     assertFalse(classes.maintenanceContext.isPassed());
     assertFalse(classes.ctasContext.isPassed());
     assertFalse(classes.unloadContext.isPassed());
+    assertFalse(classes.selectIntoContext.isPassed());
   }
 
   @Test
@@ -80,6 +82,7 @@ class RedshiftClassifierTest {
     assertFalse(classes.maintenanceContext.isPassed());
     assertFalse(classes.copyContext.isPassed());
     assertFalse(classes.unloadContext.isPassed());
+    assertFalse(classes.selectIntoContext.isPassed());
   }
 
   @Test
@@ -104,6 +107,7 @@ class RedshiftClassifierTest {
     assertFalse(classes.maintenanceContext.isPassed());
     assertFalse(classes.ctasContext.isPassed());
     assertFalse(classes.copyContext.isPassed());
+    assertFalse(classes.selectIntoContext.isPassed());
   }
 
   @Test
@@ -122,6 +126,30 @@ class RedshiftClassifierTest {
 
     assertFalse(classes.insertContext.isPassed());
     assertFalse(classes.maintenanceContext.isPassed());
+    assertFalse(classes.ctasContext.isPassed());
+    assertFalse(classes.unloadContext.isPassed());
+    assertFalse(classes.selectIntoContext.isPassed());
+  }
+
+  @Test
+  void selectIntoTest() throws SqlParseException {
+    RedshiftClassifier redshiftClassifier = new RedshiftClassifier();
+
+    QueryClasses classes = redshiftClassifier.classify(
+        "select * into c from a join b on a.id = b.id");
+    SelectIntoVisitor visitor = classes.selectIntoContext;
+    assertTrue(visitor.isPassed());
+    assertEquals(visitor.getTargetTable(), "C");
+
+    List<String> expectedSources = new ArrayList<>();
+    expectedSources.add("A");
+    expectedSources.add("B");
+
+    assertIterableEquals(expectedSources, visitor.getSources());
+
+    assertFalse(classes.insertContext.isPassed());
+    assertFalse(classes.maintenanceContext.isPassed());
+    assertFalse(classes.copyContext.isPassed());
     assertFalse(classes.ctasContext.isPassed());
     assertFalse(classes.unloadContext.isPassed());
   }

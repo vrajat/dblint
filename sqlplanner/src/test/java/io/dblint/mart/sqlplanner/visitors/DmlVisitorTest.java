@@ -93,6 +93,30 @@ class DmlVisitorTest {
     assertEquals(sourceTables.get(0), visitor.getS3Location());
   }
 
+  @ParameterizedTest(name="[{index}] {0}")
+  @ArgumentsSource(SqlProvider.class)
+  @Tags({@Tag("/selectIntoSuccess.yaml")})
+  void selectIntoTest(String name, String targetTable,
+                  List<String> sourceTables, String query) throws SqlParseException {
+    SqlNode node = parser.parse(query);
+    SelectIntoVisitor visitor = new SelectIntoVisitor();
+    node.accept(visitor);
+
+    logger.debug("Expected:" + sourceTables.size());
+    logger.debug("Actual: " + visitor.getSources().size());
+
+    assertTrue(visitor.passed);
+    assertEquals(targetTable, visitor.getTargetTable());
+
+    Iterator<String> expected = sourceTables.iterator();
+    Iterator<String> actual = visitor.getSources().iterator();
+    while (expected.hasNext() && actual.hasNext()) {
+      assertEquals(expected.next(), actual.next());
+    }
+    assertFalse(expected.hasNext());
+    assertFalse(actual.hasNext());
+  }
+
   @Test
   void simpleCreateShouldNotPass() throws SqlParseException {
     SqlNode node = parser.parse("create table c (a int, b int)");
