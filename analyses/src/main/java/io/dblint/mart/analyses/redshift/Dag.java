@@ -35,12 +35,14 @@ public class Dag {
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("Y-MM-dd HH:mm:ss");
     private Histogram executionTimes;
     private List<LocalDateTime> startTimes;
+    private List<LocalDateTime> endTimes;
     int numDegree;
 
     Node(String table) {
       this.table = table;
       executionTimes = new Histogram(new ExponentiallyDecayingReservoir());
       startTimes = new ArrayList<>();
+      endTimes = new ArrayList<>();
       numDegree = 0;
     }
 
@@ -48,8 +50,9 @@ public class Dag {
       executionTimes.update(seconds);
     }
 
-    public void addStartTime(LocalDateTime start) {
+    public void addStartEndTime(LocalDateTime start, LocalDateTime end) {
       startTimes.add(start);
+      endTimes.add(end);
     }
 
     public String getTable() {
@@ -62,6 +65,10 @@ public class Dag {
 
     public List<String> getStartTimes() {
       return startTimes.stream().map(tm -> tm.format(formatter)).collect(Collectors.toList());
+    }
+
+    public List<String> getEndTimes() {
+      return endTimes.stream().map(tm -> tm.format(formatter)).collect(Collectors.toList());
     }
 
     public int getNumDegree() {
@@ -140,7 +147,7 @@ public class Dag {
           nodeMap.put(targetTable, new Node(targetTable));
         }
         Node node = nodeMap.get(targetTable);
-        node.addStartTime(info.query.startTime);
+        node.addStartEndTime(info.query.startTime, info.query.endTime);
         node.updateExecutionTimes(info.query.getDuration());
         visitor.getSources().forEach((src) -> {
           if (!nodeMap.containsKey(src)) {
@@ -154,7 +161,7 @@ public class Dag {
           nodeMap.put(targetTable, new Node(targetTable));
         }
         Node node = nodeMap.get(targetTable);
-        node.addStartTime(info.query.startTime);
+        node.addStartEndTime(info.query.startTime, info.query.endTime);
         node.updateExecutionTimes(info.query.getDuration());
         visitor.getSources().forEach((src) -> {
           if (!nodeMap.containsKey(src)) {
@@ -168,7 +175,7 @@ public class Dag {
           nodeMap.put(targetTable, new Node(targetTable));
         }
         Node node = nodeMap.get(targetTable);
-        node.addStartTime(info.query.startTime);
+        node.addStartEndTime(info.query.startTime, info.query.endTime);
         node.updateExecutionTimes(info.query.getDuration());
       } else if (info.classes.unloadContext.isPassed()) {
         UnloadVisitor visitor = info.classes.unloadContext;
@@ -184,7 +191,7 @@ public class Dag {
           nodeMap.put(targetTable, new Node(targetTable));
         }
         Node node = nodeMap.get(targetTable);
-        node.addStartTime(info.query.startTime);
+        node.addStartEndTime(info.query.startTime, info.query.endTime);
         node.updateExecutionTimes(info.query.getDuration());
         visitor.getSources().forEach((src) -> {
           if (!nodeMap.containsKey(src)) {
