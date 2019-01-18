@@ -16,27 +16,32 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Dag {
   private static Logger logger = LoggerFactory.getLogger(Dag.class);
 
-  static class Node {
+  static class Node implements Comparable<Node> {
     private final String table;
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("Y-MM-dd HH:mm:ss");
     private Histogram executionTimes;
     private List<LocalDateTime> startTimes;
+    int numDegree;
 
     Node(String table) {
       this.table = table;
       executionTimes = new Histogram(new ExponentiallyDecayingReservoir());
       startTimes = new ArrayList<>();
+      numDegree = 0;
     }
 
     public void updateExecutionTimes(long seconds) {
@@ -58,13 +63,53 @@ public class Dag {
     public List<String> getStartTimes() {
       return startTimes.stream().map(tm -> tm.format(formatter)).collect(Collectors.toList());
     }
+
+    public int getNumDegree() {
+      return numDegree;
+    }
+
+    public void setNumDegree(int numDegree) {
+      this.numDegree = numDegree;
+    }
+
+    @Override
+    public int compareTo(Node node) {
+      return Integer.compare(this.numDegree, node.numDegree);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+      if (this == object) {
+        return true;
+      }
+      if (object == null || getClass() != object.getClass()) {
+        return false;
+      }
+      Node node = (Node) object;
+      return table.equals(node.table);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(table);
+    }
+
+    @Override
+    public String toString() {
+      return "Node{"
+          + "table='" + table + '\''
+          + ", numDegree=" + numDegree
+          + '}';
+    }
   }
 
   static class Graph {
     public final ImmutableGraph<Node> dag;
+    public final List<Phase> phases;
 
-    public Graph(ImmutableGraph<Node> dag) {
+    public Graph(ImmutableGraph<Node> dag, List<Phase> phases) {
       this.dag = dag;
+      this.phases = phases;
     }
   }
 
@@ -165,27 +210,57 @@ public class Dag {
       } else if (info.classes.copyContext.isPassed()) {
         CopyVisitor visitor = info.classes.copyContext;
         dag.putEdge(s3Source, nodeMap.get(visitor.getTargetTable()));
+      } else if (info.classes.selectIntoContext.isPassed()) {
+        SelectIntoVisitor visitor = info.classes.selectIntoContext;
+        visitor.getSources().forEach(src -> dag.putEdge(nodeMap.get(src),
+            nodeMap.get(visitor.getTargetTable())));
       }
     });
 
-    return new Graph(ImmutableGraph.copyOf(dag));
+    ImmutableGraph<Node> immutableGraph = ImmutableGraph.copyOf(dag);
+    List<Phase> phases = topologicalSort(immutableGraph);
+    return new Graph(immutableGraph, phases);
   }
 
-  static List<Phase> topologicalSort(Graph graph) {
+  static List<Phase> topologicalSort(ImmutableGraph<Node> dag) {
     List<Phase> phases = new ArrayList<>();
-    Map<Integer, Set<String>> numEdgesMap = new HashMap<>();
+    PriorityQueue<Node> priorityQueue = new PriorityQueue<>(dag.nodes().size());
 
-    graph.dag.nodes().forEach((node) -> {
-      Integer numEdges = graph.dag.inDegree(node);
-      if (!numEdgesMap.containsKey(numEdges)) {
-        numEdgesMap.put(numEdges, new HashSet<>());
-      }
-      numEdgesMap.get(numEdges).add(node.table);
+    dag.nodes().forEach((node) -> {
+      node.setNumDegree(dag.inDegree(node));
+      priorityQueue.add(node);
+      logger.debug(node.toString());
     });
 
-    numEdgesMap.entrySet().stream()
-        .sorted(Map.Entry.comparingByKey())
-        .forEach(entry -> phases.add(new Phase(entry.getValue())));
+    Set<Node> processed = new HashSet<>();
+    logger.debug("Start Processing");
+    while (!priorityQueue.isEmpty()) {
+      Set<Node> nodes = new HashSet<>();
+      int leastDegree = priorityQueue.peek().getNumDegree();
+      logger.debug("Lowest degress is " + leastDegree);
+      while (priorityQueue.peek() != null
+          && priorityQueue.peek().getNumDegree() == leastDegree) {
+        Node node = priorityQueue.poll();
+        nodes.add(node);
+        processed.add(node);
+        logger.debug("Processed " + node);
+      }
+      logger.info("Removed nodes: " + nodes.size());
+      nodes.forEach(node ->
+          dag.successors(node).forEach((successor) -> {
+            if (!processed.contains(successor)) {
+              priorityQueue.remove(successor);
+              successor.setNumDegree(successor.getNumDegree() - 1);
+              priorityQueue.add(successor);
+            }
+          })
+      );
+      logger.info("Updated successors");
+      Phase phase = new Phase(
+          nodes.stream().map(Node::getTable).collect(Collectors.toSet())
+      );
+      phases.add(phase);
+    }
 
     return phases;
   }

@@ -38,6 +38,9 @@ public class GraphSerializer extends StdSerializer<Dag.Graph> {
 
     jgen.writeEndArray();
 
+    jgen.writeFieldName("phases");
+    jgen.writeObject(graph.phases);
+
     jgen.writeEndObject();
   }
 }

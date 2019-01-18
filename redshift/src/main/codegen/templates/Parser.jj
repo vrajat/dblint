@@ -1320,7 +1320,7 @@ SqlNode SqlInsert() :
     SqlInsertKeywords(keywords) {
         keywordList = new SqlNodeList(keywords, s.addAll(keywords).pos());
     }
-    <INTO> table = CompoundIdentifier()
+    <INTO> [ <HASH> ] table = CompoundIdentifier()
     [
         LOOKAHEAD(5)
         [ <EXTEND> ]
