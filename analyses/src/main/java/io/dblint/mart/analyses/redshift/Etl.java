@@ -18,21 +18,18 @@ class Etl {
     final List<Gantt.Entry> gantt;
     final List<Gantt.TimeSlice> timeSlices;
     final Dag.Graph dag;
-    final List<Dag.Phase> phases;
     final List<QueryInfo> queries;
 
     Result(List<Gantt.Entry> gantt, List<Gantt.TimeSlice> timeSlices,
-           Dag.Graph dag, List<Dag.Phase> phases, List<QueryInfo> queries) {
+           Dag.Graph dag, List<QueryInfo> queries) {
       this.gantt = gantt;
       this.timeSlices = timeSlices;
       this.dag = dag;
-      this.phases = phases;
       this.queries = queries;
     }
   }
 
   private static Logger logger = LoggerFactory.getLogger(Etl.class);
-  private static int longDmlSec = 30;
 
   private Counter numQueries;
   private Counter numParsed;
@@ -69,8 +66,7 @@ class Etl {
     logger.info("Queries parsed");
     final Dag.Graph dag = Dag.buildGraph(queryInfos);
     logger.info("DAG created");
-    final List<Dag.Phase> phases = Dag.topologicalSort(dag);
-    logger.info("Phases created");
+    logger.info("Node Graph Map created");
     final List<Gantt.Entry> gantt = Gantt.sort(queryInfos);
     logger.info("Gantt created");
     final List<Gantt.TimeSlice> timeSlices = Gantt.histogram(queryInfos);
@@ -84,9 +80,9 @@ class Etl {
     logger.info("numCtas: " + numCtasQueries.getCount());
     logger.info("numUnload: " + numUnloadQueries.getCount());
     logger.info("numCopy: " + numCopyQueries.getCount());
-    logger.info("numSelectInto" + numSelectInto.getCount());
+    logger.info("numSelectInto: " + numSelectInto.getCount());
 
-    return new Result(gantt, timeSlices, dag, phases, queryInfos);
+    return new Result(gantt, timeSlices, dag, queryInfos);
   }
 
   private void longRunningQueries(List<UserQuery> queries) {
@@ -109,8 +105,6 @@ class Etl {
         }
 
         if (classes.insertContext.isPassed()) {
-          logger.debug("Passed Insert Query");
-          logger.debug(classes.insertContext.getTargetTable());
           if (classes.insertContext.getSources().size() > 0) {
             logger.debug("Num Sources: " + classes.insertContext.getSources().size());
             numInsertsWithSelects.inc();
@@ -125,20 +119,18 @@ class Etl {
         }
 
         if (classes.unloadContext.isPassed()) {
-          logger.debug("Unload duration:" + query.getDuration());
           numUnloadQueries.inc();
           queryInfos.add(new QueryInfo(query, classes));
         }
 
         if (classes.copyContext.isPassed()) {
           numCopyQueries.inc();
-          logger.debug("Copy duration:" + query.getDuration());
           queryInfos.add(new QueryInfo(query, classes));
         }
 
         if (classes.selectIntoContext.isPassed()) {
           numSelectInto.inc();
-          logger.debug("Select INTO duration:" + query.getDuration());
+          logger.debug("Select into for " + classes.selectIntoContext.getTargetTable());
           queryInfos.add(new QueryInfo(query, classes));
         }
       } catch (SqlParseException exception) {

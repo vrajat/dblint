@@ -26,8 +26,14 @@
   query: select a, b from sch.tbl where name='abc'
 - name: member
   query: select a, member from sch.tbl where name='abc'
+- name: minute
+  query: select a, minute from sch.tbl where name='abc'
 - name: rank
   query: select a, b as rank from sch.tbl
+- name: replace
+  query: select a, replace from sch.tbl
+- name: right
+  query: select a, right(b) from sch.tbl
 - name: rows
   query: select a, rows from sch.tbl
 - name: rowCount
@@ -86,3 +92,5 @@
   query: "select a, b from d join #e_hash"
 - name: select_into
   query: select a,b into oos from d where i = 5
+- name: insert_hash
+  query: "insert into #tbl select a,b from c"

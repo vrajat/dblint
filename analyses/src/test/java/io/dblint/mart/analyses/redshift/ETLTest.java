@@ -18,7 +18,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,14 +45,14 @@ class ETLTest {
     assertNotNull(System.getProperty("ganttFile"));
     assertNotNull(System.getProperty("histogramFile"));
     assertNotNull(System.getProperty("dagFile"));
-    assertNotNull(System.getProperty("phasesFile"));
+    assertNotNull(System.getProperty("nodeGraphFile"));
     assertNotNull(System.getProperty("queriesFile"));
 
     logger.info(System.getProperty("csvFile"));
     logger.info(System.getProperty("ganttFile"));
     logger.info(System.getProperty("histogramFile"));
     logger.info(System.getProperty("dagFile"));
-    logger.info(System.getProperty("phasesFile"));
+    logger.info(System.getProperty("nodeGraphFile"));
     logger.info(System.getProperty("queriesFile"));
 
     InputStream inputStream = new FileInputStream(System.getProperty("csvFile"));
@@ -72,14 +71,11 @@ class ETLTest {
     mapper.writeValue(new FileOutputStream(System.getProperty("ganttFile")), result.gantt);
     mapper.writeValue(new FileOutputStream(System.getProperty("histogramFile")),
         result.timeSlices);
-    mapper.writeValue(new FileOutputStream(System.getProperty("phasesFile")),
-        result.phases);
 
     mapper.writeValue(new FileOutputStream(System.getProperty("queriesFile")),
         result.queries);
 
-    OutputStream dagO = new FileOutputStream(System.getProperty("dagFile"));
-    mapper.writeValue(dagO, result.dag);
+    mapper.writeValue(new FileOutputStream(System.getProperty("dagFile")), result.dag);
   }
 
   private UserQuery getUserQuery(String query) {
