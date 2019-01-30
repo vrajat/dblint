@@ -7,7 +7,7 @@
     <groupId>io.dblint</groupId>
     <artifactId>mart</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.0.1</version>
     <modules>
         <module>redshift</module>
         <module>sqlplanner</module>
