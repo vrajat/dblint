@@ -45,14 +45,12 @@ class ETLTest {
     assertNotNull(System.getProperty("ganttFile"));
     assertNotNull(System.getProperty("histogramFile"));
     assertNotNull(System.getProperty("dagFile"));
-    assertNotNull(System.getProperty("nodeGraphFile"));
     assertNotNull(System.getProperty("queriesFile"));
 
     logger.info(System.getProperty("csvFile"));
     logger.info(System.getProperty("ganttFile"));
     logger.info(System.getProperty("histogramFile"));
     logger.info(System.getProperty("dagFile"));
-    logger.info(System.getProperty("nodeGraphFile"));
     logger.info(System.getProperty("queriesFile"));
 
     InputStream inputStream = new FileInputStream(System.getProperty("csvFile"));
