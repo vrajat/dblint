@@ -4,19 +4,24 @@ import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Metered;
 import io.dblint.mart.server.pojo.GitState;
 import io.dblint.mart.server.pojo.QueryResponse;
+import io.dblint.mart.server.pojo.RegisterInfo;
 import io.dblint.mart.server.pojo.SqlQuery;
 import io.dblint.mart.sqlplanner.planner.Parser;
 import org.apache.calcite.sql.SqlDialect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 @Path("/api/dblint/")
 @Produces(MediaType.APPLICATION_JSON)
 public class DbLintResource {
+  private static final Logger logger = LoggerFactory.getLogger(DbLintResource.class);
   final Parser parser;
   final GitState gitState;
 
@@ -68,5 +73,13 @@ public class DbLintResource {
   @Metered
   public GitState version() {
     return gitState;
+  }
+
+  @POST
+  @Path("/register")
+  @Metered
+  public String register(RegisterInfo registerInfo) {
+    logger.info(registerInfo.feature + "," + registerInfo.email);
+    return "OK";
   }
 }
