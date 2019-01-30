@@ -4,6 +4,7 @@ import javax.ws.rs.client.Entity;
 
 import io.dblint.mart.server.pojo.GitState;
 import io.dblint.mart.server.pojo.QueryResponse;
+import io.dblint.mart.server.pojo.RegisterInfo;
 import io.dblint.mart.server.pojo.SqlQuery;
 import io.dblint.mart.sqlplanner.planner.Parser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -128,6 +129,16 @@ public class DbLintResourceTest {
     GitState state = RESOURCE.target("/api/dblint/version")
         .request().get().readEntity(GitState.class);
     assertEquals("0.4.3-SNAPSHOT", state.buildVersion);
+    RESOURCE.after();
+  }
+
+  @Test
+  public void register() throws Throwable {
+    RESOURCE.before();
+    RegisterInfo registerInfo = new RegisterInfo("etl", "db@lint.io");
+    String response = RESOURCE.target("/api/dblint/register")
+        .request().post(Entity.json(registerInfo)).readEntity(String.class);
+    assertEquals("OK", response);
     RESOURCE.after();
   }
 }
