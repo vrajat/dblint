@@ -5,6 +5,8 @@ cache:
   - "${HOME}/.m2"
 services:
   - docker
+jdk:
+  - openjdk11
 env:
   global:
   - NODE_ENV=CI

@@ -13,6 +13,8 @@
 
     <properties>
         <project.rootdir>${project.parent.basedir}</project.rootdir>
+        <jdbi.version>3.6.0</jdbi.version>
+        <redshift.version>1.2.20.1043</redshift.version>
     </properties>
 
     <repositories>
@@ -43,11 +45,12 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
+            <version>${jdbi.version}</version>
         </dependency>
          <dependency>
             <groupId>com.amazon.redshift</groupId>
             <artifactId>redshift-jdbc42</artifactId>
-            <version>1.2.10.1009</version>
+            <version>${redshift.version}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
