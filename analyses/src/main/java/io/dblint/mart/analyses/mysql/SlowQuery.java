@@ -36,7 +36,13 @@ public class SlowQuery {
   Counter numQueries;
   Counter parseExceptions;
 
-  SlowQuery(SchemaParser.Database database, MetricRegistry registry) throws QanException {
+  /**
+   * A SlowQuery analyzer for MySQL.
+   * @param database Database schema of MySQL
+   * @param registry A metric registry to store relevant counters
+   * @throws QanException Throw an exception if a calcite schema creation fails
+   */
+  public SlowQuery(SchemaParser.Database database, MetricRegistry registry) throws QanException {
     schema = createSchema(database);
     classifier = new MySqlClassifier(schema);
     aggQueryStats = new HashMap<>();
@@ -78,7 +84,11 @@ public class SlowQuery {
     return mySqlSchemaPlus;
   }
 
-  void analyze(List<UserQuery> queries) {
+  /**
+   * Analyze Queries parsed from Slow Query Logs.
+   * @param queries List of queries parsed.
+   */
+  public void analyze(List<UserQuery> queries) {
     for (UserQuery query : queries) {
       if (query.getRowsExamined() > 1000) {
         String sql = String.join("\n", query.getQueries());
@@ -116,7 +126,7 @@ public class SlowQuery {
     }
   }
 
-  Map<String, QueryStats> getAggQueryStats() {
+  public Map<String, QueryStats> getAggQueryStats() {
     return aggQueryStats;
   }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.dblint.mart.metricsink.redshift.MySqlSink;
 import io.dblint.mart.metricsink.redshift.RedshiftDb;
+import io.dblint.mart.server.commands.MySqlCommands;
 import io.dblint.mart.server.configuration.JdbcConfiguration;
 import io.dblint.mart.server.pojo.GitState;
 import io.dblint.mart.server.resources.DbLintResource;
@@ -35,7 +36,7 @@ public class MartApplication extends Application<MartConfiguration> {
 
   @Override
   public void initialize(final Bootstrap<MartConfiguration> bootstrap) {
-      // TODO: application initialization
+    bootstrap.addCommand(new MySqlCommands());
   }
 
   @Override
