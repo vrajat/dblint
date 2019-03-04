@@ -1,5 +1,6 @@
 package io.dblint.mart.server.commands;
 
+import io.dblint.mart.server.commands.mysql.ErrorLog;
 import io.dblint.mart.server.commands.mysql.SlowQueryLog;
 import io.dropwizard.cli.Command;
 
@@ -11,6 +12,10 @@ public class MySqlCommands extends HierarchicalCommand {
     final SortedMap<String, Command> commands = new TreeMap<>();
     final SlowQueryLog slowQueryLog = new SlowQueryLog();
     commands.put(slowQueryLog.getName(), slowQueryLog);
+
+    final ErrorLog errorLog = new ErrorLog();
+    commands.put(errorLog.getName(), errorLog);
+
     return commands;
   }
 

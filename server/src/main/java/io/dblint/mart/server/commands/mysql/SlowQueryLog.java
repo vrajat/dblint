@@ -51,7 +51,7 @@ public class SlowQueryLog extends ConfiguredCommand<MartConfiguration> {
         new FileInputStream(namespace.getString("schemaFile")));
 
 
-    logger.info(namespace.getString("slowFile"));
+    logger.info(namespace.getString("slowQueryLog"));
     SlowQueryLogParser parser = new SlowQueryLogParser();
     List<UserQuery> queries = parser.parseLog(
         new FileInputStream(namespace.getString("slowQueryLog"))
