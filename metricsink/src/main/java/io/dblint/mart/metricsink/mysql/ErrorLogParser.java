@@ -32,6 +32,7 @@ public class ErrorLogParser {
   static boolean newDeadlockSection(String line) {
     return deadlockStart.matcher(line).find();
   }
+
   private static Pattern transactionStart = Pattern.compile(
       "^\\*\\*\\* \\([0-9]+\\) TRANSACTION:"
   );
@@ -51,7 +52,7 @@ public class ErrorLogParser {
   );
 
   private static Pattern recordLock = Pattern.compile(
-    "^Record lock, heap no"
+      "^Record lock, heap no"
   );
 
   static boolean parseRecordLock(RewindBufferedReader bufferedReader) throws IOException {
@@ -68,7 +69,8 @@ public class ErrorLogParser {
     return false;
   }
 
-  static Deadlock.Lock parseLock(RewindBufferedReader bufferedReader) throws IOException, MetricAgentException {
+  static Deadlock.Lock parseLock(RewindBufferedReader bufferedReader)
+      throws IOException, MetricAgentException {
     String line = bufferedReader.readLine();
     Matcher matcher = pattern.matcher(line);
     Deadlock.Lock lock;
@@ -87,7 +89,7 @@ public class ErrorLogParser {
           + "' at " + matcher.toString());
     }
 
-    while (parseRecordLock(bufferedReader));
+    while (parseRecordLock(bufferedReader)) {}
 
     return lock;
   }
@@ -133,14 +135,14 @@ public class ErrorLogParser {
 
   static Deadlock parseDeadlock(RewindBufferedReader bufferedReader)
       throws IOException, MetricAgentException {
-    Deadlock deadlock = new Deadlock();
+    List<Deadlock.Transaction> transactions = new ArrayList<>();
     //Read empty line
     bufferedReader.readLine();
     boolean foundRollBack = false;
     while (!foundRollBack) {
       String line = bufferedReader.readLine();
       if (transactionStart.matcher(line).matches()) {
-        deadlock.transactions.add(parseTransaction(bufferedReader));
+        transactions.add(parseTransaction(bufferedReader));
       } else if (rollBack.matcher(line).matches()) {
         foundRollBack = true;
       } else {
@@ -148,7 +150,7 @@ public class ErrorLogParser {
             + line + "`");
       }
     }
-    return deadlock;
+    return new Deadlock(transactions);
   }
 
   /**

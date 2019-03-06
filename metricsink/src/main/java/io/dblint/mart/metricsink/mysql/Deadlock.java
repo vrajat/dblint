@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class Deadlock {
+public class Deadlock {
   public static class Transaction {
     private static Pattern idPattern = Pattern.compile(
         "^TRANSACTION ([0-9]+),.+"
@@ -52,6 +52,14 @@ class Deadlock {
     void addWaitingLock(Lock waitingLock) {
       this.waitingLocks.add(waitingLock);
     }
+
+    public String getId() {
+      return id;
+    }
+
+    public String getQuery() {
+      return query;
+    }
   }
 
   public static class Lock {
@@ -63,7 +71,7 @@ class Deadlock {
     public final String schema;
     public final String table;
 
-    public Lock(String id, String spaceId, String pageNo, String numBits,
+    Lock(String id, String spaceId, String pageNo, String numBits,
                 String index, String schema, String table) {
       this.id = id;
       this.spaceId = spaceId;
@@ -75,5 +83,9 @@ class Deadlock {
     }
   }
 
-  List<Transaction> transactions = new ArrayList<>();
+  public final List<Transaction> transactions;
+
+  public Deadlock(List<Transaction> transactions) {
+    this.transactions = transactions;
+  }
 }

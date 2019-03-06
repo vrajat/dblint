@@ -7,7 +7,7 @@ import java.io.Reader;
 public class RewindBufferedReader extends LineNumberReader {
   String line;
 
-  RewindBufferedReader(Reader reader) {
+  public RewindBufferedReader(Reader reader) {
     super(reader);
   }
 
