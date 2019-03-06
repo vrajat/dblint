@@ -29,4 +29,3 @@ Record lock, heap no 57 PHYSICAL RECORD: n_fields 29; compact format; info bits 
  26: len 4; hex 80000000; asc     ;;
  27: SQL NULL;
  28: len 8; hex 000000000000f03f; asc        ?;;
-
