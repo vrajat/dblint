@@ -5,9 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -20,13 +19,8 @@ public class ErrorLogParser {
 
   private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
 
-  static boolean isALog(String line) {
-    try {
-      LocalDate.parse(line.substring(0, 18), dateFormat);
-      return true;
-    } catch (DateTimeParseException exc) {
-      return false;
-    }
+  static LocalDateTime getTime(String line) {
+    return LocalDateTime.parse(line.substring(0, 19), dateFormat);
   }
 
   static boolean newDeadlockSection(String line) {
@@ -48,7 +42,8 @@ public class ErrorLogParser {
 
   private static Pattern pattern = Pattern.compile(
       "^RECORD LOCKS space id ([0-9]+) page no ([0-9]+) n bits ([0-9]+) index `(\\w+)` of table "
-          + "`(\\w+)`.`(\\w+)` trx id (\\d+) lock_mode X( locks rec but not gap)*(\\bwaiting\\b)*"
+          + "`(\\w+)`.`(\\w+)` trx id (\\d+) lock(_|\\s)mode (S|X)"
+          + "( locks rec but not gap)*(\\bwaiting\\b)*"
   );
 
   private static Pattern recordLock = Pattern.compile(
@@ -82,7 +77,8 @@ public class ErrorLogParser {
           matcher.group(3),
           matcher.group(4),
           matcher.group(5),
-          matcher.group(6));
+          matcher.group(6),
+          matcher.group(9));
     } else {
       throw new MetricAgentException("Line (" + bufferedReader.getLineNumber() + ") "
           + "did not match Lock pattern: '" + line
@@ -133,7 +129,7 @@ public class ErrorLogParser {
     return transaction;
   }
 
-  static Deadlock parseDeadlock(RewindBufferedReader bufferedReader)
+  static Deadlock parseDeadlock(RewindBufferedReader bufferedReader, LocalDateTime time)
       throws IOException, MetricAgentException {
     List<Deadlock.Transaction> transactions = new ArrayList<>();
     //Read empty line
@@ -150,7 +146,7 @@ public class ErrorLogParser {
             + line + "`");
       }
     }
-    return new Deadlock(transactions);
+    return new Deadlock(transactions, time);
   }
 
   /**
@@ -163,8 +159,9 @@ public class ErrorLogParser {
       throws IOException, MetricAgentException {
     List<Deadlock> deadlocks = new ArrayList<>();
     while (bufferedReader.ready()) {
-      if (newDeadlockSection(bufferedReader.readLine())) {
-        deadlocks.add(parseDeadlock(bufferedReader));
+      String line = bufferedReader.readLine();
+      if (newDeadlockSection(line)) {
+        deadlocks.add(parseDeadlock(bufferedReader, getTime(line)));
       }
     }
 

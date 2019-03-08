@@ -10,6 +10,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -82,6 +84,7 @@ class ErrorLogParserTest {
     assertEquals("schema", lock.schema);
     assertEquals("tablename", lock.table);
     assertEquals("261737481427", lock.id);
+    assertEquals("X", lock.lockType);
   }
 
   @Test
@@ -99,6 +102,25 @@ class ErrorLogParserTest {
     assertEquals("schema", lock.schema);
     assertEquals("table", lock.table);
     assertEquals("261737481145", lock.id);
+    assertEquals("X", lock.lockType);
+  }
+
+  @Test
+  void testSLock() throws IOException, MetricAgentException {
+    RewindBufferedReader reader = new RewindBufferedReader(new InputStreamReader(
+        this.getClass().getClassLoader().getResourceAsStream("error_logs/lock_04")));
+
+    assertNotNull(reader);
+
+    Deadlock.Lock lock = ErrorLogParser.parseLock(reader);
+    assertEquals("11953", lock.spaceId);
+    assertEquals("323928", lock.pageNo);
+    assertEquals("1272", lock.numBits);
+    assertEquals("order_id", lock.index);
+    assertEquals("schema", lock.schema);
+    assertEquals("table", lock.table);
+    assertEquals("264357785633", lock.id);
+    assertEquals("S", lock.lockType);
   }
 
   @Test
@@ -107,7 +129,8 @@ class ErrorLogParserTest {
         this.getClass().getClassLoader().getResourceAsStream("error_logs/deadlock_01")));
     assertNotNull(reader);
 
-    Deadlock deadlock = ErrorLogParser.parseDeadlock(reader);
+    Deadlock deadlock = ErrorLogParser.parseDeadlock(reader,
+        LocalDateTime.of(2018, 3, 8, 9, 39));
     assertEquals(2, deadlock.transactions.size());
   }
 

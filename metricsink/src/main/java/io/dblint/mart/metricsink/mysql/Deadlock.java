@@ -2,6 +2,7 @@ package io.dblint.mart.metricsink.mysql;
 
 import io.dblint.mart.metricsink.util.MetricAgentException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -70,9 +71,10 @@ public class Deadlock {
     public final String index;
     public final String schema;
     public final String table;
+    public final String lockType;
 
     Lock(String id, String spaceId, String pageNo, String numBits,
-                String index, String schema, String table) {
+                String index, String schema, String table, String lockType) {
       this.id = id;
       this.spaceId = spaceId;
       this.pageNo = pageNo;
@@ -80,12 +82,15 @@ public class Deadlock {
       this.index = index;
       this.schema = schema;
       this.table = table;
+      this.lockType = lockType;
     }
   }
 
   public final List<Transaction> transactions;
+  public final LocalDateTime time;
 
-  public Deadlock(List<Transaction> transactions) {
+  public Deadlock(List<Transaction> transactions, LocalDateTime time) {
     this.transactions = transactions;
+    this.time = time;
   }
 }
