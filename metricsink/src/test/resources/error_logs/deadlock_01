@@ -1,0 +1,86 @@
+2019-02-25 07:58:01 2b91d350d700
+*** (1) TRANSACTION:
+TRANSACTION 261737481082, ACTIVE 0 sec fetching rows
+mysql tables in use 3, locked 3
+LOCK WAIT 519 lock struct(s), heap size 63016, 4 row lock(s)
+MySQL thread id 29932874, OS thread handle 0x2b91f3982700, query id 27905488590 172.16.8.49 dbadmin2 updating
+UPDATE `table` SET `arrival_time` = '13:13:21.760000';
+*** (1) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 12042 page no 63840 n bits 200 index `PRIMARY` of table `schema`.`table` trx id 261737481082 lock_mode X locks rec but not gap waiting
+Record lock, heap no 57 PHYSICAL RECORD: n_fields 29; compact format; info bits 0
+ 0: len 4; hex 80329e3f; asc  2 ?;;
+ 1: len 6; hex 002962185d40; asc  )b ]@;;
+ 2: len 7; hex 3e0020400723f4; asc >  @ # ;;
+ 3: len 5; hex 99a19e9c49; asc     I;;
+ 4: len 5; hex 99a19e9ca2; asc      ;;
+ 5: SQL NULL;
+ 6: SQL NULL;
+ 7: SQL NULL;
+ 8: SQL NULL;
+ 9: len 3; hex 809c48; asc   H;;
+ 10: SQL NULL;
+ 11: SQL NULL;
+ 12: SQL NULL;
+ 13: len 3; hex 8fc58f; asc    ;;
+ 14: len 4; hex 800003cf; asc     ;;
+ 15: len 4; hex 80000286; asc     ;;
+ 16: SQL NULL;
+ 17: len 4; hex 80002ce2; asc   , ;;
+ 18: SQL NULL;
+ 19: SQL NULL;
+ 20: SQL NULL;
+ 21: SQL NULL;
+ 22: SQL NULL;
+ 23: len 1; hex 80; asc  ;;
+ 24: len 1; hex 81; asc  ;;
+ 25: len 4; hex 80000000; asc     ;;
+ 26: len 4; hex 80000000; asc     ;;
+ 27: SQL NULL;
+ 28: len 8; hex 000000000000f03f; asc        ?;;
+
+*** (2) TRANSACTION:
+TRANSACTION 261737481145, ACTIVE 0 sec fetching rows
+mysql tables in use 3, locked 3
+521 lock struct(s), heap size 63016, 3 row lock(s)
+MySQL thread id 29930132, OS thread handle 0x2b91d350d700, query id 27905488683 172.16.8.195 dbadmin2 updating
+UPDATE `table` SET `arrival_time` = '13:13:21.760000';
+*** (2) HOLDS THE LOCK(S):
+RECORD LOCKS space id 12042 page no 63840 n bits 200 index `PRIMARY` of table `schema`.`table` trx id 261737481145 lock_mode X locks rec but not gap
+Record lock, heap no 57 PHYSICAL RECORD: n_fields 29; compact format; info bits 0
+ 0: len 4; hex 80329e3f; asc  2 ?;;
+ 1: len 6; hex 002962185d40; asc  )b ]@;;
+ 2: len 7; hex 3e0020400723f4; asc >  @ # ;;
+ 3: len 5; hex 99a19e9c49; asc     I;;
+ 4: len 5; hex 99a19e9ca2; asc      ;;
+ 5: SQL NULL;
+ 6: SQL NULL;
+ 7: SQL NULL;
+ 8: SQL NULL;
+ 9: len 3; hex 809c48; asc   H;;
+ 10: SQL NULL;
+ 11: SQL NULL;
+ 12: SQL NULL;
+ 13: len 3; hex 8fc58f; asc    ;;
+ 14: len 4; hex 800003cf; asc     ;;
+ 15: len 4; hex 80000286; asc     ;;
+ 16: SQL NULL;
+ 17: len 4; hex 80002ce2; asc   , ;;
+ 18: SQL NULL;
+ 19: SQL NULL;
+ 20: SQL NULL;
+ 21: SQL NULL;
+ 22: SQL NULL;
+ 23: len 1; hex 80; asc  ;;
+ 24: len 1; hex 81; asc  ;;
+ 25: len 4; hex 80000000; asc     ;;
+ 26: len 4; hex 80000000; asc     ;;
+ 27: SQL NULL;
+ 28: len 8; hex 000000000000f03f; asc        ?;;
+
+*** (2) WAITING FOR THIS LOCK TO BE GRANTED:
+RECORD LOCKS space id 12042 page no 59420 n bits 1192 index `table_f67c5d8` of table `schema`.`table` trx id 261737481145 lock_mode X locks rec but not gap waiting
+Record lock, heap no 580 PHYSICAL RECORD: n_fields 2; compact format; info bits 0
+ 0: len 4; hex 80002ce2; asc   , ;;
+ 1: len 4; hex 80329e3f; asc  2 ?;;
+
+*** WE ROLL BACK TRANSACTION (1)

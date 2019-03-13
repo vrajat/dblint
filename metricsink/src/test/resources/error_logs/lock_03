@@ -1,0 +1,4 @@
+RECORD LOCKS space id 12042 page no 59420 n bits 1192 index `table_f67c5d8` of table `schema`.`table` trx id 261737481145 lock_mode X locks rec but not gap waiting
+Record lock, heap no 580 PHYSICAL RECORD: n_fields 2; compact format; info bits 0
+ 0: len 4; hex 80002ce2; asc   , ;;
+ 1: len 4; hex 80329e3f; asc  2 ?;;

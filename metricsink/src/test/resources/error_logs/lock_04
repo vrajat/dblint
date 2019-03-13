@@ -1,0 +1,1 @@
+RECORD LOCKS space id 11953 page no 323928 n bits 1272 index `order_id` of table `schema`.`table` trx id 264357785633 lock mode S waiting

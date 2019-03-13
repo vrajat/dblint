@@ -20,35 +20,4 @@ import org.slf4j.LoggerFactory;
 
 public class SlowQueryTest {
   private static Logger logger = LoggerFactory.getLogger(SlowQueryTest.class);
-
-  @Disabled
-  @Test
-  @Tag("cmdline")
-  void cmdLineTest() throws XMLStreamException, IOException, QanException {
-    logger.info(System.getProperty("schemaFile"));
-    SchemaParser.Database database = SchemaParser.parseMySqlDump(
-        new FileInputStream(System.getProperty("schemaFile")));
-
-
-    logger.info(System.getProperty("slowFile"));
-    SlowQueryLogParser parser = new SlowQueryLogParser();
-    List<UserQuery> queries = parser.parseLog(
-        new FileInputStream(System.getProperty("slowFile"))
-    );
-
-    MetricRegistry registry = new MetricRegistry();
-    SlowQuery slowQuery = new SlowQuery(database, registry);
-    slowQuery.analyze(queries);
-    Map<String, QueryStats> statsMap = slowQuery.getAggQueryStats();
-
-    logger.info("Sorted Queries");
-    statsMap.entrySet().stream()
-        .filter(entry -> entry.getValue().getNumQueries() > entry.getValue().getIndexUsed())
-        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .limit(50)
-        .forEach(entry -> logger.info(entry.getValue().toString()));
-
-    registry.getCounters()
-      .forEach((name, counter) -> logger.info(name + ":" + counter.getCount()));
-  }
 }
