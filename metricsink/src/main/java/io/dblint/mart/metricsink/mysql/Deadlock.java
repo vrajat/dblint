@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Deadlock {
+public class Deadlock implements Comparable<Deadlock> {
   public static class Transaction {
     private static Pattern idPattern = Pattern.compile(
         "^TRANSACTION ([0-9]+),.+"
@@ -92,5 +92,10 @@ public class Deadlock {
   public Deadlock(List<Transaction> transactions, LocalDateTime time) {
     this.transactions = transactions;
     this.time = time;
+  }
+
+  @Override
+  public int compareTo(Deadlock deadlock) {
+    return time.compareTo(deadlock.time);
   }
 }

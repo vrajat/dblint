@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ErrorLog extends ConfiguredCommand<MartConfiguration> {
@@ -68,6 +69,7 @@ public class ErrorLog extends ConfiguredCommand<MartConfiguration> {
       }
     }
 
+    Collections.sort(deadlocks);
     ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(new FileOutputStream(namespace.getString("output")), deadlocks);
   }
