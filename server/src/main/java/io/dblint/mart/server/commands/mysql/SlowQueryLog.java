@@ -3,9 +3,11 @@ package io.dblint.mart.server.commands.mysql;
 import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.analyses.mysql.QueryStats;
 import io.dblint.mart.analyses.mysql.SlowQuery;
+import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
 import io.dblint.mart.metricsink.mysql.SchemaParser;
 import io.dblint.mart.metricsink.mysql.SlowQueryLogParser;
 import io.dblint.mart.metricsink.mysql.UserQuery;
+import io.dblint.mart.metricsink.util.MetricAgentException;
 import io.dblint.mart.server.MartConfiguration;
 import io.dblint.mart.sqlplanner.QanException;
 import io.dropwizard.cli.ConfiguredCommand;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +49,7 @@ public class SlowQueryLog extends ConfiguredCommand<MartConfiguration> {
   @Override
   protected void run(Bootstrap<MartConfiguration> bootstrap, Namespace namespace,
                      MartConfiguration configuration)
-      throws XMLStreamException, IOException, QanException {
+      throws XMLStreamException, IOException, QanException, MetricAgentException {
     SchemaParser.Database database = SchemaParser.parseMySqlDump(
         new FileInputStream(namespace.getString("schemaFile")));
 
@@ -54,7 +57,9 @@ public class SlowQueryLog extends ConfiguredCommand<MartConfiguration> {
     logger.info(namespace.getString("slowQueryLog"));
     SlowQueryLogParser parser = new SlowQueryLogParser();
     List<UserQuery> queries = parser.parseLog(
-        new FileInputStream(namespace.getString("slowQueryLog"))
+        new RewindBufferedReader(new InputStreamReader(
+            new FileInputStream(namespace.getString("slowQueryLog"))
+        ))
     );
 
     MetricRegistry registry = new MetricRegistry();
