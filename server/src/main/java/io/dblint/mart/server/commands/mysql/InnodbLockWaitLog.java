@@ -21,7 +21,7 @@ public class InnodbLockWaitLog extends LogParser {
    * A command to parse innodb lock wait query output.
    */
   public InnodbLockWaitLog() {
-    super("innodb_lock_waits", "Analyze Queries in MySQL slow query log");
+    super("innodb_lock_waits", "Analyze Innodb Lock Wait Information");
     this.lockWaits = new ArrayList<>();
   }
 

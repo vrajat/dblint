@@ -11,6 +11,7 @@ public abstract class TimeRange extends ConfiguredCommand<MartConfiguration> {
 
   @Override
   public void configure(Subparser subparser) {
+    super.configure(subparser);
     subparser.addArgument("-s", "--startTime")
         .metavar("startTime")
         .type(String.class)

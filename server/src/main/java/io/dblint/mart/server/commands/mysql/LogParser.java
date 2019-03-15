@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 abstract class LogParser extends TimeRange {
-  private static Logger logger = LoggerFactory.getLogger(SlowQueryLog.class);
+  private static Logger logger = LoggerFactory.getLogger(LogParser.class);
   private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
 
   LogParser(String name, String description) {
@@ -29,6 +29,7 @@ abstract class LogParser extends TimeRange {
 
   @Override
   public void configure(Subparser subparser) {
+    super.configure(subparser);
     MutuallyExclusiveGroup group = subparser.addMutuallyExclusiveGroup("input")
         .required(true);
     group.addArgument("-l", "--log")
