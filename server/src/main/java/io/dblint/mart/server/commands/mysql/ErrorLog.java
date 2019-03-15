@@ -5,72 +5,37 @@ import io.dblint.mart.metricsink.mysql.Deadlock;
 import io.dblint.mart.metricsink.mysql.ErrorLogParser;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
 import io.dblint.mart.metricsink.util.MetricAgentException;
-import io.dblint.mart.server.MartConfiguration;
-import io.dropwizard.cli.ConfiguredCommand;
-import io.dropwizard.setup.Bootstrap;
-import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
-import net.sourceforge.argparse4j.inf.Namespace;
-import net.sourceforge.argparse4j.inf.Subparser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ErrorLog extends ConfiguredCommand<MartConfiguration> {
+public class ErrorLog extends LogParser {
   private static Logger logger = LoggerFactory.getLogger(ErrorLog.class);
+  private List<Deadlock> deadlocks = new ArrayList<>();
 
   public ErrorLog() {
     super("errorlog", "Analyze Error Log for deadlocks in innodb");
   }
 
   @Override
-  public void configure(Subparser subparser) {
-    MutuallyExclusiveGroup group = subparser.addMutuallyExclusiveGroup("input")
-        .required(true);
-    group.addArgument("-l", "--log")
-        .metavar("log")
-        .type(String.class)
-        .help("Path to Error Log");
+  protected void process(Reader reader)
+      throws IOException, MetricAgentException {
 
-    group.addArgument("-d", "--log-dir")
-        .type(String.class)
-        .help("Path to Error Log directory");
-
-    subparser.addArgument("-o", "--output")
-        .metavar("output")
-        .type(String.class)
-        .help("Path to output file");
+    this.deadlocks.addAll(ErrorLogParser.parse(
+        new RewindBufferedReader(reader)
+    ));
   }
 
   @Override
-  protected void run(Bootstrap<MartConfiguration> bootstrap, Namespace namespace,
-                     MartConfiguration configuration) throws IOException, MetricAgentException {
-    List<Deadlock> deadlocks;
-    logger.debug(namespace.toString());
-    if (namespace.getString("log") != null) {
-      logger.info(namespace.getString("log"));
-      deadlocks = ErrorLogParser.parse(
-          new RewindBufferedReader(new FileReader(namespace.getString("log")))
-      );
-    } else {
-      deadlocks = new ArrayList<>();
-      logger.info(namespace.getString("log_dir"));
-      File folder = new File(namespace.getString("log_dir"));
-      for (File f : folder.listFiles()) {
-        logger.info("Processing " + f.getName());
-        deadlocks.addAll(ErrorLogParser.parse(
-            new RewindBufferedReader(new FileReader(f))));
-      }
-    }
-
+  protected void output(OutputStream os) throws IOException {
     Collections.sort(deadlocks);
     ObjectMapper mapper = new ObjectMapper();
-    mapper.writeValue(new FileOutputStream(namespace.getString("output")), deadlocks);
+    mapper.writeValue(os, this.deadlocks);
   }
 }

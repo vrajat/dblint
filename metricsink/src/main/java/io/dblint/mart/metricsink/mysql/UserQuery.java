@@ -1,10 +1,11 @@
 package io.dblint.mart.metricsink.mysql;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class UserQuery {
-  String time;
+  LocalDateTime time;
   String userHost;
   String ipAddress;
   String id;
@@ -12,18 +13,15 @@ public class UserQuery {
   Double lockTime;
   Long rowsSent;
   Long rowsExamined;
-  List<String> queries;
+  String query;
 
-  UserQuery() {
-    queries = new ArrayList<>();
-  }
-
-  public String getTime() {
+  public LocalDateTime getTime() {
     return time;
   }
 
   public void setTime(String time) {
-    this.time = time;
+    this.time = LocalDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(time)),
+        ZoneId.of("UTC"));
   }
 
   public String getUserHost() {
@@ -74,12 +72,12 @@ public class UserQuery {
     this.rowsExamined = Long.parseLong(rowsExamined);
   }
 
-  public List<String> getQueries() {
-    return queries;
+  public String getQuery() {
+    return query;
   }
 
-  public void setQueries(List<String> queries) {
-    this.queries = queries;
+  public void setQuery(String query) {
+    this.query = query;
   }
 
   public String getIpAddress() {

@@ -91,7 +91,7 @@ public class SlowQuery {
   public void analyze(List<UserQuery> queries) {
     for (UserQuery query : queries) {
       if (query.getRowsExamined() > 1000) {
-        String sql = String.join("\n", query.getQueries());
+        String sql = String.join("\n", query.getQuery());
         numQueries.inc();
         logger.info(sql);
         try {
