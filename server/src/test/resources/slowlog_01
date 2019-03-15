@@ -10,8 +10,8 @@ throttle:       2878 'index not used' warning(s) suppressed.;
 # User@Host: dbadmin2[dbadmin2] @  [172.16.7.88]  Id: 33553463
 # Query_time: 0.000188  Lock_time: 0.000051 Rows_sent: 0  Rows_examined: 104
 SET timestamp=1551308403;
-SELECT `tpl_tplhubconfig`.`tpl`, `tpl_tplhubconfig`.`hub_id`, `tpl_tplhubconfig`.`buffer`, `tpl_tplhubconfig`.`tpl_multiplier` FROM `tpl_tplhubconfig` INNER JOIN `hub_hub` ON (`tpl_tplhubconfig`.`hub_id` = `hub_hub`.`id`) WHERE ((1=1 /* CONTEXT-ID: None, MESSAGE-ID: None, ORIGIN: Cron, CRON: */) AND `tpl_tplhubconfig`.`status` = 1 AND `tpl_tplhubconfig`.`enable_for_express_orders` = 1 AND `hub_hub`.`city_id` = 18 AND `tpl_tplhubconfig`.`include_capacity` = 'combined_capacity');
+SELECT a, b from c
 # User@Host: dbadmin2[dbadmin2] @  [172.16.49.15]  Id: 33554058
 # Query_time: 0.000165  Lock_time: 0.000094 Rows_sent: 4  Rows_examined: 16
 SET timestamp=1551308403;
-SELECT `id`, `name` FROM `product_datasection` AS `DataSection` WHERE `DataSection`.`id` IN ('2', '10', '6', '5');
+SELECT a, b from c
