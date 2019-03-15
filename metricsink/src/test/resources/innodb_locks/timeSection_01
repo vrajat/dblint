@@ -1,0 +1,23 @@
+now(): 2019-03-13 22:02:01
+*************************** 1. row ***************************
+ waiting_trx_id: 281417201150
+ waiting_thread: 55762544
+  waiting_query: INSERT INTO table (
+            member_id,
+            created_by_id,
+            bind_vars,
+            communication_detail_id,
+            is_send,
+            created_on,
+            updated_on
+        ) VALUES (1507884, 1, "{}", 29, 1, '2019-03-13 18:15:00', '2019-03-13 18:15:00')
+blocking_trx_id: 281417200516
+blocking_thread: 55762537
+ blocking_query: UPDATE `table` SET `arrival_time` = '21:57:27.543000'
+*************************** 2. row ***************************
+ waiting_trx_id: 281417201150
+ waiting_thread: 55762544
+  waiting_query: UPDATE `table` SET `arrival_time` = '21:57:27.543000'
+blocking_trx_id: 281417185631
+blocking_thread: 55760475
+ blocking_query: UPDATE `table` SET `arrival_time` = '21:57:27.543000'

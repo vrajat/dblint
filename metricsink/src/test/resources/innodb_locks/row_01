@@ -1,0 +1,6 @@
+ waiting_trx_id: 281417201150
+ waiting_thread: 55762544
+  waiting_query: UPDATE `table` SET `arrival_time` = '21:57:27.543000'
+blocking_trx_id: 281417200516
+blocking_thread: 55762537
+ blocking_query: UPDATE `table` SET `arrival_time` = '21:57:27.543000'
