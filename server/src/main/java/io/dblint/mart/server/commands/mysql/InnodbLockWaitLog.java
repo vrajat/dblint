@@ -9,8 +9,10 @@ import io.dblint.mart.metricsink.util.MetricAgentException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class InnodbLockWaitLog extends LogParser {
   private List<InnodbLockWait> lockWaits;
@@ -23,7 +25,6 @@ public class InnodbLockWaitLog extends LogParser {
     this.lockWaits = new ArrayList<>();
   }
 
-
   @Override
   protected void process(Reader reader)
       throws IOException, MetricAgentException {
@@ -32,6 +33,13 @@ public class InnodbLockWaitLog extends LogParser {
         new RewindBufferedReader(reader)
         )
     );
+  }
+
+  @Override
+  protected void filter(LocalDateTime start, LocalDateTime end) {
+    lockWaits = lockWaits.stream()
+        .filter(lw -> lw.time.isAfter(start) && lw.time.isBefore(end))
+        .collect(Collectors.toList());
   }
 
   @Override

@@ -16,9 +16,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-abstract class LogParser extends ConfiguredCommand<MartConfiguration> {
+abstract class LogParser extends TimeRange {
   private static Logger logger = LoggerFactory.getLogger(SlowQueryLog.class);
+  private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
 
   LogParser(String name, String description) {
     super(name, description);
@@ -47,6 +50,8 @@ abstract class LogParser extends ConfiguredCommand<MartConfiguration> {
 
   abstract void output(OutputStream os) throws IOException;
 
+  abstract void filter(LocalDateTime start, LocalDateTime end);
+
   @Override
   protected void run(Bootstrap<MartConfiguration> bootstrap, Namespace namespace,
                      MartConfiguration configuration)
@@ -64,6 +69,13 @@ abstract class LogParser extends ConfiguredCommand<MartConfiguration> {
       }
     }
 
+    String startTime = namespace.getString("startTime");
+    String endTime = namespace.getString("endTime");
+
+    if (startTime != null && endTime != null) {
+      filter(LocalDateTime.parse(startTime, dateFormat),
+          LocalDateTime.parse(endTime, dateFormat));
+    }
     output(new FileOutputStream(namespace.getString("output")));
   }
 }

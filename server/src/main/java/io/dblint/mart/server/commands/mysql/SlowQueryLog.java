@@ -11,8 +11,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SlowQueryLog extends LogParser {
   private static Logger logger = LoggerFactory.getLogger(SlowQueryLog.class);
@@ -36,6 +38,13 @@ public class SlowQueryLog extends LogParser {
         new RewindBufferedReader(reader)
         )
     );
+  }
+
+  @Override
+  protected void filter(LocalDateTime start, LocalDateTime end) {
+    this.queries = this.queries.stream()
+        .filter(query -> query.getTime().isAfter(start) && query.getTime().isBefore(end))
+        .collect(Collectors.toList());
   }
 
   @Override
