@@ -2,7 +2,6 @@ package io.dblint.mart.server.commands.mysql;
 
 import io.dblint.mart.metricsink.util.MetricAgentException;
 import io.dblint.mart.server.MartConfiguration;
-import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;

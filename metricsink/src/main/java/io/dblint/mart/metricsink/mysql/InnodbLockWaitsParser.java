@@ -55,8 +55,8 @@ INNER JOIN information_schema.innodb_locks bl
       "^now\\(\\)"
   );
 
-  private static Pattern blockingTrx = Pattern.compile(
-      "^\\s*blocking_trx_id"
+  static Pattern trxStarted = Pattern.compile(
+      "^\\s*(block|wait)ing_trx_started"
   );
 
   private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
@@ -128,15 +128,42 @@ INNER JOIN information_schema.innodb_locks bl
 
     line = reader.readLine();
     while (line != null && !line.isEmpty()
-        && !blockingTrx.matcher(line).find() && !row.matcher(line).matches()) {
+        && !trxStarted.matcher(line).find()) {
       query.append("\n");
       query.append(line);
       line = reader.readLine();
     }
-    if (line != null) {
-      reader.rewind(line);
+    if (line == null) {
+      throw new MetricAgentException("Hit EOF unexpectedly while extracting query");
     }
-    return new InnodbLockWait.Transaction(id, thread, query.toString());
+    final LocalDateTime transactionStarted = LocalDateTime.parse(
+        parseColumn(line)[1].trim(), dateFormat);
+
+    LocalDateTime waitStarted = null;
+    line = getLineOrThrow(reader);
+    String [] columns = parseColumn(line);
+    if (columns[0].contains("waiting_trx_wait_started")) {
+      waitStarted = LocalDateTime.parse(parseColumn(line)[1].trim(), dateFormat);
+      line = getLineOrThrow(reader);
+      columns = parseColumn(line);
+    }
+
+    final String lockMode = columns[1].trim();
+
+    line = getLineOrThrow(reader);
+    final String lockType = parseColumn(line)[1].trim();
+
+    line = getLineOrThrow(reader);
+    final String lockTable = parseColumn(line)[1].trim();
+
+    line = getLineOrThrow(reader);
+    final String lockIndex = parseColumn(line)[1].trim();
+
+    line = getLineOrThrow(reader);
+    final String lockData = parseColumn(line)[1].trim();
+
+    return new InnodbLockWait.Transaction(id, thread, query.toString(), transactionStarted,
+        waitStarted, lockMode, lockType, lockTable, lockIndex, lockData);
   }
 
   static InnodbLockWait parseRow(RewindBufferedReader reader, LocalDateTime time)
