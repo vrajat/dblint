@@ -1,0 +1,19 @@
+          waiting_trx_id: 285543496076
+          waiting_thread: 62265463
+           waiting_query: SELECT sequence_number FROM invoice WHERE id = 45 FOR UPDATE
+     waiting_trx_started: 2019-03-18 02:41:01
+waiting_trx_wait_started: 2019-03-18 02:41:01
+       waiting_lock_mode: X
+       waiting_lock_type: RECORD
+      waiting_lock_table: `schema`.`table`
+      waiting_lock_index: PRIMARY
+       waiting_lock_data: 45
+         blocking_trx_id: 285543495612
+         blocking_thread: 62265470
+          blocking_query: NULL
+    blocking_trx_started: 2019-03-18 02:41:01
+      blocking_lock_mode: X
+      blocking_lock_type: RECORD
+     blocking_lock_table: `schema`.`table`
+     blocking_lock_index: PRIMARY
+      blocking_lock_data: 45

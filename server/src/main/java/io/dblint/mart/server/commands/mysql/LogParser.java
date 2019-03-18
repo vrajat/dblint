@@ -2,7 +2,6 @@ package io.dblint.mart.server.commands.mysql;
 
 import io.dblint.mart.metricsink.util.MetricAgentException;
 import io.dblint.mart.server.MartConfiguration;
-import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -16,9 +15,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-abstract class LogParser extends ConfiguredCommand<MartConfiguration> {
-  private static Logger logger = LoggerFactory.getLogger(SlowQueryLog.class);
+abstract class LogParser extends TimeRange {
+  private static Logger logger = LoggerFactory.getLogger(LogParser.class);
+  private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
 
   LogParser(String name, String description) {
     super(name, description);
@@ -26,6 +28,7 @@ abstract class LogParser extends ConfiguredCommand<MartConfiguration> {
 
   @Override
   public void configure(Subparser subparser) {
+    super.configure(subparser);
     MutuallyExclusiveGroup group = subparser.addMutuallyExclusiveGroup("input")
         .required(true);
     group.addArgument("-l", "--log")
@@ -47,6 +50,8 @@ abstract class LogParser extends ConfiguredCommand<MartConfiguration> {
 
   abstract void output(OutputStream os) throws IOException;
 
+  abstract void filter(LocalDateTime start, LocalDateTime end);
+
   @Override
   protected void run(Bootstrap<MartConfiguration> bootstrap, Namespace namespace,
                      MartConfiguration configuration)
@@ -64,6 +69,13 @@ abstract class LogParser extends ConfiguredCommand<MartConfiguration> {
       }
     }
 
+    String startTime = namespace.getString("startTime");
+    String endTime = namespace.getString("endTime");
+
+    if (startTime != null && endTime != null) {
+      filter(LocalDateTime.parse(startTime, dateFormat),
+          LocalDateTime.parse(endTime, dateFormat));
+    }
     output(new FileOutputStream(namespace.getString("output")));
   }
 }

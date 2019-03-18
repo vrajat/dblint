@@ -1,6 +1,7 @@
 package io.dblint.mart.server.commands;
 
 import io.dblint.mart.server.commands.mysql.ErrorLog;
+import io.dblint.mart.server.commands.mysql.InnodbLockWaitLog;
 import io.dblint.mart.server.commands.mysql.SlowQueryLog;
 import io.dropwizard.cli.Command;
 
@@ -15,6 +16,9 @@ public class MySqlCommands extends HierarchicalCommand {
 
     final ErrorLog errorLog = new ErrorLog();
     commands.put(errorLog.getName(), errorLog);
+
+    final InnodbLockWaitLog innodbLockWaitLog = new InnodbLockWaitLog();
+    commands.put(innodbLockWaitLog.getName(), innodbLockWaitLog);
 
     return commands;
   }
