@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dblint.mart.metricsink.mysql.InnodbLockWait;
 import io.dblint.mart.metricsink.mysql.InnodbLockWaitsParser;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
+import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.util.MetricAgentException;
 
 import java.io.IOException;
@@ -47,4 +48,7 @@ public class InnodbLockWaitLog extends LogParser {
     ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(os, lockWaits);
   }
+
+  @Override
+  void outputSql(Sink sink) {}
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dblint.mart.metricsink.mysql.Deadlock;
 import io.dblint.mart.metricsink.mysql.ErrorLogParser;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
+import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.util.MetricAgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,4 +48,7 @@ public class ErrorLog extends LogParser {
     ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(os, this.deadlocks);
   }
+
+  @Override
+  void outputSql(Sink sink) {}
 }

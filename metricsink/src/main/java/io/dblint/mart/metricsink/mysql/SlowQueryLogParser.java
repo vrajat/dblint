@@ -29,7 +29,7 @@ public class SlowQueryLogParser {
     if (matcher.find()) {
       userQuery.setUserHost(matcher.group(1));
       userQuery.setIpAddress(matcher.group(2));
-      userQuery.setId(matcher.group(3));
+      userQuery.setConnectionId(matcher.group(3));
     } else {
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match User Header pattern: '" + line

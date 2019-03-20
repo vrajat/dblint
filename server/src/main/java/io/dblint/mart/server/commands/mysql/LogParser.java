@@ -1,5 +1,7 @@
 package io.dblint.mart.server.commands.mysql;
 
+import com.codahale.metrics.MetricRegistry;
+import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.util.MetricAgentException;
 import io.dblint.mart.server.MartConfiguration;
 import io.dropwizard.setup.Bootstrap;
@@ -44,11 +46,20 @@ abstract class LogParser extends TimeRange {
         .metavar("output")
         .type(String.class)
         .help("Path to output file");
+
+    subparser.addArgument("--output-type")
+        .metavar("outputType")
+        .type(String.class)
+        .choices("json", "sqlite")
+        .setDefault("sqlite")
+        .help("Output Type");
   }
 
   abstract void process(Reader reader) throws IOException, MetricAgentException;
 
   abstract void output(OutputStream os) throws IOException;
+
+  abstract void outputSql(Sink sink) throws IOException;
 
   abstract void filter(LocalDateTime start, LocalDateTime end);
 
@@ -76,6 +87,14 @@ abstract class LogParser extends TimeRange {
       filter(LocalDateTime.parse(startTime, dateFormat),
           LocalDateTime.parse(endTime, dateFormat));
     }
-    output(new FileOutputStream(namespace.getString("output")));
+
+    if (namespace.getString("outputType") == "sqlite") {
+      MetricRegistry registry = new MetricRegistry();
+      Sink sink = new Sink("jdbc:sqlite:" + namespace.getString("output"), "", "", registry);
+      sink.initialize();
+      outputSql(sink);
+    } else {
+      output(new FileOutputStream(namespace.getString("output")));
+    }
   }
 }

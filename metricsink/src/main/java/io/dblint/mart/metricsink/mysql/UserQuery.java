@@ -8,7 +8,7 @@ public class UserQuery {
   LocalDateTime time;
   String userHost;
   String ipAddress;
-  String id;
+  String connectionId;
   Double queryTime;
   Double lockTime;
   Long rowsSent;
@@ -32,12 +32,12 @@ public class UserQuery {
     this.userHost = userHost;
   }
 
-  public String getId() {
-    return id;
+  public String getConnectionId() {
+    return connectionId;
   }
 
-  public void setId(String id) {
-    this.id = id;
+  public void setConnectionId(String connectionId) {
+    this.connectionId = connectionId;
   }
 
   public Double getQueryTime() {

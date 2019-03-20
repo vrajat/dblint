@@ -2,6 +2,7 @@ package io.dblint.mart.server.commands.mysql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
+import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.mysql.SlowQueryLogParser;
 import io.dblint.mart.metricsink.mysql.UserQuery;
 import io.dblint.mart.metricsink.util.MetricAgentException;
@@ -51,5 +52,10 @@ public class SlowQueryLog extends LogParser {
   protected void output(OutputStream os) throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(os, queries);
+  }
+
+  @Override
+  protected void outputSql(Sink sink) {
+    queries.stream().forEach(q -> sink.insertUserQueries(q));
   }
 }

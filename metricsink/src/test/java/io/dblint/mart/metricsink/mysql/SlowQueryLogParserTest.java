@@ -47,7 +47,7 @@ class SlowQueryLogParserTest {
 
     assertEquals("dbadmin2[dbadmin2]", query.getUserHost());
     assertEquals("172.16.2.208", query.getIpAddress());
-    assertEquals("311270893", query.getId());
+    assertEquals("311270893", query.getConnectionId());
     assertEquals(0.000218, query.getQueryTime().doubleValue());
     assertEquals(0.000072, query.getLockTime().doubleValue());
     assertEquals(6L, query.getRowsSent());
