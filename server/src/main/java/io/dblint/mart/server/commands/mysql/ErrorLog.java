@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +36,7 @@ public class ErrorLog extends LogParser {
   }
 
   @Override
-  protected void filter(LocalDateTime start, LocalDateTime end) {
+  protected void filter(ZonedDateTime start, ZonedDateTime end) {
     this.deadlocks = this.deadlocks.stream()
         .filter(lock -> lock.time.isAfter(start) && lock.time.isBefore(end))
         .collect(Collectors.toList());

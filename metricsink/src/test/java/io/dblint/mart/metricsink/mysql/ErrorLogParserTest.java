@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -129,7 +131,7 @@ class ErrorLogParserTest {
     assertNotNull(reader);
 
     Deadlock deadlock = ErrorLogParser.parseDeadlock(reader,
-        LocalDateTime.of(2018, 3, 8, 9, 39));
+        ZonedDateTime.of(LocalDateTime.of(2018, 3, 8, 9, 39), ZoneOffset.ofHoursMinutes(5, 30)));
     assertEquals(2, deadlock.transactions.size());
   }
 

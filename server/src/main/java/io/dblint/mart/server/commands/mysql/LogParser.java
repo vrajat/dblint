@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 abstract class LogParser extends TimeRange {
@@ -61,7 +63,7 @@ abstract class LogParser extends TimeRange {
 
   abstract void outputSql(Sink sink) throws IOException;
 
-  abstract void filter(LocalDateTime start, LocalDateTime end);
+  abstract void filter(ZonedDateTime start, ZonedDateTime end);
 
   @Override
   protected void run(Bootstrap<MartConfiguration> bootstrap, Namespace namespace,
@@ -84,8 +86,10 @@ abstract class LogParser extends TimeRange {
     String endTime = namespace.getString("endTime");
 
     if (startTime != null && endTime != null) {
-      filter(LocalDateTime.parse(startTime, dateFormat),
-          LocalDateTime.parse(endTime, dateFormat));
+      filter(ZonedDateTime.of(LocalDateTime.parse(startTime, dateFormat),
+          ZoneOffset.ofHoursMinutes(5, 30)),
+          ZonedDateTime.of(LocalDateTime.parse(endTime, dateFormat),
+              ZoneOffset.ofHoursMinutes(5, 30)));
     }
 
     if (namespace.getString("outputType") == "sqlite") {

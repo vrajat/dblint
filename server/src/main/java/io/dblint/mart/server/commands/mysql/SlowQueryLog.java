@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +42,7 @@ public class SlowQueryLog extends LogParser {
   }
 
   @Override
-  protected void filter(LocalDateTime start, LocalDateTime end) {
+  protected void filter(ZonedDateTime start, ZonedDateTime end) {
     this.queries = this.queries.stream()
         .filter(query -> query.getTime().isAfter(start) && query.getTime().isBefore(end))
         .collect(Collectors.toList());

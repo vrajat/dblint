@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +21,9 @@ public class ErrorLogParser {
 
   private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
 
-  static LocalDateTime getTime(String line) {
-    return LocalDateTime.parse(line.substring(0, 19), dateFormat);
+  static ZonedDateTime getTime(String line) {
+    return ZonedDateTime.of(LocalDateTime.parse(line.substring(0, 19), dateFormat),
+        ZoneOffset.ofHoursMinutes(5, 30));
   }
 
   static boolean newDeadlockSection(String line) {
@@ -129,7 +132,7 @@ public class ErrorLogParser {
     return transaction;
   }
 
-  static Deadlock parseDeadlock(RewindBufferedReader bufferedReader, LocalDateTime time)
+  static Deadlock parseDeadlock(RewindBufferedReader bufferedReader, ZonedDateTime time)
       throws IOException, MetricAgentException {
     List<Deadlock.Transaction> transactions = new ArrayList<>();
     //Read empty line

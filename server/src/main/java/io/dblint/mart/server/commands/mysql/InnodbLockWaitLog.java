@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public class InnodbLockWaitLog extends LogParser {
   }
 
   @Override
-  protected void filter(LocalDateTime start, LocalDateTime end) {
+  protected void filter(ZonedDateTime start, ZonedDateTime end) {
     lockWaits = lockWaits.stream()
         .filter(lw -> lw.time.isAfter(start) && lw.time.isBefore(end))
         .collect(Collectors.toList());

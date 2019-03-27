@@ -7,6 +7,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,8 +59,10 @@ public class InnodbLockWaitsParserTest {
     assertEquals("281417201150", transaction.id);
     assertEquals("55762544", transaction.thread);
     assertEquals(" UPDATE `table` SET `arrival_time` = '21:57:27.543000'", transaction.query);
-    assertEquals(LocalDateTime.of(2019, 3, 18, 2, 41, 1), transaction.startTime);
-    assertEquals(LocalDateTime.of(2019, 3, 18, 2, 41, 1), transaction.waitStartTime);
+    assertEquals(ZonedDateTime.of(
+        LocalDateTime.of(2019, 3, 18, 2, 41, 1), ZoneOffset.UTC), transaction.startTime);
+    assertEquals(ZonedDateTime.of(
+        LocalDateTime.of(2019, 3, 18, 2, 41, 1), ZoneOffset.UTC), transaction.waitStartTime);
     assertEquals("X", transaction.lockMode);
     assertEquals("RECORD", transaction.lockType);
     assertEquals("`schema`.`table`", transaction.lockTable);
@@ -88,7 +92,8 @@ public class InnodbLockWaitsParserTest {
     assertEquals("285543495612", transaction.id);
     assertEquals("62265470", transaction.thread);
     assertEquals(" NULL", transaction.query);
-    assertEquals(LocalDateTime.of(2019, 3, 18, 2, 41, 1), transaction.startTime);
+    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3, 18, 2, 41, 1), ZoneOffset.UTC),
+        transaction.startTime);
     assertNull(transaction.waitStartTime);
     assertEquals("X", transaction.lockMode);
     assertEquals("RECORD", transaction.lockType);
@@ -117,7 +122,8 @@ public class InnodbLockWaitsParserTest {
     assertNotNull(reader);
 
     InnodbLockWait lockWait = InnodbLockWaitsParser.parseRow(reader,
-        LocalDateTime.of(2019, 3, 15, 1, 0, 0));
+        ZonedDateTime.of(LocalDateTime.of(2019, 3, 15, 1, 0, 0),
+            ZoneOffset.ofHoursMinutes(5, 30)));
 
     assertNotNull(lockWait.blocking);
     assertNotNull(lockWait.waiting);
