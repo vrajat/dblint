@@ -78,7 +78,11 @@ abstract class LogParser extends TimeRange {
       File folder = new File(namespace.getString("log_dir"));
       for (File f : folder.listFiles()) {
         logger.info("Processing " + f.getName());
-        process(new FileReader(f));
+        try {
+          process(new FileReader(f));
+        } catch (MetricAgentException me) {
+          logger.error("Failed to parse " + f.getName(), me);
+        }
       }
     }
 
@@ -92,7 +96,7 @@ abstract class LogParser extends TimeRange {
               ZoneOffset.ofHoursMinutes(5, 30)));
     }
 
-    if (namespace.getString("outputType") == "sqlite") {
+    if (namespace.getString("output_type").equals("sqlite")) {
       MetricRegistry registry = new MetricRegistry();
       Sink sink = new Sink("jdbc:sqlite:" + namespace.getString("output"), "", "", registry);
       sink.initialize();
