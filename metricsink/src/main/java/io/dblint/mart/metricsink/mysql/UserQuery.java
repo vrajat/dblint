@@ -5,15 +5,17 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class UserQuery {
+  private int id;
   ZonedDateTime time;
-  String userHost;
-  String ipAddress;
-  String connectionId;
-  Double queryTime;
-  Double lockTime;
-  Long rowsSent;
-  Long rowsExamined;
-  String query;
+  private String userHost;
+  private String ipAddress;
+  private String connectionId;
+  private Double queryTime;
+  private Double lockTime;
+  private Long rowsSent;
+  private Long rowsExamined;
+  private String query;
+  private String digestHash;
 
   public ZonedDateTime getTime() {
     return time;
@@ -22,6 +24,14 @@ public class UserQuery {
   public void setTime(String time) {
     this.time = ZonedDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(time)),
         ZoneId.of("UTC"));
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 
   public String getUserHost() {
@@ -87,4 +97,14 @@ public class UserQuery {
   public void setIpAddress(String ipAddress) {
     this.ipAddress = ipAddress;
   }
+
+  public String getDigestHash() {
+    return digestHash;
+  }
+
+  public void setDigestHash(String digestHash) {
+    this.digestHash = digestHash;
+  }
+
+
 }

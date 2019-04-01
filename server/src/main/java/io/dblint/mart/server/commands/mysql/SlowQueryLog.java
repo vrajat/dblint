@@ -56,6 +56,6 @@ public class SlowQueryLog extends LogParser {
 
   @Override
   protected void outputSql(Sink sink) {
-    queries.stream().forEach(q -> sink.insertUserQueries(q));
+    queries.stream().forEach(q -> sink.insertUserQuery(q));
   }
 }

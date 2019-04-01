@@ -33,10 +33,10 @@ public class Sink extends DbSink {
   }
 
   /**
-   * Insert one QueryStat row into user_queries table.
+   * Insert one UserQuery row into user_queries table.
    * @param userQuery A POJO of User Query
    */
-  public void insertUserQueries(UserQuery userQuery) {
+  public void insertUserQuery(UserQuery userQuery) {
     jdbi.useHandle(handle -> {
       handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
       handle.createUpdate("insert into user_queries("
@@ -48,11 +48,53 @@ public class Sink extends DbSink {
           + "lock_time,"
           + "rows_sent,"
           + "rows_examined,"
-          + "query"
+          + "query,"
+          + "digest_hash"
           + ") values ("
           + ":time, :userHost, :ipAddress, :connectionId, :queryTime, :lockTime, :rowsSent, "
-          + ":rowsExamined, :query)")
+          + ":rowsExamined, :query, :digestHash)")
           .bindBean(userQuery)
+          .execute();
+    });
+  }
+
+  /**
+   * Update one UserQuery record.
+   * @param userQuery A POJO of user query
+   */
+  public void updateUserQuery(UserQuery userQuery) {
+    jdbi.useHandle(handle -> {
+      handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
+      handle.createUpdate("update user_queries set "
+          + "log_time=:time,"
+          + "user_host=:userHost,"
+          + "ip_address=:ipAddress,"
+          + "connection_id=:connectionId,"
+          + "query_time=:queryTime,"
+          + "lock_time=:lockTime,"
+          + "rows_sent=:rowsSent,"
+          + "rows_examined=:rowsExamined,"
+          + "query=:query,"
+          + "digest_hash=:digestHash"
+          + " where id=:id")
+          .bindBean(userQuery)
+          .execute();
+    });
+  }
+
+  /**
+   * Insert one row of QueryAttribute to query_attributes.
+   * @param queryAttribute The POJO to insert
+   */
+  public void insertQueryAttribute(QueryAttribute queryAttribute) {
+    jdbi.useHandle(handle -> {
+      handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
+      handle.createUpdate("insert into query_attributes ("
+          + "digest, "
+          + "digest_hash"
+          + ") values ("
+          + ":digest, :digestHash)")
+          .bindFields(queryAttribute)
           .execute();
     });
   }
