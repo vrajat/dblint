@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,8 +98,8 @@ public class SinkTest {
     assertEquals(0.000072, resultSet.getDouble("lock_time"));
     assertEquals(6L, resultSet.getLong("rows_sent"));
     assertEquals(12L, resultSet.getLong("rows_examined"));
-    assertEquals(LocalDateTime.of(2019, 3,17,4,30,35),
-        resultSet.getTimestamp("log_time").toLocalDateTime());
+    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3,17,4,30,35), ZoneOffset.UTC),
+        ZonedDateTime.of(resultSet.getTimestamp("log_time").toLocalDateTime(), ZoneOffset.UTC));
   }
 
   @Test
