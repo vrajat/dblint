@@ -1,5 +1,6 @@
 package io.dblint.mart.analyses.mysql;
 
+import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.metricsink.mysql.QueryAttribute;
 import org.apache.calcite.sql.parser.SqlParseException;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ public class SlowQueryTest {
 
   @Test
   void testAnalyze() throws SqlParseException {
-    QueryAttribute queryAttribute = new SlowQuery().analyze(
+    QueryAttribute queryAttribute = new SlowQuery(new MetricRegistry()).analyze(
         "select a,b from d where c = 5"
     );
     assertEquals("SELECT `A`, `B`\n"

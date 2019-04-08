@@ -54,13 +54,14 @@ public class AnalyzeSlowQuery extends TimeRange {
             ));
 
     queryList.forEach(userQuery -> {
-      SlowQuery slowQuery = new SlowQuery();
+      SlowQuery slowQuery = new SlowQuery(registry);
       try {
         QueryAttribute attribute = slowQuery.analyze(userQuery.getQuery());
         sink.setQueryAttribute(userQuery, attribute);
-      } catch (SqlParseException exc) {
+      } catch (SqlParseException | UnsupportedOperationException exc) {
         logger.error("Failed to analyze query '" + userQuery.getId() + "'." + exc.getMessage());
       }
     });
+    logger.info(registry.toString());
   }
 }
