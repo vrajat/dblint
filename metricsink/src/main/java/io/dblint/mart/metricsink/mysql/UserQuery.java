@@ -1,7 +1,5 @@
 package io.dblint.mart.metricsink.mysql;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class UserQuery {
@@ -104,6 +102,4 @@ public class UserQuery {
   public void setDigestHash(String digestHash) {
     this.digestHash = digestHash;
   }
-
-
 }

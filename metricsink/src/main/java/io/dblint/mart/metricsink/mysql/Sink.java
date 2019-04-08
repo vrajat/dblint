@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.metricsink.util.DbSink;
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 
 import java.time.ZonedDateTime;
@@ -133,7 +134,7 @@ public class Sink extends DbSink {
       Optional<Long> attributeOptional = Optional.empty();
 
       handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
-      handle.registerRowMapper(FieldMapper.factory(QueryAttribute.class));
+      handle.registerRowMapper(ConstructorMapper.factory(QueryAttribute.class));
 
       Optional<QueryAttribute> attribute = handle.createQuery("select * from query_attributes "
             + "where digest_hash = :digestHash")

@@ -109,7 +109,7 @@ public class SinkTest {
   }
 
   @Test
-  void selectUserQuery() throws SQLException {
+  void selectUserQuery() {
     long id = sink.insertUserQuery(testQuery);
 
     Optional<UserQuery> queryOptional = sink.selectUserQuery(id);
@@ -222,6 +222,4 @@ public class SinkTest {
     List<UserQuery> queries = sink.selectUserQueries(start, end);
     assertTrue(queries.isEmpty());
   }
-
-
 }
