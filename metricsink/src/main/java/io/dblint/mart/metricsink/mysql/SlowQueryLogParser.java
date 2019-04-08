@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -42,10 +45,10 @@ public class SlowQueryLogParser {
     String line = reader.readLine();
     Matcher matcher = queryMetadata.matcher(line);
     if (matcher.find()) {
-      userQuery.setQueryTime(matcher.group(1));
-      userQuery.setLockTime(matcher.group(2));
-      userQuery.setRowsSent(matcher.group(3));
-      userQuery.setRowsExamined(matcher.group(4));
+      userQuery.setQueryTime(Double.parseDouble(matcher.group(1)));
+      userQuery.setLockTime(Double.parseDouble(matcher.group(2)));
+      userQuery.setRowsSent(Long.parseLong(matcher.group(3)));
+      userQuery.setRowsExamined(Long.parseLong(matcher.group(4)));
     } else {
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match Query Metadata pattern: '" + line
@@ -58,7 +61,10 @@ public class SlowQueryLogParser {
     String line = reader.readLine();
     Matcher matcher = setStatement.matcher(line);
     if (matcher.find()) {
-      userQuery.setTime(matcher.group(1));
+      ZonedDateTime logTime = ZonedDateTime.ofInstant(
+          Instant.ofEpochSecond(Long.parseLong(matcher.group(1))),
+          ZoneId.of("UTC"));
+      userQuery.setLogTime(logTime);
     } else {
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match Set Statement pattern: '" + line

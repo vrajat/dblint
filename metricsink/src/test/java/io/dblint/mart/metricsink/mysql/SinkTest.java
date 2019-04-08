@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.sql.*;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,11 +34,13 @@ public class SinkTest {
     testQuery.setUserHost("dbadmin2[dbadmin2]");
     testQuery.setIpAddress("172.16.2.208");
     testQuery.setConnectionId("311270893");
-    testQuery.setQueryTime("0.000218");
-    testQuery.setLockTime("0.000072");
-    testQuery.setRowsSent("6");
-    testQuery.setRowsExamined("12");
-    testQuery.setTime("1552777235");
+    testQuery.setQueryTime(0.000218);
+    testQuery.setLockTime(0.000072);
+    testQuery.setRowsSent(6L);
+    testQuery.setRowsExamined(12L);
+    testQuery.setLogTime(ZonedDateTime.ofInstant(Instant.ofEpochSecond(
+        Long.parseLong("1552777235")),
+        ZoneId.of("UTC")));
 
     url = "jdbc:sqlite:" + sharedTempDir.resolve("sqldb");
     logger.debug(url);
@@ -90,7 +90,7 @@ public class SinkTest {
 
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery("select id, user_host, ip_address, id, query_time, "
-          + "lock_time, rows_sent, rows_examined, log_time, connection_id"
+          + "lock_time, rows_sent, rows_examined, log_time/1000 log_time_sec, connection_id"
           + " from user_queries");
 
     resultSet.next();
@@ -103,10 +103,32 @@ public class SinkTest {
     assertEquals(0.000072, resultSet.getDouble("lock_time"));
     assertEquals(6L, resultSet.getLong("rows_sent"));
     assertEquals(12L, resultSet.getLong("rows_examined"));
-    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3,17,4,30,35), ZoneOffset.UTC),
-        ZonedDateTime.of(resultSet.getTimestamp("log_time").toLocalDateTime(), ZoneOffset.UTC));
+    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3,16,23,0,35), ZoneOffset.UTC),
+        ZonedDateTime.of(LocalDateTime.ofEpochSecond(resultSet.getLong("log_time_sec"), 0,
+            ZoneOffset.UTC), ZoneOffset.UTC));
   }
 
+  @Test
+  void selectUserQuery() throws SQLException {
+    long id = sink.insertUserQuery(testQuery);
+
+    Optional<UserQuery> queryOptional = sink.selectUserQuery(id);
+
+    assertTrue(queryOptional.isPresent());
+
+    UserQuery query = queryOptional.get();
+
+    assertEquals(id, query.getId());
+    assertEquals("dbadmin2[dbadmin2]", query.getUserHost());
+    assertEquals("172.16.2.208", query.getIpAddress());
+    assertEquals("311270893", query.getConnectionId());
+    assertEquals(0.000218, query.getQueryTime());
+    assertEquals(0.000072, query.getLockTime());
+    assertEquals(6L, query.getRowsSent());
+    assertEquals(12L, query.getRowsExamined());
+    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3,16,23,0,35), ZoneOffset.UTC),
+        query.getLogTime().withZoneSameInstant(ZoneOffset.UTC));
+  }
 
   @Test
   void insertQueryAttribute() throws SQLException {
@@ -161,4 +183,45 @@ public class SinkTest {
     assertEquals("bbdd1e7260fdd5fc159a12248d059e4a1a294ecd52c8287ed2e71708908dd142",
         resultSet.getString("digest_hash"));
   }
+
+  @Test
+  void selectInRange() {
+    sink.insertUserQuery(testQuery);
+
+    ZonedDateTime start = ZonedDateTime.of(
+        LocalDateTime.of(2019, 3,17,4,0,0), ZoneOffset.ofHoursMinutes(5, 30));
+    ZonedDateTime end = ZonedDateTime.of(
+        LocalDateTime.of(2019, 3,17,5,0,0), ZoneOffset.ofHoursMinutes(5, 30));
+
+    List<UserQuery> queries = sink.selectUserQueries(start, end);
+    assertEquals(1, queries.size());
+  }
+
+  @Test
+  void selectBeforeRange() {
+    sink.insertUserQuery(testQuery);
+
+    ZonedDateTime start = ZonedDateTime.of(
+        LocalDateTime.of(2019, 3,17,9,30,35), ZoneOffset.ofHoursMinutes(5, 30));
+    ZonedDateTime end = ZonedDateTime.of(
+        LocalDateTime.of(2019, 3,17,9,45,35), ZoneOffset.ofHoursMinutes(5, 30));
+
+    List<UserQuery> queries = sink.selectUserQueries(start, end);
+    assertTrue(queries.isEmpty());
+  }
+
+  @Test
+  void selectAfterRange() {
+    sink.insertUserQuery(testQuery);
+
+    ZonedDateTime start = ZonedDateTime.of(
+        LocalDateTime.of(2019, 3,17,10,30,35), ZoneOffset.ofHoursMinutes(5, 30));
+    ZonedDateTime end = ZonedDateTime.of(
+        LocalDateTime.of(2019, 3,17,10,45,35), ZoneOffset.ofHoursMinutes(5, 30));
+
+    List<UserQuery> queries = sink.selectUserQueries(start, end);
+    assertTrue(queries.isEmpty());
+  }
+
+
 }

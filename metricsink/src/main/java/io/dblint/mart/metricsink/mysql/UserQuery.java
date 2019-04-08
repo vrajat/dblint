@@ -6,24 +6,23 @@ import java.time.ZonedDateTime;
 
 public class UserQuery {
   private int id;
-  ZonedDateTime time;
+  ZonedDateTime logTime;
   private String userHost;
   private String ipAddress;
   private String connectionId;
   private Double queryTime;
   private Double lockTime;
-  private Long rowsSent;
-  private Long rowsExamined;
+  private long rowsSent;
+  private long rowsExamined;
   private String query;
   private String digestHash;
 
-  public ZonedDateTime getTime() {
-    return time;
+  public ZonedDateTime getLogTime() {
+    return logTime;
   }
 
-  public void setTime(String time) {
-    this.time = ZonedDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(time)),
-        ZoneId.of("UTC"));
+  public void setLogTime(ZonedDateTime logTime) {
+    this.logTime = logTime;
   }
 
   public int getId() {
@@ -54,32 +53,32 @@ public class UserQuery {
     return queryTime;
   }
 
-  public void setQueryTime(String queryTime) {
-    this.queryTime = Double.parseDouble(queryTime);
+  public void setQueryTime(Double queryTime) {
+    this.queryTime = queryTime;
   }
 
   public Double getLockTime() {
     return lockTime;
   }
 
-  public void setLockTime(String lockTime) {
-    this.lockTime = Double.parseDouble(lockTime);
+  public void setLockTime(Double lockTime) {
+    this.lockTime = lockTime;
   }
 
   public long getRowsSent() {
-    return rowsSent.longValue();
+    return rowsSent;
   }
 
-  public void setRowsSent(String rowsSent) {
-    this.rowsSent = Long.parseLong(rowsSent);
+  public void setRowsSent(long rowsSent) {
+    this.rowsSent = rowsSent;
   }
 
   public long getRowsExamined() {
-    return rowsExamined.longValue();
+    return rowsExamined;
   }
 
-  public void setRowsExamined(String rowsExamined) {
-    this.rowsExamined = Long.parseLong(rowsExamined);
+  public void setRowsExamined(long rowsExamined) {
+    this.rowsExamined = rowsExamined;
   }
 
   public String getQuery() {

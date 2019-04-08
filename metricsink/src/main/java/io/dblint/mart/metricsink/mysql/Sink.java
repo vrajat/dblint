@@ -46,8 +46,10 @@ public class Sink extends DbSink {
   public List<UserQuery> selectUserQueries(ZonedDateTime start, ZonedDateTime end) {
     return jdbi.withHandle(handle -> {
       handle.registerRowMapper(BeanMapper.factory(UserQuery.class));
-      return handle.createQuery("select * from user_queries where log_time is between ? and ?")
-          .bind(start.toInstant().getNano(), end.toInstant().getNano())
+      return handle.createQuery("select * from user_queries where log_time/1000 "
+              + "between :start and :end")
+          .bind("start", start.toEpochSecond())
+          .bind("end", end.toEpochSecond())
           .mapTo(UserQuery.class)
           .list();
     });
@@ -87,7 +89,7 @@ public class Sink extends DbSink {
           + "query,"
           + "digest_hash"
           + ") values ("
-          + ":time, :userHost, :ipAddress, :connectionId, :queryTime, :lockTime, :rowsSent, "
+          + ":logTime, :userHost, :ipAddress, :connectionId, :queryTime, :lockTime, :rowsSent, "
           + ":rowsExamined, :query, :digestHash)")
           .bindBean(userQuery)
           .executeAndReturnGeneratedKeys()
@@ -104,7 +106,7 @@ public class Sink extends DbSink {
     jdbi.useHandle(handle -> {
       handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
       handle.createUpdate("update user_queries set "
-          + "log_time=:time,"
+          + "log_time=:logTime,"
           + "user_host=:userHost,"
           + "ip_address=:ipAddress,"
           + "connection_id=:connectionId,"

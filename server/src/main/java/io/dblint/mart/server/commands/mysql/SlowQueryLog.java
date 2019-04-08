@@ -44,7 +44,7 @@ public class SlowQueryLog extends LogParser {
   @Override
   protected void filter(ZonedDateTime start, ZonedDateTime end) {
     this.queries = this.queries.stream()
-        .filter(query -> query.getTime().isAfter(start) && query.getTime().isBefore(end))
+        .filter(query -> query.getLogTime().isAfter(start) && query.getLogTime().isBefore(end))
         .collect(Collectors.toList());
   }
 
