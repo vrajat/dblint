@@ -12,7 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.dblint.mart.sqlplanner.utils.SqlProvider;
+import io.dblint.mart.sqlplanner.utils.DmlProvider;
 
 import java.util.Iterator;
 import java.util.List;
@@ -31,7 +31,7 @@ class DmlVisitorTest {
   }
 
   @ParameterizedTest(name="[{index}] {0}")
-  @ArgumentsSource(SqlProvider.class)
+  @ArgumentsSource(DmlProvider.class)
   @Tags({@Tag("/ctasSuccess.yaml")})
   void sanityTest(String name, String targetTable,
                   List<String> sourceTables, String query) throws SqlParseException {
@@ -55,7 +55,7 @@ class DmlVisitorTest {
   }
 
   @ParameterizedTest(name="[{index}] {0}")
-  @ArgumentsSource(SqlProvider.class)
+  @ArgumentsSource(DmlProvider.class)
   @Tags({@Tag("/uploadSuccess.yaml")})
   void uploadTest(String name, String targetTable,
                   List<String> sourceTables, String query) throws SqlParseException {
@@ -79,7 +79,7 @@ class DmlVisitorTest {
   }
 
    @ParameterizedTest(name="[{index}] {0}")
-  @ArgumentsSource(SqlProvider.class)
+  @ArgumentsSource(DmlProvider.class)
   @Tags({@Tag("/copySuccess.yaml")})
   void copyTest(String name, String targetTable,
                   List<String> sourceTables, String query) throws SqlParseException {
@@ -94,7 +94,7 @@ class DmlVisitorTest {
   }
 
   @ParameterizedTest(name="[{index}] {0}")
-  @ArgumentsSource(SqlProvider.class)
+  @ArgumentsSource(DmlProvider.class)
   @Tags({@Tag("/selectIntoSuccess.yaml")})
   void selectIntoTest(String name, String targetTable,
                   List<String> sourceTables, String query) throws SqlParseException {

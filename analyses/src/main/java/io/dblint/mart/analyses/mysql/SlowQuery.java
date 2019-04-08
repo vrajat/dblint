@@ -54,7 +54,7 @@ public class SlowQuery {
     classifier = null;
     numQueries = registry.counter("io.dblint.slowQuery.numQueries");
     parseExceptions = registry.counter("io.dblint.slowQuery.parseExceptions");
-    parser = new Parser(SqlBabelParserImpl.FACTORY);
+    parser = new io.dblint.mart.sqlplanner.mysql.Parser();
   }
 
   private SchemaPlus createSchema(SchemaParser.Database database) throws QanException {

@@ -20,12 +20,29 @@ import java.util.List;
 public class Parser {
   private static Logger logger = LoggerFactory.getLogger(Parser.class);
 
-  public final SqlParserImplFactory factory;
+  protected final SqlParserImplFactory factory;
 
-  Quoting quoting = Quoting.DOUBLE_QUOTE;
-  Casing unquotedCasing = Casing.TO_UPPER;
-  Casing quotedCasing = Casing.UNCHANGED;
-  SqlConformance conformance = SqlConformanceEnum.LENIENT;
+  protected final Quoting quoting;
+  protected final Casing unquotedCasing;
+  protected final Casing quotedCasing;
+  protected final SqlConformance conformance;
+
+  /**
+   * Create a SQL Parser based on Apache Calcite.
+   * @param factory Implementation Factory
+   * @param quoting Quoting character.
+   * @param unquotedCasing Case when object is not quoted
+   * @param quotedCasing Case when object is quoted
+   * @param conformance Parser conformance rules
+   */
+  public Parser(SqlParserImplFactory factory, Quoting quoting,
+                Casing unquotedCasing, Casing quotedCasing, SqlConformance conformance) {
+    this.factory = factory;
+    this.quoting = quoting;
+    this.unquotedCasing = unquotedCasing;
+    this.quotedCasing = quotedCasing;
+    this.conformance = conformance;
+  }
 
   /**
    * Sole Constructor for a SQL Parser based on Apache Calcite.
@@ -33,9 +50,17 @@ public class Parser {
    */
   public Parser(SqlParserImplFactory factory) {
     this.factory = factory;
+    this.quoting = Quoting.DOUBLE_QUOTE;
+    this.unquotedCasing = Casing.TO_UPPER;
+    this.quotedCasing = Casing.UNCHANGED;
+    this.conformance = SqlConformanceEnum.LENIENT;
   }
 
-  SqlParser getParser(String sql) {
+  public Parser() {
+    this(SqlBabelParserImpl.FACTORY);
+  }
+
+  private SqlParser getParser(String sql) {
     return SqlParser.create(sql,
         SqlParser.configBuilder()
             .setParserFactory(factory)
@@ -47,9 +72,6 @@ public class Parser {
             .build());
   }
 
-  public Parser() {
-    this(SqlBabelParserImpl.FACTORY);
-  }
 
   private String trim(String sql) {
     sql = sql.trim();
