@@ -4,7 +4,12 @@ import io.dblint.mart.server.MartConfiguration;
 import io.dropwizard.cli.ConfiguredCommand;
 import net.sourceforge.argparse4j.inf.Subparser;
 
+import java.time.format.DateTimeFormatter;
+
 public abstract class TimeRange extends ConfiguredCommand<MartConfiguration> {
+  protected static DateTimeFormatter dateFormat =
+      DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
+
   TimeRange(String name, String description) {
     super(name, description);
   }

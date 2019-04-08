@@ -13,8 +13,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SinkTest {
   private static Logger logger = LoggerFactory.getLogger("SinkTest");
@@ -54,6 +56,9 @@ public class SinkTest {
 
   @AfterEach
   void closeConnection() throws SQLException {
+    Statement statement = connection.createStatement();
+    statement.execute("DELETE from user_queries");
+    statement.execute("DELETE from query_attributes");
     connection.close();
   }
 
@@ -81,7 +86,7 @@ public class SinkTest {
 
   @Test
   void insertUserQuery() throws SQLException {
-    sink.insertUserQuery(testQuery);
+    long id = sink.insertUserQuery(testQuery);
 
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery("select id, user_host, ip_address, id, query_time, "
@@ -90,7 +95,7 @@ public class SinkTest {
 
     resultSet.next();
 
-    assertEquals(1, resultSet.getInt("id"));
+    assertEquals(id, resultSet.getInt("id"));
     assertEquals("dbadmin2[dbadmin2]", resultSet.getString("user_host"));
     assertEquals("172.16.2.208", resultSet.getString("ip_address"));
     assertEquals("311270893", resultSet.getString("connection_id"));
@@ -102,12 +107,19 @@ public class SinkTest {
         ZonedDateTime.of(resultSet.getTimestamp("log_time").toLocalDateTime(), ZoneOffset.UTC));
   }
 
+
   @Test
   void insertQueryAttribute() throws SQLException {
     QueryAttribute queryAttribute = new QueryAttribute("SELECT `A`, `B`\n"
         + "FROM `D`\n"
         + "WHERE `C` = ?");
-    sink.insertQueryAttribute(queryAttribute);
+
+    long query_id = sink.insertUserQuery(testQuery);
+    Optional<UserQuery> query = sink.selectUserQuery(query_id);
+
+    Optional<Long> attribute = sink.setQueryAttribute(query.get(), queryAttribute);
+
+    assertTrue(attribute.isPresent());
 
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery(
@@ -118,10 +130,23 @@ public class SinkTest {
         + "WHERE `C` = ?", resultSet.getString("digest"));
     assertEquals("bbdd1e7260fdd5fc159a12248d059e4a1a294ecd52c8287ed2e71708908dd142",
         resultSet.getString("digest_hash"));
+    statement.close();
+
+    statement = connection.createStatement();
+    resultSet = statement.executeQuery("select id, user_host, ip_address, id, query_time, "
+          + "lock_time, rows_sent, rows_examined, log_time, connection_id, digest_hash"
+          + " from user_queries");
+
+    resultSet.next();
+
+    assertEquals("bbdd1e7260fdd5fc159a12248d059e4a1a294ecd52c8287ed2e71708908dd142",
+        resultSet.getString("digest_hash"));
+    statement.close();
   }
 
   @Test
   void updateUserQuery() throws SQLException {
+    sink.insertUserQuery(testQuery);
     testQuery.setId(1);
     testQuery.setDigestHash("bbdd1e7260fdd5fc159a12248d059e4a1a294ecd52c8287ed2e71708908dd142");
     sink.updateUserQuery(testQuery);

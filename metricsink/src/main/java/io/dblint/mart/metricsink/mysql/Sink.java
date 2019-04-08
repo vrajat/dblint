@@ -3,7 +3,12 @@ package io.dblint.mart.metricsink.mysql;
 import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.metricsink.util.DbSink;
 import org.flywaydb.core.Flyway;
+import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
+
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
 
 public class Sink extends DbSink {
 
@@ -33,13 +38,44 @@ public class Sink extends DbSink {
   }
 
   /**
+   * Get a list of mysql user queries.
+   * @param start Start time of range
+   * @param end End time of range
+   * @return List of UserQuery
+   */
+  public List<UserQuery> selectUserQueries(ZonedDateTime start, ZonedDateTime end) {
+    return jdbi.withHandle(handle -> {
+      handle.registerRowMapper(BeanMapper.factory(UserQuery.class));
+      return handle.createQuery("select * from user_queries where log_time is between ? and ?")
+          .bind(start.toInstant().getNano(), end.toInstant().getNano())
+          .mapTo(UserQuery.class)
+          .list();
+    });
+  }
+
+  /**
+   * Get a UserQuery by id.
+   * @param id Long id of the query
+   * @return A UserQuery
+   */
+  public Optional<UserQuery> selectUserQuery(long id) {
+    return jdbi.withHandle(handle -> {
+      handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
+      return handle.createQuery("select * from user_queries where id = :id")
+          .bind("id", id)
+          .mapTo(UserQuery.class)
+          .findFirst();
+    });
+  }
+
+  /**
    * Insert one UserQuery row into user_queries table.
    * @param userQuery A POJO of User Query
    */
-  public void insertUserQuery(UserQuery userQuery) {
-    jdbi.useHandle(handle -> {
+  public long insertUserQuery(UserQuery userQuery) {
+    return jdbi.withHandle(handle -> {
       handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
-      handle.createUpdate("insert into user_queries("
+      return handle.createUpdate("insert into user_queries("
           + "log_time,"
           + "user_host,"
           + "ip_address,"
@@ -54,7 +90,9 @@ public class Sink extends DbSink {
           + ":time, :userHost, :ipAddress, :connectionId, :queryTime, :lockTime, :rowsSent, "
           + ":rowsExamined, :query, :digestHash)")
           .bindBean(userQuery)
-          .execute();
+          .executeAndReturnGeneratedKeys()
+          .mapTo(long.class)
+          .findOnly();
     });
   }
 
@@ -86,16 +124,40 @@ public class Sink extends DbSink {
    * Insert one row of QueryAttribute to query_attributes.
    * @param queryAttribute The POJO to insert
    */
-  public void insertQueryAttribute(QueryAttribute queryAttribute) {
-    jdbi.useHandle(handle -> {
+  public Optional<Long> setQueryAttribute(
+      UserQuery userQuery,
+      QueryAttribute queryAttribute) {
+    return jdbi.inTransaction(handle -> {
+      Optional<Long> attributeOptional = Optional.empty();
+
       handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
-      handle.createUpdate("insert into query_attributes ("
+      handle.registerRowMapper(FieldMapper.factory(QueryAttribute.class));
+
+      Optional<QueryAttribute> attribute = handle.createQuery("select * from query_attributes "
+            + "where digest_hash = :digestHash")
+          .bind("digestHash", queryAttribute.digestHash)
+          .mapTo(QueryAttribute.class)
+          .findFirst();
+
+      if (!attribute.isPresent()) {
+        attributeOptional = Optional.of(handle.createUpdate("insert into query_attributes ("
           + "digest, "
           + "digest_hash"
           + ") values ("
           + ":digest, :digestHash)")
           .bindFields(queryAttribute)
+          .executeAndReturnGeneratedKeys()
+          .mapTo(Long.class)
+          .findOnly());
+      }
+      handle.createUpdate("update user_queries set "
+          + "digest_hash=:digestHash"
+          + " where id=:id")
+          .bind("id", userQuery.getId())
+          .bind("digestHash", queryAttribute.digestHash)
           .execute();
+
+      return attributeOptional;
     });
   }
 }

@@ -103,48 +103,6 @@ public class SlowQuery {
   }
 
   /**
-   * Analyze Queries parsed from Slow Query Logs.
-   * @param queries List of queries parsed.
-   */
-  public void analyze(List<UserQuery> queries) {
-    for (UserQuery query : queries) {
-      if (query.getRowsExamined() > 1000) {
-        String sql = String.join("\n", query.getQuery());
-        numQueries.inc();
-        logger.info(sql);
-        try {
-          String digest = classifier.planner.digest(sql,
-              SqlDialect.DatabaseProduct.MYSQL.getDialect());
-          MySqlEnumContext context = new MySqlEnumContext();
-          List<QueryType> types = classifier.classify(sql, context);
-          QueryStats queryStats;
-          if (aggQueryStats.containsKey(digest)) {
-            queryStats = aggQueryStats.get(digest);
-          } else {
-            queryStats = new QueryStats(digest);
-            aggQueryStats.put(digest, queryStats);
-          }
-          queryStats.addLockTime(query.getLockTime())
-              .addQueryTime(query.getQueryTime())
-              .addNumQueries(1)
-              .addRowsSent(query.getRowsSent())
-              .addRowsExamined(query.getRowsExamined());
-          if (types.contains(MySqlEnum.BAD_NOINDEX)) {
-            logger.warn("Query has no index scans");
-            context.getIndices().forEach(index -> queryStats.addMissingIndex(index));
-          } else {
-            queryStats.addIndexUsed(1);
-          }
-        } catch (SqlParseException | ValidationException
-            | RelConversionException | QanException exc) {
-          logger.error("Failed to parse query", exc);
-          parseExceptions.inc();
-        }
-      }
-    }
-  }
-
-  /**
    * Analyze a SQL statement and return all known attributes.
    * @param sql A string containing a SQL statement
    * @return QueryAttribute class
@@ -155,9 +113,5 @@ public class SlowQuery {
         parser.digest(sql,
             SqlDialect.DatabaseProduct.MYSQL.getDialect())
     );
-  }
-
-  public Map<String, QueryStats> getAggQueryStats() {
-    return aggQueryStats;
   }
 }
