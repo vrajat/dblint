@@ -42,7 +42,6 @@ public class AnalyzeSlowQuery extends TimeRange {
     String startTime = namespace.getString("startTime");
     String endTime = namespace.getString("endTime");
 
-    MetricRegistry registry = new MetricRegistry();
     Sink sink = new Sink("jdbc:sqlite:" + namespace.getString("connection"), "", "", registry);
     sink.initialize();
 
@@ -54,14 +53,14 @@ public class AnalyzeSlowQuery extends TimeRange {
             ));
 
     queryList.forEach(userQuery -> {
-      SlowQuery slowQuery = new SlowQuery(registry);
+      SlowQuery slowQuery = new SlowQuery(this.registry);
       try {
         QueryAttribute attribute = slowQuery.analyze(userQuery.getQuery());
         sink.setQueryAttribute(userQuery, attribute);
-      } catch (SqlParseException | UnsupportedOperationException exc) {
+      } catch (SqlParseException | UnsupportedOperationException | NullPointerException exc) {
         logger.error("Failed to analyze query '" + userQuery.getId() + "'." + exc.getMessage());
       }
     });
-    logger.info(registry.toString());
+    super.logRegistry();
   }
 }

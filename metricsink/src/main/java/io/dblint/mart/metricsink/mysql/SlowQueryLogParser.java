@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SlowQueryLogParser {
   private static Logger logger = LoggerFactory.getLogger(SlowQueryLogParser.class);
@@ -22,8 +23,9 @@ public class SlowQueryLogParser {
   static Pattern queryMetadata = Pattern.compile("# Query_time: ([\\d\\.]+)\\s*"
       + "Lock_time: ([\\d\\.]+)\\s*Rows_sent: (\\d+)\\s*Rows_examined: (\\d+)");
   static Pattern setStatement = Pattern.compile("SET\\s+timestamp=([0-9]+)[,|;]");
-  static Pattern useStatement = Pattern.compile("USE\\s+([.;]*)");
+  static Pattern useStatement = Pattern.compile("^use\\s+.+;");
   static Pattern comments = Pattern.compile("/\\*(.*)\\*/");
+  static Pattern indexNotUsedMessage = Pattern.compile("index not used");
 
   static void parseUhLine(RewindBufferedReader reader, UserQuery userQuery)
       throws IOException, MetricAgentException {
@@ -53,6 +55,15 @@ public class SlowQueryLogParser {
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match Query Metadata pattern: '" + line
           + "' at " + matcher.toString());
+    }
+  }
+
+  static void parseUseStatement(RewindBufferedReader reader)
+      throws IOException {
+    String line = reader.readLine();
+    Matcher matcher = useStatement.matcher(line);
+    if (!matcher.find()) {
+      reader.rewind(line);
     }
   }
 
@@ -90,6 +101,7 @@ public class SlowQueryLogParser {
     UserQuery query = new UserQuery();
     parseUhLine(bufferedReader, query);
     parseQueryMetadataLine(bufferedReader, query);
+    parseUseStatement(bufferedReader);
     parseSetStatement(bufferedReader, query);
     query.setQuery(replaceComments(bufferedReader.readLine()));
     return query;
@@ -97,17 +109,6 @@ public class SlowQueryLogParser {
 
   static List<UserQuery> parseTimeSection(RewindBufferedReader bufferedReader)
       throws IOException, MetricAgentException {
-    //Skip first query section that run use statement
-    int headerLines = 5;
-    while (bufferedReader.ready() && headerLines > 0) {
-      bufferedReader.readLine();
-      headerLines--;
-    }
-
-    if (headerLines > 0) {
-      throw new MetricAgentException("Incomplete query section");
-    }
-
     List<UserQuery> userQueries = new ArrayList<>();
     String line = bufferedReader.readLine();
     while (line != null && newQuerySection(line)) {
@@ -119,7 +120,10 @@ public class SlowQueryLogParser {
     if (line != null) {
       bufferedReader.rewind(line);
     }
-    return userQueries;
+
+    return userQueries.stream().filter(userQuery ->
+        !indexNotUsedMessage.matcher(userQuery.getQuery()).find())
+        .collect(Collectors.toList());
   }
 
   /**

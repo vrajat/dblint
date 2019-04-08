@@ -25,7 +25,7 @@ public class SlowQueryLog extends LogParser {
    * A command to parse slow query logs.
    */
   public SlowQueryLog() {
-    super("slowquerylog", "Analyze Queries in MySQL slow query log");
+    super("parse-slow-query", "Parse MySQL slow query log");
     this.queries = new ArrayList<>();
   }
 

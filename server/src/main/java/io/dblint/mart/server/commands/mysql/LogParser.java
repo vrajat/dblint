@@ -95,12 +95,12 @@ abstract class LogParser extends TimeRange {
     }
 
     if (namespace.getString("output_type").equals("sqlite")) {
-      MetricRegistry registry = new MetricRegistry();
-      Sink sink = new Sink("jdbc:sqlite:" + namespace.getString("output"), "", "", registry);
+      Sink sink = new Sink("jdbc:sqlite:" + namespace.getString("output"), "", "", this.registry);
       sink.initialize();
       outputSql(sink);
     } else {
       output(new FileOutputStream(namespace.getString("output")));
     }
+    super.logRegistry();
   }
 }
