@@ -1,11 +1,17 @@
 package io.dblint.mart.server.commands.mysql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.dblint.mart.analyses.mysql.SlowQuery;
+import io.dblint.mart.metricsink.mysql.QueryAttribute;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
 import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.mysql.SlowQueryLogParser;
 import io.dblint.mart.metricsink.mysql.UserQuery;
 import io.dblint.mart.metricsink.util.MetricAgentException;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.Namespace;
+import net.sourceforge.argparse4j.inf.Subparser;
+import org.apache.calcite.sql.parser.SqlParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +35,13 @@ public class SlowQueryLog extends LogParser {
     this.queries = new ArrayList<>();
   }
 
+  @Override
+  public void configure(Subparser subparser) {
+    super.configure(subparser);
+    subparser.addArgument("-a", "--analyze")
+        .type(boolean.class)
+        .action(Arguments.storeTrue());
+  }
 
   @Override
   protected void process(Reader reader)
@@ -55,7 +68,19 @@ public class SlowQueryLog extends LogParser {
   }
 
   @Override
-  protected void outputSql(Sink sink) {
-    queries.stream().forEach(q -> sink.insertUserQuery(q));
+  protected void outputSql(Sink sink, Namespace namespace) {
+    queries.stream().forEach(q -> {
+      int id = sink.insertUserQuery(q);
+      if (namespace.getBoolean("analyze")) {
+        q.setId(id);
+        SlowQuery slowQuery = new SlowQuery(this.registry);
+        try {
+          QueryAttribute attribute = slowQuery.analyze(q.getQuery());
+          sink.setQueryAttribute(q, attribute);
+        } catch (SqlParseException | UnsupportedOperationException | NullPointerException exc) {
+          logger.error("Failed to analyze query '" + q.getId() + "'." + exc.getMessage());
+        }
+      }
+    });
   }
 }

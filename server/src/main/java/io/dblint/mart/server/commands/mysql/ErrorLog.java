@@ -6,6 +6,7 @@ import io.dblint.mart.metricsink.mysql.ErrorLogParser;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
 import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.util.MetricAgentException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,5 +51,5 @@ public class ErrorLog extends LogParser {
   }
 
   @Override
-  void outputSql(Sink sink) {}
+  void outputSql(Sink sink, Namespace namespace) {}
 }

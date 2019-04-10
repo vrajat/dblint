@@ -59,7 +59,7 @@ abstract class LogParser extends TimeRange {
 
   abstract void output(OutputStream os) throws IOException;
 
-  abstract void outputSql(Sink sink) throws IOException;
+  abstract void outputSql(Sink sink, Namespace namespace) throws IOException;
 
   abstract void filter(ZonedDateTime start, ZonedDateTime end);
 
@@ -97,7 +97,7 @@ abstract class LogParser extends TimeRange {
     if (namespace.getString("output_type").equals("sqlite")) {
       Sink sink = new Sink("jdbc:sqlite:" + namespace.getString("output"), "", "", this.registry);
       sink.initialize();
-      outputSql(sink);
+      outputSql(sink, namespace);
     } else {
       output(new FileOutputStream(namespace.getString("output")));
     }

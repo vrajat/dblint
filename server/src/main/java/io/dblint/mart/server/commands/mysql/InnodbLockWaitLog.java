@@ -6,6 +6,7 @@ import io.dblint.mart.metricsink.mysql.InnodbLockWaitsParser;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
 import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.util.MetricAgentException;
+import net.sourceforge.argparse4j.inf.Namespace;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -51,5 +52,5 @@ public class InnodbLockWaitLog extends LogParser {
   }
 
   @Override
-  void outputSql(Sink sink) {}
+  void outputSql(Sink sink, Namespace namespace) {}
 }

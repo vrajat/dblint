@@ -75,7 +75,7 @@ public class Sink extends DbSink {
    * Insert one UserQuery row into user_queries table.
    * @param userQuery A POJO of User Query
    */
-  public long insertUserQuery(UserQuery userQuery) {
+  public int insertUserQuery(UserQuery userQuery) {
     return jdbi.withHandle(handle -> {
       handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
       return handle.createUpdate("insert into user_queries("
@@ -94,7 +94,7 @@ public class Sink extends DbSink {
           + ":rowsExamined, :query, :digestHash)")
           .bindBean(userQuery)
           .executeAndReturnGeneratedKeys()
-          .mapTo(long.class)
+          .mapTo(int.class)
           .findOnly();
     });
   }

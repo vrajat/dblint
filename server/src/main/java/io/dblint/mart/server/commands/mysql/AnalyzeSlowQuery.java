@@ -1,6 +1,5 @@
 package io.dblint.mart.server.commands.mysql;
 
-import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.analyses.mysql.SlowQuery;
 import io.dblint.mart.metricsink.mysql.QueryAttribute;
 import io.dblint.mart.metricsink.mysql.Sink;
