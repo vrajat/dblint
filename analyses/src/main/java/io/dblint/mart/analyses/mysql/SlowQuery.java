@@ -2,37 +2,33 @@ package io.dblint.mart.analyses.mysql;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
+import io.dblint.mart.metricsink.mysql.QueryAttribute;
 import io.dblint.mart.metricsink.mysql.SchemaParser;
-import io.dblint.mart.metricsink.mysql.UserQuery;
 import io.dblint.mart.sqlplanner.MySqlClassifier;
 import io.dblint.mart.sqlplanner.QanException;
-import io.dblint.mart.sqlplanner.enums.MySqlEnum;
-import io.dblint.mart.sqlplanner.enums.MySqlEnumContext;
-import io.dblint.mart.sqlplanner.enums.QueryType;
 import io.dblint.mart.sqlplanner.planner.MartColumn;
 import io.dblint.mart.sqlplanner.planner.MartSchema;
 import io.dblint.mart.sqlplanner.planner.MartTable;
 
+import io.dblint.mart.sqlplanner.planner.Parser;
 import org.apache.calcite.schema.SchemaPlus;
 import org.apache.calcite.sql.SqlDialect;
 import org.apache.calcite.sql.parser.SqlParseException;
+import org.apache.calcite.sql.parser.babel.SqlBabelParserImpl;
 import org.apache.calcite.tools.Frameworks;
-import org.apache.calcite.tools.RelConversionException;
-import org.apache.calcite.tools.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SlowQuery {
   private static Logger logger = LoggerFactory.getLogger(SlowQuery.class);
 
   SchemaPlus schema;
   MySqlClassifier classifier;
-  Map<String, QueryStats> aggQueryStats;
+  Parser parser;
   Counter numQueries;
   Counter parseExceptions;
 
@@ -45,9 +41,20 @@ public class SlowQuery {
   public SlowQuery(SchemaParser.Database database, MetricRegistry registry) throws QanException {
     schema = createSchema(database);
     classifier = new MySqlClassifier(schema);
-    aggQueryStats = new HashMap<>();
     numQueries = registry.counter("io.dblint.slowQuery.numQueries");
     parseExceptions = registry.counter("io.dblint.slowQuery.parseExceptions");
+    parser = null;
+  }
+
+  /**
+   * A SlowQuery analyzer for MySQL.
+   */
+  public SlowQuery(MetricRegistry registry) {
+    schema = null;
+    classifier = null;
+    numQueries = registry.counter("io.dblint.slowQuery.numQueries");
+    parseExceptions = registry.counter("io.dblint.slowQuery.parseExceptions");
+    parser = new io.dblint.mart.sqlplanner.mysql.Parser();
   }
 
   private SchemaPlus createSchema(SchemaParser.Database database) throws QanException {
@@ -85,48 +92,21 @@ public class SlowQuery {
   }
 
   /**
-   * Analyze Queries parsed from Slow Query Logs.
-   * @param queries List of queries parsed.
+   * Analyze a SQL statement and return all known attributes.
+   * @param sql A string containing a SQL statement
+   * @return QueryAttribute class
+   * @throws SqlParseException Throws exception if not valid SQL syntax
    */
-  public void analyze(List<UserQuery> queries) {
-    for (UserQuery query : queries) {
-      if (query.getRowsExamined() > 1000) {
-        String sql = String.join("\n", query.getQuery());
-        numQueries.inc();
-        logger.info(sql);
-        try {
-          String digest = classifier.planner.digest(sql,
-              SqlDialect.DatabaseProduct.MYSQL.getDialect());
-          MySqlEnumContext context = new MySqlEnumContext();
-          List<QueryType> types = classifier.classify(sql, context);
-          QueryStats queryStats;
-          if (aggQueryStats.containsKey(digest)) {
-            queryStats = aggQueryStats.get(digest);
-          } else {
-            queryStats = new QueryStats(digest);
-            aggQueryStats.put(digest, queryStats);
-          }
-          queryStats.addLockTime(query.getLockTime())
-              .addQueryTime(query.getQueryTime())
-              .addNumQueries(1)
-              .addRowsSent(query.getRowsSent())
-              .addRowsExamined(query.getRowsExamined());
-          if (types.contains(MySqlEnum.BAD_NOINDEX)) {
-            logger.warn("Query has no index scans");
-            context.getIndices().forEach(index -> queryStats.addMissingIndex(index));
-          } else {
-            queryStats.addIndexUsed(1);
-          }
-        } catch (SqlParseException | ValidationException
-            | RelConversionException | QanException exc) {
-          logger.error("Failed to parse query", exc);
-          parseExceptions.inc();
-        }
-      }
+  public QueryAttribute analyze(String sql) throws SqlParseException {
+    try {
+      numQueries.inc();
+      return new QueryAttribute(
+          parser.digest(sql,
+              SqlDialect.DatabaseProduct.MYSQL.getDialect())
+      );
+    } catch (Exception exc) {
+      parseExceptions.inc();
+      throw exc;
     }
-  }
-
-  public Map<String, QueryStats> getAggQueryStats() {
-    return aggQueryStats;
   }
 }

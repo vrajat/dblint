@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +89,8 @@ INNER JOIN information_schema.innodb_locks bl
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match now pattern: '" + line);
     }
-    LocalDateTime time = LocalDateTime.parse(parts[1].trim(), dateFormat);
+    ZonedDateTime time = ZonedDateTime.of(LocalDateTime.parse(parts[1].trim(), dateFormat),
+        ZoneOffset.ofHoursMinutes(5, 30));
     List<InnodbLockWait> lockWaits = new ArrayList<>();
     line = reader.readLine();
     while (line != null && !line.isEmpty() && row.matcher(line).matches()) {
@@ -136,14 +140,15 @@ INNER JOIN information_schema.innodb_locks bl
     if (line == null) {
       throw new MetricAgentException("Hit EOF unexpectedly while extracting query");
     }
-    final LocalDateTime transactionStarted = LocalDateTime.parse(
-        parseColumn(line)[1].trim(), dateFormat);
+    final ZonedDateTime transactionStarted = ZonedDateTime.of(LocalDateTime.parse(
+        parseColumn(line)[1].trim(), dateFormat), ZoneOffset.UTC);
 
-    LocalDateTime waitStarted = null;
+    ZonedDateTime waitStarted = null;
     line = getLineOrThrow(reader);
     String [] columns = parseColumn(line);
     if (columns[0].contains("waiting_trx_wait_started")) {
-      waitStarted = LocalDateTime.parse(parseColumn(line)[1].trim(), dateFormat);
+      waitStarted = ZonedDateTime.of(LocalDateTime.parse(parseColumn(line)[1].trim(), dateFormat),
+          ZoneOffset.UTC);
       line = getLineOrThrow(reader);
       columns = parseColumn(line);
     }
@@ -166,7 +171,7 @@ INNER JOIN information_schema.innodb_locks bl
         waitStarted, lockMode, lockType, lockTable, lockIndex, lockData);
   }
 
-  static InnodbLockWait parseRow(RewindBufferedReader reader, LocalDateTime time)
+  static InnodbLockWait parseRow(RewindBufferedReader reader, ZonedDateTime time)
     throws IOException, MetricAgentException {
     InnodbLockWait.Transaction waiting = parseTransaction(reader);
     InnodbLockWait.Transaction blocking = parseTransaction(reader);

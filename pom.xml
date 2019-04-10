@@ -17,8 +17,8 @@
     </modules>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.11</maven.compiler.source>
+        <maven.compiler.target>1.11</maven.compiler.target>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.rootdir>${project.basedir}</project.rootdir>
@@ -32,6 +32,7 @@
         <guava.version>27.0.1-jre</guava.version>
         <calcite.version>1.18.0</calcite.version>
         <jacoco.version>0.8.3</jacoco.version>
+        <sqllite.version>3.27.2</sqllite.version>
     </properties>
 
     <dependencies>

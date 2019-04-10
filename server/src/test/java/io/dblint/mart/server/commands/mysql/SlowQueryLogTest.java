@@ -13,7 +13,7 @@ public class SlowQueryLogTest extends ParserTest {
   void testPositive(@TempDir Path tempDir) throws Exception {
     Path output = tempDir.resolve("slow_queries.json");
     String input = getClass().getClassLoader().getResource("slowlog_01").getPath();
-    final boolean success = cli.run( "mysql", "slowquerylog", "--log",
+    final boolean success = cli.run( "mysql", "parse-slow-query", "--log",
         input, "--output", output.toString());
 
     System.out.println(stdErr.toString());

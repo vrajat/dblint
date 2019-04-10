@@ -1,6 +1,7 @@
 package io.dblint.mart.metricsink.mysql;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class InnodbLockWait {
 
@@ -8,8 +9,8 @@ public class InnodbLockWait {
     public final String id;
     public final String thread;
     public final String query;
-    public final LocalDateTime startTime;
-    public final LocalDateTime waitStartTime;
+    public final ZonedDateTime startTime;
+    public final ZonedDateTime waitStartTime;
     public final String lockMode;
     public final String lockType;
     public final String lockTable;
@@ -18,7 +19,7 @@ public class InnodbLockWait {
 
 
     Transaction(String id, String thread, String query,
-                LocalDateTime startTime, LocalDateTime waitStartTime,
+                ZonedDateTime startTime, ZonedDateTime waitStartTime,
                 String lockMode, String lockType, String lockTable,
                 String lockIndex, String lockData) {
       this.id = id;
@@ -36,10 +37,10 @@ public class InnodbLockWait {
 
   public final Transaction waiting;
   public final Transaction blocking;
-  public final LocalDateTime time;
+  public final ZonedDateTime time;
 
   InnodbLockWait(Transaction waiting, Transaction blocking,
-                        LocalDateTime time) {
+                        ZonedDateTime time) {
     this.waiting = waiting;
     this.blocking = blocking;
     this.time = time;

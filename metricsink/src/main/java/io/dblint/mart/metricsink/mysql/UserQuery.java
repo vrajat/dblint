@@ -1,27 +1,34 @@
 package io.dblint.mart.metricsink.mysql;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 public class UserQuery {
-  LocalDateTime time;
-  String userHost;
-  String ipAddress;
-  String id;
-  Double queryTime;
-  Double lockTime;
-  Long rowsSent;
-  Long rowsExamined;
-  String query;
+  private int id;
+  ZonedDateTime logTime;
+  private String userHost;
+  private String ipAddress;
+  private String connectionId;
+  private Double queryTime;
+  private Double lockTime;
+  private long rowsSent;
+  private long rowsExamined;
+  private String query;
+  private String digestHash;
 
-  public LocalDateTime getTime() {
-    return time;
+  public ZonedDateTime getLogTime() {
+    return logTime;
   }
 
-  public void setTime(String time) {
-    this.time = LocalDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(time)),
-        ZoneId.of("UTC"));
+  public void setLogTime(ZonedDateTime logTime) {
+    this.logTime = logTime;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
   }
 
   public String getUserHost() {
@@ -32,44 +39,44 @@ public class UserQuery {
     this.userHost = userHost;
   }
 
-  public String getId() {
-    return id;
+  public String getConnectionId() {
+    return connectionId;
   }
 
-  public void setId(String id) {
-    this.id = id;
+  public void setConnectionId(String connectionId) {
+    this.connectionId = connectionId;
   }
 
   public Double getQueryTime() {
     return queryTime;
   }
 
-  public void setQueryTime(String queryTime) {
-    this.queryTime = Double.parseDouble(queryTime);
+  public void setQueryTime(Double queryTime) {
+    this.queryTime = queryTime;
   }
 
   public Double getLockTime() {
     return lockTime;
   }
 
-  public void setLockTime(String lockTime) {
-    this.lockTime = Double.parseDouble(lockTime);
+  public void setLockTime(Double lockTime) {
+    this.lockTime = lockTime;
   }
 
   public long getRowsSent() {
-    return rowsSent.longValue();
+    return rowsSent;
   }
 
-  public void setRowsSent(String rowsSent) {
-    this.rowsSent = Long.parseLong(rowsSent);
+  public void setRowsSent(long rowsSent) {
+    this.rowsSent = rowsSent;
   }
 
   public long getRowsExamined() {
-    return rowsExamined.longValue();
+    return rowsExamined;
   }
 
-  public void setRowsExamined(String rowsExamined) {
-    this.rowsExamined = Long.parseLong(rowsExamined);
+  public void setRowsExamined(long rowsExamined) {
+    this.rowsExamined = rowsExamined;
   }
 
   public String getQuery() {
@@ -86,5 +93,13 @@ public class UserQuery {
 
   public void setIpAddress(String ipAddress) {
     this.ipAddress = ipAddress;
+  }
+
+  public String getDigestHash() {
+    return digestHash;
+  }
+
+  public void setDigestHash(String digestHash) {
+    this.digestHash = digestHash;
   }
 }

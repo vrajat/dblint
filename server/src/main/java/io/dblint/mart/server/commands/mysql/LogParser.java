@@ -1,5 +1,7 @@
 package io.dblint.mart.server.commands.mysql;
 
+import com.codahale.metrics.MetricRegistry;
+import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.util.MetricAgentException;
 import io.dblint.mart.server.MartConfiguration;
 import io.dropwizard.setup.Bootstrap;
@@ -16,11 +18,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 abstract class LogParser extends TimeRange {
   private static Logger logger = LoggerFactory.getLogger(LogParser.class);
-  private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
 
   LogParser(String name, String description) {
     super(name, description);
@@ -44,13 +46,22 @@ abstract class LogParser extends TimeRange {
         .metavar("output")
         .type(String.class)
         .help("Path to output file");
+
+    subparser.addArgument("--output-type")
+        .metavar("outputType")
+        .type(String.class)
+        .choices("json", "sqlite")
+        .setDefault("sqlite")
+        .help("Output Type");
   }
 
   abstract void process(Reader reader) throws IOException, MetricAgentException;
 
   abstract void output(OutputStream os) throws IOException;
 
-  abstract void filter(LocalDateTime start, LocalDateTime end);
+  abstract void outputSql(Sink sink, Namespace namespace) throws IOException;
+
+  abstract void filter(ZonedDateTime start, ZonedDateTime end);
 
   @Override
   protected void run(Bootstrap<MartConfiguration> bootstrap, Namespace namespace,
@@ -65,7 +76,11 @@ abstract class LogParser extends TimeRange {
       File folder = new File(namespace.getString("log_dir"));
       for (File f : folder.listFiles()) {
         logger.info("Processing " + f.getName());
-        process(new FileReader(f));
+        try {
+          process(new FileReader(f));
+        } catch (MetricAgentException me) {
+          logger.error("Failed to parse " + f.getName(), me);
+        }
       }
     }
 
@@ -73,9 +88,19 @@ abstract class LogParser extends TimeRange {
     String endTime = namespace.getString("endTime");
 
     if (startTime != null && endTime != null) {
-      filter(LocalDateTime.parse(startTime, dateFormat),
-          LocalDateTime.parse(endTime, dateFormat));
+      filter(ZonedDateTime.of(LocalDateTime.parse(startTime, dateFormat),
+          ZoneOffset.ofHoursMinutes(5, 30)),
+          ZonedDateTime.of(LocalDateTime.parse(endTime, dateFormat),
+              ZoneOffset.ofHoursMinutes(5, 30)));
     }
-    output(new FileOutputStream(namespace.getString("output")));
+
+    if (namespace.getString("output_type").equals("sqlite")) {
+      Sink sink = new Sink("jdbc:sqlite:" + namespace.getString("output"), "", "", this.registry);
+      sink.initialize();
+      outputSql(sink, namespace);
+    } else {
+      output(new FileOutputStream(namespace.getString("output")));
+    }
+    super.logRegistry();
   }
 }

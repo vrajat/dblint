@@ -2,7 +2,7 @@ package io.dblint.mart.metricsink.mysql;
 
 import io.dblint.mart.metricsink.util.MetricAgentException;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -87,9 +87,9 @@ public class Deadlock implements Comparable<Deadlock> {
   }
 
   public final List<Transaction> transactions;
-  public final LocalDateTime time;
+  public final ZonedDateTime time;
 
-  public Deadlock(List<Transaction> transactions, LocalDateTime time) {
+  public Deadlock(List<Transaction> transactions, ZonedDateTime time) {
     this.transactions = transactions;
     this.time = time;
   }

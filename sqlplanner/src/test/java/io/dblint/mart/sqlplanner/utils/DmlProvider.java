@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class SqlProvider implements ArgumentsProvider {
-  private static Logger logger = LoggerFactory.getLogger(SqlProvider.class);
+public class DmlProvider implements ArgumentsProvider {
+  private static Logger logger = LoggerFactory.getLogger(DmlProvider.class);
 
   @Override
   public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) {

@@ -5,10 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SlowQueryLogParser {
   private static Logger logger = LoggerFactory.getLogger(SlowQueryLogParser.class);
@@ -19,8 +23,9 @@ public class SlowQueryLogParser {
   static Pattern queryMetadata = Pattern.compile("# Query_time: ([\\d\\.]+)\\s*"
       + "Lock_time: ([\\d\\.]+)\\s*Rows_sent: (\\d+)\\s*Rows_examined: (\\d+)");
   static Pattern setStatement = Pattern.compile("SET\\s+timestamp=([0-9]+)[,|;]");
-  static Pattern useStatement = Pattern.compile("USE\\s+([.;]*)");
+  static Pattern useStatement = Pattern.compile("^use\\s+.+;");
   static Pattern comments = Pattern.compile("/\\*(.*)\\*/");
+  static Pattern indexNotUsedMessage = Pattern.compile("index not used");
 
   static void parseUhLine(RewindBufferedReader reader, UserQuery userQuery)
       throws IOException, MetricAgentException {
@@ -29,7 +34,7 @@ public class SlowQueryLogParser {
     if (matcher.find()) {
       userQuery.setUserHost(matcher.group(1));
       userQuery.setIpAddress(matcher.group(2));
-      userQuery.setId(matcher.group(3));
+      userQuery.setConnectionId(matcher.group(3));
     } else {
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match User Header pattern: '" + line
@@ -42,14 +47,23 @@ public class SlowQueryLogParser {
     String line = reader.readLine();
     Matcher matcher = queryMetadata.matcher(line);
     if (matcher.find()) {
-      userQuery.setQueryTime(matcher.group(1));
-      userQuery.setLockTime(matcher.group(2));
-      userQuery.setRowsSent(matcher.group(3));
-      userQuery.setRowsExamined(matcher.group(4));
+      userQuery.setQueryTime(Double.parseDouble(matcher.group(1)));
+      userQuery.setLockTime(Double.parseDouble(matcher.group(2)));
+      userQuery.setRowsSent(Long.parseLong(matcher.group(3)));
+      userQuery.setRowsExamined(Long.parseLong(matcher.group(4)));
     } else {
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match Query Metadata pattern: '" + line
           + "' at " + matcher.toString());
+    }
+  }
+
+  static void parseUseStatement(RewindBufferedReader reader)
+      throws IOException {
+    String line = reader.readLine();
+    Matcher matcher = useStatement.matcher(line);
+    if (!matcher.find()) {
+      reader.rewind(line);
     }
   }
 
@@ -58,7 +72,10 @@ public class SlowQueryLogParser {
     String line = reader.readLine();
     Matcher matcher = setStatement.matcher(line);
     if (matcher.find()) {
-      userQuery.setTime(matcher.group(1));
+      ZonedDateTime logTime = ZonedDateTime.ofInstant(
+          Instant.ofEpochSecond(Long.parseLong(matcher.group(1))),
+          ZoneId.of("UTC"));
+      userQuery.setLogTime(logTime);
     } else {
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match Set Statement pattern: '" + line
@@ -84,6 +101,7 @@ public class SlowQueryLogParser {
     UserQuery query = new UserQuery();
     parseUhLine(bufferedReader, query);
     parseQueryMetadataLine(bufferedReader, query);
+    parseUseStatement(bufferedReader);
     parseSetStatement(bufferedReader, query);
     query.setQuery(replaceComments(bufferedReader.readLine()));
     return query;
@@ -91,17 +109,6 @@ public class SlowQueryLogParser {
 
   static List<UserQuery> parseTimeSection(RewindBufferedReader bufferedReader)
       throws IOException, MetricAgentException {
-    //Skip first query section that run use statement
-    int headerLines = 5;
-    while (bufferedReader.ready() && headerLines > 0) {
-      bufferedReader.readLine();
-      headerLines--;
-    }
-
-    if (headerLines > 0) {
-      throw new MetricAgentException("Incomplete query section");
-    }
-
     List<UserQuery> userQueries = new ArrayList<>();
     String line = bufferedReader.readLine();
     while (line != null && newQuerySection(line)) {
@@ -113,7 +120,10 @@ public class SlowQueryLogParser {
     if (line != null) {
       bufferedReader.rewind(line);
     }
-    return userQueries;
+
+    return userQueries.stream().filter(userQuery ->
+        !indexNotUsedMessage.matcher(userQuery.getQuery()).find())
+        .collect(Collectors.toList());
   }
 
   /**

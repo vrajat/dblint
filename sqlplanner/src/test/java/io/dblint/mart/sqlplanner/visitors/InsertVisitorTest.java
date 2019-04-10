@@ -10,7 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.dblint.mart.sqlplanner.utils.SqlProvider;
+import io.dblint.mart.sqlplanner.utils.DmlProvider;
 
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +27,7 @@ class InsertVisitorTest {
   }
 
   @ParameterizedTest(name="[{index}] {0}")
-  @ArgumentsSource(SqlProvider.class)
+  @ArgumentsSource(DmlProvider.class)
   @Tags({@Tag("/insertSuccess.yaml")})
   void sanityTest(String name, String targetTable,
                   List<String> sourceTables, String query) throws SqlParseException {

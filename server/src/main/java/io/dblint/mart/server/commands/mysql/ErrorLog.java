@@ -4,14 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dblint.mart.metricsink.mysql.Deadlock;
 import io.dblint.mart.metricsink.mysql.ErrorLogParser;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
+import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.util.MetricAgentException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +37,7 @@ public class ErrorLog extends LogParser {
   }
 
   @Override
-  protected void filter(LocalDateTime start, LocalDateTime end) {
+  protected void filter(ZonedDateTime start, ZonedDateTime end) {
     this.deadlocks = this.deadlocks.stream()
         .filter(lock -> lock.time.isAfter(start) && lock.time.isBefore(end))
         .collect(Collectors.toList());
@@ -47,4 +49,7 @@ public class ErrorLog extends LogParser {
     ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(os, this.deadlocks);
   }
+
+  @Override
+  void outputSql(Sink sink, Namespace namespace) {}
 }
