@@ -69,18 +69,21 @@ public class SlowQueryLog extends LogParser {
 
   @Override
   protected void outputSql(Sink sink, Namespace namespace) {
-    queries.stream().forEach(q -> {
-      int id = sink.insertUserQuery(q);
-      if (namespace.getBoolean("analyze")) {
-        q.setId(id);
-        SlowQuery slowQuery = new SlowQuery(this.registry);
-        try {
-          QueryAttribute attribute = slowQuery.analyze(q.getQuery());
-          sink.setQueryAttribute(q, attribute);
-        } catch (SqlParseException | UnsupportedOperationException | NullPointerException exc) {
-          logger.error("Failed to analyze query '" + q.getId() + "'." + exc.getMessage());
-        }
-      }
-    });
+    sink.useHandle(handle ->
+        queries.forEach(q -> {
+          int id = sink.insertUserQuery(handle, q);
+          if (namespace.getBoolean("analyze")) {
+            q.setId(id);
+            SlowQuery slowQuery = new SlowQuery(this.registry);
+            try {
+              QueryAttribute attribute = slowQuery.analyze(q.getQuery());
+              sink.setQueryAttribute(handle, q, attribute);
+            } catch (SqlParseException | UnsupportedOperationException
+                | NullPointerException exc) {
+              logger.error("Failed to analyze query '" + q.getId() + "'." + exc.getMessage());
+            }
+          }
+        })
+    );
   }
 }

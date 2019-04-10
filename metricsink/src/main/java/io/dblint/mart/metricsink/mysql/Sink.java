@@ -3,6 +3,7 @@ package io.dblint.mart.metricsink.mysql;
 import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.metricsink.util.DbSink;
 import org.flywaydb.core.Flyway;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
@@ -34,6 +35,12 @@ public class Sink extends DbSink {
   }
 
   @Override
+  protected void registerMappers(Handle handle) {
+    handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
+    handle.registerRowMapper(ConstructorMapper.factory(QueryAttribute.class));
+  }
+
+  @Override
   protected String getMigrationsPath() {
     return "db/mySqlMigrations";
   }
@@ -48,7 +55,7 @@ public class Sink extends DbSink {
     return jdbi.withHandle(handle -> {
       handle.registerRowMapper(BeanMapper.factory(UserQuery.class));
       return handle.createQuery("select * from user_queries where log_time/1000 "
-              + "between :start and :end")
+              + "between :start and :end and digest_hash is null")
           .bind("start", start.toEpochSecond())
           .bind("end", end.toEpochSecond())
           .mapTo(UserQuery.class)
@@ -75,28 +82,25 @@ public class Sink extends DbSink {
    * Insert one UserQuery row into user_queries table.
    * @param userQuery A POJO of User Query
    */
-  public int insertUserQuery(UserQuery userQuery) {
-    return jdbi.withHandle(handle -> {
-      handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
-      return handle.createUpdate("insert into user_queries("
-          + "log_time,"
-          + "user_host,"
-          + "ip_address,"
-          + "connection_id,"
-          + "query_time,"
-          + "lock_time,"
-          + "rows_sent,"
-          + "rows_examined,"
-          + "query,"
-          + "digest_hash"
-          + ") values ("
-          + ":logTime, :userHost, :ipAddress, :connectionId, :queryTime, :lockTime, :rowsSent, "
-          + ":rowsExamined, :query, :digestHash)")
-          .bindBean(userQuery)
-          .executeAndReturnGeneratedKeys()
-          .mapTo(int.class)
-          .findOnly();
-    });
+  public int insertUserQuery(Handle handle, UserQuery userQuery) {
+    return handle.createUpdate("insert into user_queries("
+        + "log_time,"
+        + "user_host,"
+        + "ip_address,"
+        + "connection_id,"
+        + "query_time,"
+        + "lock_time,"
+        + "rows_sent,"
+        + "rows_examined,"
+        + "query,"
+        + "digest_hash"
+        + ") values ("
+        + ":logTime, :userHost, :ipAddress, :connectionId, :queryTime, :lockTime, :rowsSent, "
+        + ":rowsExamined, :query, :digestHash)")
+        .bindBean(userQuery)
+        .executeAndReturnGeneratedKeys()
+        .mapTo(int.class)
+        .findOnly();
   }
 
   /**
@@ -128,22 +132,19 @@ public class Sink extends DbSink {
    * @param queryAttribute The POJO to insert
    */
   public Optional<Long> setQueryAttribute(
+      Handle handle,
       UserQuery userQuery,
       QueryAttribute queryAttribute) {
-    return jdbi.inTransaction(handle -> {
-      Optional<Long> attributeOptional = Optional.empty();
+    Optional<Long> attributeOptional = Optional.empty();
 
-      handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
-      handle.registerRowMapper(ConstructorMapper.factory(QueryAttribute.class));
+    Optional<QueryAttribute> attribute = handle.createQuery("select * from query_attributes "
+        + "where digest_hash = :digestHash")
+        .bind("digestHash", queryAttribute.digestHash)
+        .mapTo(QueryAttribute.class)
+        .findFirst();
 
-      Optional<QueryAttribute> attribute = handle.createQuery("select * from query_attributes "
-            + "where digest_hash = :digestHash")
-          .bind("digestHash", queryAttribute.digestHash)
-          .mapTo(QueryAttribute.class)
-          .findFirst();
-
-      if (!attribute.isPresent()) {
-        attributeOptional = Optional.of(handle.createUpdate("insert into query_attributes ("
+    if (!attribute.isPresent()) {
+      attributeOptional = Optional.of(handle.createUpdate("insert into query_attributes ("
           + "digest, "
           + "digest_hash"
           + ") values ("
@@ -152,15 +153,15 @@ public class Sink extends DbSink {
           .executeAndReturnGeneratedKeys()
           .mapTo(Long.class)
           .findOnly());
-      }
-      handle.createUpdate("update user_queries set "
+    }
+
+    handle.createUpdate("update user_queries set "
           + "digest_hash=:digestHash"
           + " where id=:id")
           .bind("id", userQuery.getId())
           .bind("digestHash", queryAttribute.digestHash)
           .execute();
 
-      return attributeOptional;
-    });
+    return attributeOptional;
   }
 }

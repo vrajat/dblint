@@ -86,7 +86,7 @@ public class SinkTest {
 
   @Test
   void insertUserQuery() throws SQLException {
-    long id = sink.insertUserQuery(testQuery);
+    long id = sink.withHandle(handle -> sink.insertUserQuery(handle, testQuery)).longValue();
 
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery("select id, user_host, ip_address, id, query_time, "
@@ -110,7 +110,7 @@ public class SinkTest {
 
   @Test
   void selectUserQuery() {
-    long id = sink.insertUserQuery(testQuery);
+    long id = sink.withHandle(handle -> sink.insertUserQuery(handle, testQuery)).longValue();
 
     Optional<UserQuery> queryOptional = sink.selectUserQuery(id);
 
@@ -136,12 +136,13 @@ public class SinkTest {
         + "FROM `D`\n"
         + "WHERE `C` = ?");
 
-    long query_id = sink.insertUserQuery(testQuery);
-    Optional<UserQuery> query = sink.selectUserQuery(query_id);
+    sink.useHandle(handle -> {
+      long query_id = sink.insertUserQuery(handle, testQuery);
+      Optional<UserQuery> query = sink.selectUserQuery(query_id);
+      Optional<Long> attribute = sink.setQueryAttribute(handle, query.get(), queryAttribute);
 
-    Optional<Long> attribute = sink.setQueryAttribute(query.get(), queryAttribute);
-
-    assertTrue(attribute.isPresent());
+      assertTrue(attribute.isPresent());
+    });
 
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery(
@@ -168,7 +169,7 @@ public class SinkTest {
 
   @Test
   void updateUserQuery() throws SQLException {
-    sink.insertUserQuery(testQuery);
+    sink.useHandle(handle -> sink.insertUserQuery(handle, testQuery));
     testQuery.setId(1);
     testQuery.setDigestHash("bbdd1e7260fdd5fc159a12248d059e4a1a294ecd52c8287ed2e71708908dd142");
     sink.updateUserQuery(testQuery);
@@ -186,7 +187,7 @@ public class SinkTest {
 
   @Test
   void selectInRange() {
-    sink.insertUserQuery(testQuery);
+    sink.useHandle(handle -> sink.insertUserQuery(handle, testQuery));
 
     ZonedDateTime start = ZonedDateTime.of(
         LocalDateTime.of(2019, 3,17,4,0,0), ZoneOffset.ofHoursMinutes(5, 30));
@@ -199,7 +200,7 @@ public class SinkTest {
 
   @Test
   void selectBeforeRange() {
-    sink.insertUserQuery(testQuery);
+    sink.useHandle(handle -> sink.insertUserQuery(handle, testQuery));
 
     ZonedDateTime start = ZonedDateTime.of(
         LocalDateTime.of(2019, 3,17,9,30,35), ZoneOffset.ofHoursMinutes(5, 30));
@@ -212,7 +213,7 @@ public class SinkTest {
 
   @Test
   void selectAfterRange() {
-    sink.insertUserQuery(testQuery);
+    sink.useHandle(handle -> sink.insertUserQuery(handle, testQuery));
 
     ZonedDateTime start = ZonedDateTime.of(
         LocalDateTime.of(2019, 3,17,10,30,35), ZoneOffset.ofHoursMinutes(5, 30));

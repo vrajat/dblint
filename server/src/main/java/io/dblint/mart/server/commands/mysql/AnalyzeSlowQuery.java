@@ -51,15 +51,16 @@ public class AnalyzeSlowQuery extends TimeRange {
                 ZoneOffset.ofHoursMinutes(5, 30)
             ));
 
-    queryList.forEach(userQuery -> {
+    sink.useHandle(handle -> queryList.forEach(userQuery -> {
       SlowQuery slowQuery = new SlowQuery(this.registry);
       try {
         QueryAttribute attribute = slowQuery.analyze(userQuery.getQuery());
-        sink.setQueryAttribute(userQuery, attribute);
-      } catch (SqlParseException | UnsupportedOperationException | NullPointerException exc) {
+        sink.setQueryAttribute(handle, userQuery, attribute);
+      } catch (SqlParseException | UnsupportedOperationException | NullPointerException
+        | IndexOutOfBoundsException exc) {
         logger.error("Failed to analyze query '" + userQuery.getId() + "'." + exc.getMessage());
       }
-    });
+    }));
     super.logRegistry();
   }
 }
