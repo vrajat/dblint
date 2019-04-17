@@ -2,6 +2,7 @@ package io.dblint.mart.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.dblint.mart.metricsink.redshift.MySqlSink;
 import io.dblint.mart.metricsink.redshift.RedshiftDb;
 import io.dblint.mart.server.commands.MySqlCommands;
@@ -12,6 +13,7 @@ import io.dblint.mart.server.resources.RedshiftResource;
 import io.dblint.mart.server.resources.RootResource;
 import io.dblint.mart.sqlplanner.planner.Parser;
 import io.dropwizard.Application;
+import io.dropwizard.jackson.Jackson;
 import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
@@ -36,6 +38,7 @@ public class MartApplication extends Application<MartConfiguration> {
 
   @Override
   public void initialize(final Bootstrap<MartConfiguration> bootstrap) {
+    bootstrap.setObjectMapper(Jackson.newMinimalObjectMapper().registerModule(new Jdk8Module()));
     bootstrap.addCommand(new MySqlCommands());
   }
 

@@ -1,5 +1,6 @@
 package io.dblint.mart.server.commands.mysql;
 
+import com.codahale.metrics.Counter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dblint.mart.analyses.mysql.SlowQuery;
 import io.dblint.mart.metricsink.mysql.QueryAttribute;
@@ -27,20 +28,19 @@ public class SlowQueryLog extends LogParser {
   private static Logger logger = LoggerFactory.getLogger(SlowQueryLog.class);
   private List<UserQuery> queries;
 
+  Counter numInserted;
+  Counter numAnalyzed;
+  Counter numParsed;
+
   /**
    * A command to parse slow query logs.
    */
   public SlowQueryLog() {
     super("parse-slow-query", "Parse MySQL slow query log");
     this.queries = new ArrayList<>();
-  }
-
-  @Override
-  public void configure(Subparser subparser) {
-    super.configure(subparser);
-    subparser.addArgument("-a", "--analyze")
-        .type(boolean.class)
-        .action(Arguments.storeTrue());
+    this.numAnalyzed = this.registry.counter("slowQueryLog.numAnalyzed");
+    this.numInserted = this.registry.counter("slowQueryLog.numInserted");
+    this.numParsed = this.registry.counter("slowQueryLog.numParsed");
   }
 
   @Override
@@ -48,16 +48,20 @@ public class SlowQueryLog extends LogParser {
       throws IOException, MetricAgentException {
 
     SlowQueryLogParser parser = new SlowQueryLogParser();
-    this.queries.addAll(parser.parseLog(
+    List<UserQuery> queries = parser.parseLog(
         new RewindBufferedReader(reader)
-        )
     );
+
+    logger.info("Parsed " + queries.size());
+    numParsed.inc(queries.size());
+    this.queries.addAll(queries);
   }
 
   @Override
   protected void filter(ZonedDateTime start, ZonedDateTime end) {
     this.queries = this.queries.stream()
-        .filter(query -> query.getLogTime().isAfter(start) && query.getLogTime().isBefore(end))
+        .filter(query -> query.getZonedLogTime().isAfter(start)
+            && query.getZonedLogTime().isBefore(end))
         .collect(Collectors.toList());
   }
 
@@ -69,20 +73,10 @@ public class SlowQueryLog extends LogParser {
 
   @Override
   protected void outputSql(Sink sink, Namespace namespace) {
-    sink.useHandle(handle ->
-        queries.forEach(q -> {
+    sink.useTransaction(handle ->
+        this.queries.forEach(q -> {
           int id = sink.insertUserQuery(handle, q);
-          if (namespace.getBoolean("analyze")) {
-            q.setId(id);
-            SlowQuery slowQuery = new SlowQuery(this.registry);
-            try {
-              QueryAttribute attribute = slowQuery.analyze(q.getQuery());
-              sink.setQueryAttribute(handle, q, attribute);
-            } catch (SqlParseException | UnsupportedOperationException
-                | NullPointerException exc) {
-              logger.error("Failed to analyze query '" + q.getId() + "'." + exc.getMessage());
-            }
-          }
+          numInserted.inc();
         })
     );
   }

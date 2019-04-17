@@ -45,13 +45,11 @@ public class AnalyzeSlowQuery extends TimeRange {
     sink.initialize();
 
     List<UserQuery> queryList = sink.selectUserQueries(
-        ZonedDateTime.of(LocalDateTime.parse(startTime, dateFormat),
-            ZoneOffset.ofHoursMinutes(5, 30)),
-            ZonedDateTime.of(LocalDateTime.parse(endTime, dateFormat),
-                ZoneOffset.ofHoursMinutes(5, 30)
-            ));
+        LocalDateTime.parse(startTime, dateFormat),
+        LocalDateTime.parse(endTime, dateFormat)
+    );
 
-    sink.useHandle(handle -> queryList.forEach(userQuery -> {
+    sink.useTransaction(handle -> queryList.forEach(userQuery -> {
       SlowQuery slowQuery = new SlowQuery(this.registry);
       try {
         QueryAttribute attribute = slowQuery.analyze(userQuery.getQuery());

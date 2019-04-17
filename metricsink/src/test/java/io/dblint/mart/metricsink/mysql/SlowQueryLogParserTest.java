@@ -12,11 +12,10 @@ import org.junit.jupiter.api.Test;
 
 class SlowQueryLogParserTest {
   String fileHeader =
-      "/rdsdbbin/mysql/bin/mysqld, Version: 5.6.34-log (MySQL Community Server (GPL)). "
-          + "started with:\n"
+      "/rdsdbbin/mysql/bin/mysqld, Version: 5.7.24-log (Source distribution). started with:\n"
       + "Tcp port: 3306  Unix socket: /tmp/mysql.sock\n"
       + "Time                 Id Command    Argument\n"
-      + "# Time: 190227 23:00:03\n";
+      + "# Time: 2019-04-10T05:00:20.766066Z\n";
 
   String timeSectionHeader =
       "# User@Host: [] @  []  Id: 33549154\n"

@@ -8,11 +8,13 @@ import org.jdbi.v3.core.mapper.reflect.BeanMapper;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.core.mapper.reflect.FieldMapper;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 public class Sink extends DbSink {
+  private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("Y-MM-dd HH:mm:ss");
 
   public Sink(String url, String user, String password,
                    MetricRegistry metricRegistry) {
@@ -51,13 +53,13 @@ public class Sink extends DbSink {
    * @param end End time of range
    * @return List of UserQuery
    */
-  public List<UserQuery> selectUserQueries(ZonedDateTime start, ZonedDateTime end) {
+  public List<UserQuery> selectUserQueries(LocalDateTime start, LocalDateTime end) {
     return jdbi.withHandle(handle -> {
       handle.registerRowMapper(BeanMapper.factory(UserQuery.class));
-      return handle.createQuery("select * from user_queries where log_time/1000 "
+      return handle.createQuery("select * from user_queries where log_time "
               + "between :start and :end and digest_hash is null")
-          .bind("start", start.toEpochSecond())
-          .bind("end", end.toEpochSecond())
+          .bind("start", start.format(formatter))
+          .bind("end", end.format(formatter))
           .mapTo(UserQuery.class)
           .list();
     });
@@ -70,7 +72,7 @@ public class Sink extends DbSink {
    */
   public Optional<UserQuery> selectUserQuery(long id) {
     return jdbi.withHandle(handle -> {
-      handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
+      handle.registerRowMapper(BeanMapper.factory(UserQuery.class));
       return handle.createQuery("select * from user_queries where id = :id")
           .bind("id", id)
           .mapTo(UserQuery.class)

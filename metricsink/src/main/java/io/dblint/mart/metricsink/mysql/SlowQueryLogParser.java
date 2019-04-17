@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class SlowQueryLogParser {
   private static Logger logger = LoggerFactory.getLogger(SlowQueryLogParser.class);
 
-  static Pattern tsLine = Pattern.compile("^# Time: ([0-9: ]{15})");
+  static Pattern tsLine = Pattern.compile("^# Time: ");
   static Pattern uhLine = Pattern.compile("# User@Host: (.*\\[.*\\])\\s*@\\s*"
       + "\\[(.*)\\]\\s*Id:\\s*(\\d+)");
   static Pattern queryMetadata = Pattern.compile("# Query_time: ([\\d\\.]+)\\s*"
@@ -75,7 +75,7 @@ public class SlowQueryLogParser {
       ZonedDateTime logTime = ZonedDateTime.ofInstant(
           Instant.ofEpochSecond(Long.parseLong(matcher.group(1))),
           ZoneId.of("UTC"));
-      userQuery.setLogTime(logTime);
+      userQuery.setZonedLogTime(logTime);
     } else {
       throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
           + "did not match Set Statement pattern: '" + line
@@ -88,7 +88,7 @@ public class SlowQueryLogParser {
   }
 
   static boolean newSection(String line) {
-    return tsLine.matcher(line).matches();
+    return tsLine.matcher(line).find();
   }
 
   static boolean newQuerySection(String line) {
@@ -138,12 +138,17 @@ public class SlowQueryLogParser {
 
     //Read file header
     int headerLines = 3;
+    String lastLine = null;
     while (br.ready() && headerLines > 0) {
-      br.readLine();
+      lastLine = br.readLine();
       headerLines--;
     }
 
     if (headerLines > 0) {
+      if (lastLine != null && lastLine.strip().startsWith("None")) {
+        logger.info("No slow queries");
+        return userQueries;
+      }
       throw new MetricAgentException("Incomplete slow query log");
     }
 

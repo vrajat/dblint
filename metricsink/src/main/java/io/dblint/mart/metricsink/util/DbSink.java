@@ -82,6 +82,45 @@ public abstract class DbSink {
     });
   }
 
+  /**
+   * A convenience function which manages the lifecycle of a handle and yields it to a callback
+   * for use by clients. The handle will be in a transaction when the callback is invoked, and
+   * that transaction will be committed if the callback finishes normally, or rolled back if the
+   * callback raises an exception.
+   *
+   * @param callback A callback which will receive an open Handle, in a transaction
+   * @param <R> type returned by the callback
+   * @param <X> exception type thrown by the callback, if any.
+   *
+   * @return the value returned by callback
+   *
+   * @throws X any exception thrown by the callback
+   */
+  public <R, X extends Exception> R inTransaction(final HandleCallback<R, X> callback) throws X {
+    return this.jdbi.inTransaction(handle -> {
+      this.registerMappers(handle);
+      return callback.withHandle(handle);
+    });
+  }
+
+  /**
+   * A convenience function which manages the lifecycle of a handle and yields it to a callback
+   * for use by clients. The handle will be in a transaction when the callback is invoked, and
+   * that transaction will be committed if the callback finishes normally, or rolled back if the
+   * callback raises an exception.
+   *
+   * @param callback A callback which will receive an open Handle, in a transaction
+   * @param <X> exception type thrown by the callback, if any.
+   *
+   * @throws X any exception thrown by the callback
+   */
+  public <X extends Exception> void useTransaction(final HandleConsumer<X> callback) throws X {
+    this.jdbi.useTransaction(handle -> {
+      this.registerMappers(handle);
+      callback.useHandle(handle);
+    });
+  }
+
   protected abstract void registerMappers(Handle handle);
 
   protected abstract String getMigrationsPath();

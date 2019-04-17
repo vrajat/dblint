@@ -38,7 +38,7 @@ public class SinkTest {
     testQuery.setLockTime(0.000072);
     testQuery.setRowsSent(6L);
     testQuery.setRowsExamined(12L);
-    testQuery.setLogTime(ZonedDateTime.ofInstant(Instant.ofEpochSecond(
+    testQuery.setZonedLogTime(ZonedDateTime.ofInstant(Instant.ofEpochSecond(
         Long.parseLong("1552777235")),
         ZoneId.of("UTC")));
 
@@ -90,7 +90,7 @@ public class SinkTest {
 
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery("select id, user_host, ip_address, id, query_time, "
-          + "lock_time, rows_sent, rows_examined, log_time/1000 log_time_sec, connection_id"
+          + "lock_time, rows_sent, rows_examined, log_time, connection_id"
           + " from user_queries");
 
     resultSet.next();
@@ -103,9 +103,7 @@ public class SinkTest {
     assertEquals(0.000072, resultSet.getDouble("lock_time"));
     assertEquals(6L, resultSet.getLong("rows_sent"));
     assertEquals(12L, resultSet.getLong("rows_examined"));
-    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3,16,23,0,35), ZoneOffset.UTC),
-        ZonedDateTime.of(LocalDateTime.ofEpochSecond(resultSet.getLong("log_time_sec"), 0,
-            ZoneOffset.UTC), ZoneOffset.UTC));
+    assertEquals("2019-03-17 04:30:35", resultSet.getString("log_time"));
   }
 
   @Test
@@ -127,7 +125,7 @@ public class SinkTest {
     assertEquals(6L, query.getRowsSent());
     assertEquals(12L, query.getRowsExamined());
     assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3,16,23,0,35), ZoneOffset.UTC),
-        query.getLogTime().withZoneSameInstant(ZoneOffset.UTC));
+        query.getZonedLogTime().withZoneSameInstant(ZoneOffset.UTC));
   }
 
   @Test
@@ -189,10 +187,8 @@ public class SinkTest {
   void selectInRange() {
     sink.useHandle(handle -> sink.insertUserQuery(handle, testQuery));
 
-    ZonedDateTime start = ZonedDateTime.of(
-        LocalDateTime.of(2019, 3,17,4,0,0), ZoneOffset.ofHoursMinutes(5, 30));
-    ZonedDateTime end = ZonedDateTime.of(
-        LocalDateTime.of(2019, 3,17,5,0,0), ZoneOffset.ofHoursMinutes(5, 30));
+    LocalDateTime start = LocalDateTime.of(2019, 3,17,4,0,0);
+    LocalDateTime end = LocalDateTime.of(2019, 3,17,5,0,0);
 
     List<UserQuery> queries = sink.selectUserQueries(start, end);
     assertEquals(1, queries.size());
@@ -202,10 +198,8 @@ public class SinkTest {
   void selectBeforeRange() {
     sink.useHandle(handle -> sink.insertUserQuery(handle, testQuery));
 
-    ZonedDateTime start = ZonedDateTime.of(
-        LocalDateTime.of(2019, 3,17,9,30,35), ZoneOffset.ofHoursMinutes(5, 30));
-    ZonedDateTime end = ZonedDateTime.of(
-        LocalDateTime.of(2019, 3,17,9,45,35), ZoneOffset.ofHoursMinutes(5, 30));
+    LocalDateTime start = LocalDateTime.of(2019, 3,17,9,30,35);
+    LocalDateTime end = LocalDateTime.of(2019, 3,17,9,45,35);
 
     List<UserQuery> queries = sink.selectUserQueries(start, end);
     assertTrue(queries.isEmpty());
@@ -215,10 +209,8 @@ public class SinkTest {
   void selectAfterRange() {
     sink.useHandle(handle -> sink.insertUserQuery(handle, testQuery));
 
-    ZonedDateTime start = ZonedDateTime.of(
-        LocalDateTime.of(2019, 3,17,10,30,35), ZoneOffset.ofHoursMinutes(5, 30));
-    ZonedDateTime end = ZonedDateTime.of(
-        LocalDateTime.of(2019, 3,17,10,45,35), ZoneOffset.ofHoursMinutes(5, 30));
+    LocalDateTime start = LocalDateTime.of(2019, 3,17,10,30,35);
+    LocalDateTime end = LocalDateTime.of(2019, 3,17,10,45,35);
 
     List<UserQuery> queries = sink.selectUserQueries(start, end);
     assertTrue(queries.isEmpty());
