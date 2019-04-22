@@ -30,6 +30,7 @@ class SlowQueryLogParserTest {
       + "SET timestamp=1537887930;\n"
       + "SELECT `store_id`, 'category_id`. `sum_order` FROM `products`;";
 
+  String noLogs = "None\n";
 
   @Test
   void replaceComments() {
@@ -82,5 +83,14 @@ class SlowQueryLogParserTest {
     );
     List<UserQuery> queries = SlowQueryLogParser.parseLog(bufferedReader);
     assertEquals(2, queries.size());
+  }
+
+  @Test
+  void testNoneFile() throws IOException, MetricAgentException {
+    RewindBufferedReader bufferedReader = new RewindBufferedReader(
+        new InputStreamReader(new ByteArrayInputStream(noLogs.getBytes()))
+    );
+    List<UserQuery> queries = SlowQueryLogParser.parseLog(bufferedReader);
+    assertEquals(0, queries.size());
   }
 }

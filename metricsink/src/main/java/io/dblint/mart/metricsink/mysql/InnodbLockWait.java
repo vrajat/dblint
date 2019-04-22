@@ -1,6 +1,5 @@
 package io.dblint.mart.metricsink.mysql;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 public class InnodbLockWait {
