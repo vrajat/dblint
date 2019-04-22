@@ -1,21 +1,14 @@
 package io.dblint.mart.metricsink.mysql;
 
 import io.dblint.mart.metricsink.util.MetricAgentException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InnodbLockWaitsParser {
+public class InnodbLockWaitsParser extends RowParser<InnodbLockWait> {
   // Output of query
   /*
   SELECT
@@ -48,78 +41,12 @@ INNER JOIN information_schema.innodb_locks wl
 INNER JOIN information_schema.innodb_locks bl
   ON w.blocking_lock_id = bl.lock_id
    */
-  private static Logger logger = LoggerFactory.getLogger(InnodbLockWaitsParser.class);
-
-  private static Pattern row = Pattern.compile(
-      "^\\*+\\s([0-9]+)\\.\\srow\\s\\*+$"
-  );
-
-  private static Pattern now = Pattern.compile(
-      "^now\\(\\)"
-  );
-
   static Pattern trxStarted = Pattern.compile(
       "^\\s*(block|wait)ing_trx_started"
   );
 
-  private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
 
-  static boolean newTimeSection(RewindBufferedReader reader)
-    throws IOException {
-    String line = reader.readLine();
-    Matcher rowMatcher = row.matcher(line);
-    if (rowMatcher.matches()) {
-      logger.debug("Row matched");
-
-      line = reader.readLine();
-      if (now.matcher(line).find()) {
-        reader.rewind(line);
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  static List<InnodbLockWait> parseTimeSection(RewindBufferedReader reader)
-    throws IOException, MetricAgentException {
-    String line = reader.readLine();
-    String [] parts = line.split(":", 2);
-    if (parts.length != 2) {
-      throw new MetricAgentException("Line (" + reader.getLineNumber() + ") "
-          + "did not match now pattern: '" + line);
-    }
-    ZonedDateTime time = ZonedDateTime.of(LocalDateTime.parse(parts[1].trim(), dateFormat),
-        ZoneOffset.ofHoursMinutes(5, 30));
-    List<InnodbLockWait> lockWaits = new ArrayList<>();
-    line = reader.readLine();
-    while (line != null && !line.isEmpty() && row.matcher(line).matches()) {
-      lockWaits.add(parseRow(reader, time));
-      line = reader.readLine();
-    }
-
-    return lockWaits;
-  }
-
-  private static String getLineOrThrow(RewindBufferedReader reader)
-      throws IOException, MetricAgentException {
-    String line = reader.readLine();
-    if (line == null) {
-      throw new MetricAgentException("Hit EOF unexpectedly");
-    }
-    return line;
-  }
-
-  static String [] parseColumn(String line)
-      throws MetricAgentException {
-    String [] parts = line.split(":", 2);
-    if (parts.length != 2) {
-      throw new MetricAgentException("Line could not parsed to a column: `" + line + "'");
-    }
-    return parts;
-  }
-
-  static InnodbLockWait.Transaction parseTransaction(RewindBufferedReader reader)
+  Transaction parseTransaction(RewindBufferedReader reader)
       throws IOException, MetricAgentException {
     String line = getLineOrThrow(reader);
     final String id = parseColumn(line)[1].trim();
@@ -167,32 +94,14 @@ INNER JOIN information_schema.innodb_locks bl
     line = getLineOrThrow(reader);
     final String lockData = parseColumn(line)[1].trim();
 
-    return new InnodbLockWait.Transaction(id, thread, query.toString(), transactionStarted,
+    return new Transaction(id, thread, query.toString(), transactionStarted,
         waitStarted, lockMode, lockType, lockTable, lockIndex, lockData);
   }
 
-  static InnodbLockWait parseRow(RewindBufferedReader reader, ZonedDateTime time)
+  InnodbLockWait parseRow(RewindBufferedReader reader, ZonedDateTime time)
     throws IOException, MetricAgentException {
-    InnodbLockWait.Transaction waiting = parseTransaction(reader);
-    InnodbLockWait.Transaction blocking = parseTransaction(reader);
+    Transaction waiting = parseTransaction(reader);
+    Transaction blocking = parseTransaction(reader);
     return new InnodbLockWait(waiting, blocking, time);
-  }
-
-  /**
-   * Parse the output of a SQL query on information schema to get lock waits.
-   * @param reader Reader pointing to the output
-   * @return A list of Lock Wait graphs
-   * @throws IOException Thrown if Reader cannot read data from stream
-   * @throws MetricAgentException Thrown if parser cannot parse the stream
-   */
-  public static List<InnodbLockWait> parse(RewindBufferedReader reader)
-      throws IOException, MetricAgentException {
-    List<InnodbLockWait> waits = new ArrayList<>();
-    while (reader.ready()) {
-      if (newTimeSection(reader)) {
-        waits.addAll(parseTimeSection(reader));
-      }
-    }
-    return waits;
   }
 }

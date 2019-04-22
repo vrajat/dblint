@@ -1,0 +1,113 @@
+*************************** 1. row ***************************
+now(): 2019-04-22 12:24:02
+*************************** 1. row ***************************
+             trx_id: 142335405413
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 18203127
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 2. row ***************************
+             trx_id: 142335405390
+        trx_started: 2019-04-22 06:54:01
+trx_mysql_thread_id: 18203595
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 3. row ***************************
+             trx_id: 328807457606048
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 18199880
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 4. row ***************************
+             trx_id: 328807457819488
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 17955541
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 5. row ***************************
+             trx_id: 142335404704
+        trx_started: 2019-04-22 06:54:00
+trx_mysql_thread_id: 18201558
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 6. row ***************************
+             trx_id: 328807457924368
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 18203502
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 7. row ***************************
+             trx_id: 328807456504808
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 18201047
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 8. row ***************************
+             trx_id: 328807456564608
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 18200264
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 9. row ***************************
+             trx_id: 142335405416
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 18202907
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 10. row ***************************
+             trx_id: 328807457957488
+        trx_started: 2019-04-22 06:54:01
+trx_mysql_thread_id: 16101181
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 11. row ***************************
+             trx_id: 328807457878368
+        trx_started: 2019-04-22 06:54:01
+trx_mysql_thread_id: 17649452
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+*************************** 12. row ***************************
+             trx_id: 328807456220528
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 18200241
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
+
+
+

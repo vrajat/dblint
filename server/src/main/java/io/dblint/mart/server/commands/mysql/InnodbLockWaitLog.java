@@ -11,7 +11,6 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +18,7 @@ import java.util.stream.Collectors;
 
 public class InnodbLockWaitLog extends LogParser {
   private List<InnodbLockWait> lockWaits;
+  private InnodbLockWaitsParser parser;
 
   /**
    * A command to parse innodb lock wait query output.
@@ -26,16 +26,14 @@ public class InnodbLockWaitLog extends LogParser {
   public InnodbLockWaitLog() {
     super("innodb_lock_waits", "Analyze Innodb Lock Wait Information");
     this.lockWaits = new ArrayList<>();
+    parser = new InnodbLockWaitsParser();
   }
 
   @Override
   protected void process(Reader reader)
       throws IOException, MetricAgentException {
 
-    this.lockWaits.addAll(InnodbLockWaitsParser.parse(
-        new RewindBufferedReader(reader)
-        )
-    );
+    this.lockWaits.addAll(parser.parse(new RewindBufferedReader(reader)));
   }
 
   @Override

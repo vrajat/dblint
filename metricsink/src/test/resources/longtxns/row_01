@@ -1,0 +1,8 @@
+             trx_id: 328807456220528
+        trx_started: 2019-04-22 06:54:02
+trx_mysql_thread_id: 18200241
+          lock_mode: NULL
+          lock_type: NULL
+         lock_table: NULL
+          lock_data: NULL
+              query: NULL
