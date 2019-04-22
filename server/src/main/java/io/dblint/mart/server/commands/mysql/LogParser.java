@@ -95,6 +95,7 @@ abstract class LogParser extends TimeRange {
     }
 
     if (namespace.getString("output_type").equals("sqlite")) {
+      logger.info("Insert queries into database " + namespace.getString("output"));
       Sink sink = new Sink("jdbc:sqlite:" + namespace.getString("output"), "", "", this.registry);
       sink.initialize();
       outputSql(sink, namespace);
