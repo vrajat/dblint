@@ -4,8 +4,6 @@ import io.dblint.mart.analyses.mysql.SlowQuery;
 import io.dblint.mart.metricsink.mysql.QueryAttribute;
 import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.mysql.UserQuery;
-import io.dblint.mart.server.MartConfiguration;
-import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
 import org.apache.calcite.sql.parser.SqlParseException;

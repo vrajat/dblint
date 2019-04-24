@@ -65,9 +65,14 @@ public class Transaction {
         waitStartTime.withZoneSameInstant(ZoneOffset.ofHoursMinutes(5, 30)).format(dateFormat);
   }
 
+  /**
+   * Set Log Time from String. Typically for JDBI.
+   * @param logTime Log time as a timestamp string
+   */
   public void setWaitStartTime(String logTime) {
-    this.waitStartTime = ZonedDateTime.of(
-        LocalDateTime.parse(logTime, dateFormat), ZoneOffset.ofHoursMinutes(5, 30));
+    this.waitStartTime = logTime == null ? null :
+        ZonedDateTime.of(LocalDateTime.parse(logTime, dateFormat),
+            ZoneOffset.ofHoursMinutes(5, 30));
   }
 
   public ZonedDateTime getZonedWaitStartTime() {

@@ -5,8 +5,6 @@ import io.dblint.mart.metricsink.mysql.Logged;
 import io.dblint.mart.metricsink.mysql.RewindBufferedReader;
 import io.dblint.mart.metricsink.mysql.Sink;
 import io.dblint.mart.metricsink.util.MetricAgentException;
-import io.dblint.mart.server.MartConfiguration;
-import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 import net.sourceforge.argparse4j.inf.Namespace;
 import net.sourceforge.argparse4j.inf.Subparser;
