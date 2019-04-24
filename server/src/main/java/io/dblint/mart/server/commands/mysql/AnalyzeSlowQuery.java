@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 public class AnalyzeSlowQuery extends TimeRange {
@@ -34,10 +32,12 @@ public class AnalyzeSlowQuery extends TimeRange {
 
   }
 
+  /**
+   * Run the command and store in sqlite.
+   * @param namespace Namespace with arguments
+   */
   @Override
-  protected void run(Bootstrap<MartConfiguration> bootstrap,
-                     Namespace namespace,
-                     MartConfiguration martConfiguration) {
+  public void run(Namespace namespace) {
     String startTime = namespace.getString("startTime");
     String endTime = namespace.getString("endTime");
 

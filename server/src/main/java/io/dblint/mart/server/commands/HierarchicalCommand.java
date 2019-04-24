@@ -1,7 +1,6 @@
 package io.dblint.mart.server.commands;
 
 import io.dblint.mart.server.MartConfiguration;
-import io.dropwizard.cli.Command;
 import io.dropwizard.cli.ConfiguredCommand;
 import io.dropwizard.setup.Bootstrap;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -54,6 +53,6 @@ public class HierarchicalCommand extends ConfiguredCommand<MartConfiguration> {
   protected void run(Bootstrap<MartConfiguration> bootstrap, Namespace namespace,
                      MartConfiguration configuration) throws Exception {
     final Command command = commands.get(namespace.getString(COMMAND_NAME_ATTR));
-    command.run(bootstrap, namespace);
+    command.run(namespace);
   }
 }

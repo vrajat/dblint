@@ -61,7 +61,8 @@ public class Transaction {
   }
 
   public String getWaitStartTime() {
-    return waitStartTime.withZoneSameInstant(ZoneOffset.ofHoursMinutes(5, 30)).format(dateFormat);
+    return waitStartTime == null ? null :
+        waitStartTime.withZoneSameInstant(ZoneOffset.ofHoursMinutes(5, 30)).format(dateFormat);
   }
 
   public void setWaitStartTime(String logTime) {
