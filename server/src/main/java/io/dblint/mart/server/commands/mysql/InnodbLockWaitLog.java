@@ -39,7 +39,7 @@ public class InnodbLockWaitLog extends LogParser {
   @Override
   protected void filter(ZonedDateTime start, ZonedDateTime end) {
     lockWaits = lockWaits.stream()
-        .filter(lw -> lw.time.isAfter(start) && lw.time.isBefore(end))
+        .filter(lw -> lw.getZonedLogTime().isAfter(start) && lw.getZonedLogTime().isBefore(end))
         .collect(Collectors.toList());
   }
 

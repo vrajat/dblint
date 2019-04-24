@@ -1,16 +1,6 @@
 package io.dblint.mart.metricsink.mysql;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-
-public class UserQuery {
-  protected static DateTimeFormatter dateFormat =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
-
-  private int id;
-  ZonedDateTime logTime;
+public class UserQuery extends Logged {
   private String userHost;
   private String ipAddress;
   private String connectionId;
@@ -20,27 +10,6 @@ public class UserQuery {
   private long rowsExamined;
   private String query;
   private String digestHash;
-
-  public String getLogTime() {
-    return logTime.withZoneSameInstant(ZoneOffset.ofHoursMinutes(5, 30)).format(dateFormat);
-  }
-
-  public void setLogTime(String logTime) {
-    this.logTime = ZonedDateTime.of(
-        LocalDateTime.parse(logTime, dateFormat), ZoneOffset.ofHoursMinutes(5, 30));
-  }
-
-  public ZonedDateTime getZonedLogTime() {
-    return this.logTime;
-  }
-
-  public void setZonedLogTime(ZonedDateTime logTime) {
-    this.logTime = logTime;
-  }
-
-  public int getId() {
-    return id;
-  }
 
   public void setId(int id) {
     this.id = id;

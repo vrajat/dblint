@@ -8,39 +8,43 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 public class LongTxnParser extends RowParser<LongTxnParser.LongTxn> {
-  public static class LongTxn {
-    public final ZonedDateTime timeStamp;
+  public static class LongTxn extends Logged {
     public final Transaction transaction;
 
-    public LongTxn(ZonedDateTime timeStamp, Transaction transaction) {
-      this.timeStamp = timeStamp;
+    public LongTxn(Transaction transaction, ZonedDateTime timeStamp) {
+      this.logTime = timeStamp;
       this.transaction = transaction;
+    }
+
+    public String getTransactionId() {
+      return transaction.id;
     }
   }
 
   LongTxn parseRow(RewindBufferedReader reader, ZonedDateTime timeStamp)
       throws IOException, MetricAgentException {
+    Transaction transaction = new Transaction();
     String line = getLineOrThrow(reader);
-    final String id = parseColumn(line)[1].trim();
+    transaction.setId(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
-    final ZonedDateTime transactionStarted = ZonedDateTime.of(LocalDateTime.parse(
-        parseColumn(line)[1].trim(), dateFormat), ZoneOffset.UTC);
+    transaction.setZonedStartTime(ZonedDateTime.of(LocalDateTime.parse(
+        parseColumn(line)[1].trim(), dateFormat), ZoneOffset.UTC));
 
     line = getLineOrThrow(reader);
-    final String thread = parseColumn(line)[1].trim();
+    transaction.setThread(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
-    final String lockMode = parseColumn(line)[1].trim();
+    transaction.setLockMode(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
-    final String lockType = parseColumn(line)[1].trim();
+    transaction.setLockType(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
-    final String lockTable = parseColumn(line)[1].trim();
+    transaction.setLockTable(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
-    final String lockData = parseColumn(line)[1].trim();
+    transaction.setLockData(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
     StringBuilder query = new StringBuilder(parseColumn(line)[1]);
@@ -54,8 +58,8 @@ public class LongTxnParser extends RowParser<LongTxnParser.LongTxn> {
     if (line != null) {
       reader.rewind(line);
     }
+    transaction.setQuery(query.toString());
 
-    return new LongTxn(timeStamp, new Transaction(id, thread, query.toString(), transactionStarted,
-        null, lockMode, lockType, lockTable, null, lockData));
+    return new LongTxn(transaction, timeStamp);
   }
 }

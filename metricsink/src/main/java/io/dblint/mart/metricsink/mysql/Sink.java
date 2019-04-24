@@ -40,6 +40,9 @@ public class Sink extends DbSink {
   protected void registerMappers(Handle handle) {
     handle.registerRowMapper(FieldMapper.factory(UserQuery.class));
     handle.registerRowMapper(ConstructorMapper.factory(QueryAttribute.class));
+    handle.registerRowMapper(BeanMapper.factory(Transaction.class));
+    handle.registerRowMapper(BeanMapper.factory(LongTxnParser.LongTxn.class));
+    handle.registerRowMapper(BeanMapper.factory(InnodbLockWait.class));
   }
 
   @Override
@@ -165,5 +168,74 @@ public class Sink extends DbSink {
           .execute();
 
     return attributeOptional;
+  }
+
+  /**
+   * Insert a transaction into a database.
+   * @param handle JDBI Handle that manages the connection to the database
+   * @param transaction Transaction to be inserted
+   */
+  public void insertTransaction(Handle handle, Transaction transaction) {
+    handle.createUpdate("insert into transactions("
+        + "id,"
+        + "thread,"
+        + "query,"
+        + "start_time,"
+        + "wait_start_time,"
+        + "lock_mode,"
+        + "lock_type,"
+        + "lock_table,"
+        + "lock_index,"
+        + "lock_data) values (:id, :thread, :query, :startTime, :waitStartTime,"
+        + ":lockMode, :lockType, :lockTable, :lockIndex, :lockData)")
+        .bindBean(transaction)
+        .execute();
+  }
+
+  /**
+   * Get a @Transaction object from a database.
+   * @param handle Connection to the database managed by JDBI
+   * @param id ID of the transaction
+   * @return Returns an Optional with the Transaction object
+   */
+  public Optional<Transaction> getTransaction(Handle handle, String id) {
+    return handle.createQuery("select * from transactions "
+        + "where id = :id")
+        .bind("id", id)
+        .mapTo(Transaction.class)
+        .findFirst();
+  }
+
+  /**
+   * Insert a LongTxn object to the database.
+   * @param handle Connection to the database managed by JDBI
+   * @param longTxn Object to be stored
+   * @return Returns an ID to the new row
+   */
+  public int insertLongTxn(Handle handle, LongTxnParser.LongTxn longTxn) {
+    return handle.createUpdate("insert into long_txns("
+        + "log_time,"
+        + "transaction_id) values (:logTime, :transactionId)")
+        .bindBean(longTxn)
+        .executeAndReturnGeneratedKeys()
+        .mapTo(int.class)
+        .findOnly();
+  }
+
+  /**
+   * Insert a LockWait object to the database.
+   * @param handle Connection to the database managed by JDBI
+   * @param lockWait Object to be stored
+   * @return Returns an ID to the new row
+   */
+  public int insertLockWait(Handle handle, InnodbLockWait lockWait) {
+    return handle.createUpdate("insert into lock_waits("
+        + "log_time,"
+        + "waiting_id,"
+        + "blocking_id) values (:logTime, :waitingId, :blockingId)")
+        .bindBean(lockWait)
+        .executeAndReturnGeneratedKeys()
+        .mapTo(int.class)
+        .findOnly();
   }
 }

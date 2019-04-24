@@ -48,11 +48,13 @@ INNER JOIN information_schema.innodb_locks bl
 
   Transaction parseTransaction(RewindBufferedReader reader)
       throws IOException, MetricAgentException {
+    Transaction transaction = new Transaction();
+
     String line = getLineOrThrow(reader);
-    final String id = parseColumn(line)[1].trim();
+    transaction.setId(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
-    final String thread = parseColumn(line)[1].trim();
+    transaction.setThread(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
     StringBuilder query = new StringBuilder(parseColumn(line)[1]);
@@ -67,8 +69,10 @@ INNER JOIN information_schema.innodb_locks bl
     if (line == null) {
       throw new MetricAgentException("Hit EOF unexpectedly while extracting query");
     }
-    final ZonedDateTime transactionStarted = ZonedDateTime.of(LocalDateTime.parse(
-        parseColumn(line)[1].trim(), dateFormat), ZoneOffset.UTC);
+    transaction.setQuery(query.toString());
+
+    transaction.setZonedStartTime(ZonedDateTime.of(LocalDateTime.parse(
+        parseColumn(line)[1].trim(), dateFormat), ZoneOffset.UTC));
 
     ZonedDateTime waitStarted = null;
     line = getLineOrThrow(reader);
@@ -79,23 +83,23 @@ INNER JOIN information_schema.innodb_locks bl
       line = getLineOrThrow(reader);
       columns = parseColumn(line);
     }
+    transaction.setZonedWaitStartTime(waitStarted);
 
-    final String lockMode = columns[1].trim();
-
-    line = getLineOrThrow(reader);
-    final String lockType = parseColumn(line)[1].trim();
+    transaction.setLockMode(columns[1].trim());
 
     line = getLineOrThrow(reader);
-    final String lockTable = parseColumn(line)[1].trim();
+    transaction.setLockType(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
-    final String lockIndex = parseColumn(line)[1].trim();
+    transaction.setLockTable(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
-    final String lockData = parseColumn(line)[1].trim();
+    transaction.setLockIndex(parseColumn(line)[1].trim());
 
-    return new Transaction(id, thread, query.toString(), transactionStarted,
-        waitStarted, lockMode, lockType, lockTable, lockIndex, lockData);
+    line = getLineOrThrow(reader);
+    transaction.setLockData(parseColumn(line)[1].trim());
+
+    return transaction;
   }
 
   InnodbLockWait parseRow(RewindBufferedReader reader, ZonedDateTime time)
