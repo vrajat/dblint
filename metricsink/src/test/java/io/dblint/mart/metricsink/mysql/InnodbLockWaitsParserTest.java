@@ -34,7 +34,7 @@ public class InnodbLockWaitsParserTest {
   @Test
   void parseColumnTest() throws MetricAgentException {
     String line = " waiting_trx_id: 281417201150\n";
-    assertEquals(2, InnodbLockWaitsParser.parseColumn(line).length);
+    assertEquals(2, new InnodbLockWaitsParser().parseColumn(line).length);
   }
 
   @Test
@@ -53,8 +53,8 @@ public class InnodbLockWaitsParserTest {
         new InputStreamReader(new ByteArrayInputStream(lines.getBytes()))
     );
 
-    InnodbLockWait.Transaction transaction =
-        InnodbLockWaitsParser.parseTransaction(bufferedReader);
+    Transaction transaction =
+        new InnodbLockWaitsParser().parseTransaction(bufferedReader);
 
     assertEquals("281417201150", transaction.id);
     assertEquals("55762544", transaction.thread);
@@ -86,8 +86,8 @@ public class InnodbLockWaitsParserTest {
         new InputStreamReader(new ByteArrayInputStream(lines.getBytes()))
     );
 
-    InnodbLockWait.Transaction transaction =
-        InnodbLockWaitsParser.parseTransaction(bufferedReader);
+    Transaction transaction =
+        new InnodbLockWaitsParser().parseTransaction(bufferedReader);
 
     assertEquals("285543495612", transaction.id);
     assertEquals("62265470", transaction.thread);
@@ -108,8 +108,8 @@ public class InnodbLockWaitsParserTest {
          this.getClass().getClassLoader().getResourceAsStream("innodb_locks/transaction_02")));
      assertNotNull(reader);
 
-    InnodbLockWait.Transaction transaction =
-        InnodbLockWaitsParser.parseTransaction(reader);
+    Transaction transaction =
+        new InnodbLockWaitsParser().parseTransaction(reader);
 
     String[] lines = transaction.query.split("\r\n|\r|\n");
     assertEquals(9, lines.length);
@@ -121,7 +121,7 @@ public class InnodbLockWaitsParserTest {
         this.getClass().getClassLoader().getResourceAsStream("innodb_locks/row_01")));
     assertNotNull(reader);
 
-    InnodbLockWait lockWait = InnodbLockWaitsParser.parseRow(reader,
+    InnodbLockWait lockWait = new InnodbLockWaitsParser().parseRow(reader,
         ZonedDateTime.of(LocalDateTime.of(2019, 3, 15, 1, 0, 0),
             ZoneOffset.ofHoursMinutes(5, 30)));
 
@@ -135,7 +135,7 @@ public class InnodbLockWaitsParserTest {
         this.getClass().getClassLoader().getResourceAsStream("innodb_locks/timeSection_01")));
     assertNotNull(reader);
 
-    List<InnodbLockWait> waitList = InnodbLockWaitsParser.parseTimeSection(reader);
+    List<InnodbLockWait> waitList = new InnodbLockWaitsParser().parseTimeSection(reader);
 
     assertEquals(2, waitList.size());
   }

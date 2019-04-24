@@ -1,0 +1,45 @@
+*************************** 1. row ***************************
+now(): 2019-04-24 13:13:11
+*************************** 1. row ***************************
+         trx_id: 142438982821
+      thread_id: 21362985
+          query: NULL
+    trx_started: 2019-04-24 07:30:47
+      lock_mode: NULL
+      lock_type: NULL
+     lock_table: NULL
+      lock_data: NULL
+      trx_state: RUNNING
+operation_state: NULL
+  UTC_TIMESTAMP: 2019-04-24 07:43:11
+
+*************************** 1. row ***************************
+now(): 2019-04-24 13:14:11
+*************************** 1. row ***************************
+         trx_id: 142439494423
+      thread_id: 21377056
+          query: NULL
+    trx_started: 2019-04-24 07:44:03
+      lock_mode: NULL
+      lock_type: NULL
+     lock_table: NULL
+      lock_data: NULL
+      trx_state: RUNNING
+operation_state: NULL
+  UTC_TIMESTAMP: 2019-04-24 07:44:11
+*************************** 2. row ***************************
+         trx_id: 142438982821
+      thread_id: 21362985
+          query: NULL
+    trx_started: 2019-04-24 07:30:47
+      lock_mode: NULL
+      lock_type: NULL
+     lock_table: NULL
+      lock_data: NULL
+      trx_state: RUNNING
+operation_state: NULL
+  UTC_TIMESTAMP: 2019-04-24 07:44:11
+
+
+
+

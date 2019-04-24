@@ -14,7 +14,7 @@ public class InnodbLockWaitLogTest extends ParserTest {
     Path output = tempDir.resolve("lockWaits.json");
     String input = getClass().getClassLoader().getResource("innodblwlog_01").getPath();
     final boolean success = cli.run( "mysql", "innodb_lock_waits", "--log",
-        input, "--output", output.toString());
+        input, "--output", output.toString(), "--output-type", "json");
 
     assertEquals("", stdErr.toString());
     assertTrue(success);

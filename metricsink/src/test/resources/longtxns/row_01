@@ -1,0 +1,11 @@
+         trx_id: 142437810275
+      thread_id: 21323342
+          query: SELECT a from b
+    trx_started: 2019-04-24 07:01:05
+      lock_mode: NULL
+      lock_type: NULL
+     lock_table: NULL
+      lock_data: NULL
+      trx_state: RUNNING
+operation_state: fetching rows
+  UTC_TIMESTAMP: 2019-04-24 07:01:11
