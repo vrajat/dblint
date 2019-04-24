@@ -44,10 +44,10 @@ public class LongTxnParserTest {
         ZonedDateTime.of(LocalDateTime.of(2019, 3, 15, 1, 0, 0),
             ZoneOffset.ofHoursMinutes(5, 30)));
 
-    assertEquals("328807456220528", txn.transaction.id);
-    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 04, 22, 6, 54, 2),
+    assertEquals("142437810275", txn.transaction.id);
+    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 4, 24, 7, 1, 5),
         ZoneOffset.UTC), txn.transaction.startTime);
-    assertEquals("18200241", txn.transaction.thread);
+    assertEquals("21323342", txn.transaction.thread);
   }
 
   @Test
@@ -57,7 +57,7 @@ public class LongTxnParserTest {
      assertNotNull(reader);
 
     List<LongTxnParser.LongTxn> longTxns = new LongTxnParser().parse(reader);
-    assertEquals(12, longTxns.size());
+    assertEquals(2, longTxns.size());
   }
 
   @Test
@@ -67,7 +67,7 @@ public class LongTxnParserTest {
      assertNotNull(reader);
 
     List<LongTxnParser.LongTxn> longTxns = new LongTxnParser().parse(reader);
-    assertEquals(7, longTxns.size());
+    assertEquals(3, longTxns.size());
   }
 
 }
