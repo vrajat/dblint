@@ -121,7 +121,7 @@ abstract class LogParser<ParserT, LoggedT extends Logged> extends TimeRange {
             try {
               outputSql(sink, handle, item);
               numInserted.inc();
-            } catch (IOException exp) {
+            } catch (MetricAgentException exp) {
               logger.error("Insert failed", exp);
             }
           }));
@@ -133,5 +133,5 @@ abstract class LogParser<ParserT, LoggedT extends Logged> extends TimeRange {
 
   abstract void output(OutputStream os) throws IOException;
 
-  abstract void outputSql(Sink sink, Handle handle, LoggedT item) throws IOException;
+  abstract void outputSql(Sink sink, Handle handle, LoggedT item) throws MetricAgentException;
 }

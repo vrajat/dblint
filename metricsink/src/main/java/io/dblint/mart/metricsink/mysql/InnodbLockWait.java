@@ -4,21 +4,46 @@ import java.time.ZonedDateTime;
 
 public class InnodbLockWait extends Logged {
 
-  public final Transaction waiting;
-  public final Transaction blocking;
+  private Transaction waiting;
+  private Transaction blocking;
 
   InnodbLockWait(Transaction waiting, Transaction blocking,
                         ZonedDateTime time) {
+    super(time);
     this.waiting = waiting;
     this.blocking = blocking;
-    this.logTime = time;
   }
 
-  public String getBlockingId() {
+  public void setBlocking(Transaction transaction) {
+    this.blocking = transaction;
+  }
+
+  public int getBlockingId() {
     return blocking.id;
   }
 
-  public String getWaitingId() {
+  public String getBlockingDatabaseId() {
+    return blocking.databaseId;
+  }
+
+  public Transaction getBlocking() {
+    return blocking;
+  }
+
+  public void setWaiting(Transaction transaction) {
+    this.waiting = transaction;
+  }
+
+  public String getWaitingDatabaseId() {
+    return waiting.databaseId;
+  }
+
+  public int getWaitingId() {
     return waiting.id;
   }
+
+  public Transaction getWaiting() {
+    return waiting;
+  }
+
 }

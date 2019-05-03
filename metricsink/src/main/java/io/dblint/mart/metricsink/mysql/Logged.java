@@ -12,6 +12,10 @@ public class Logged {
   protected int id;
   protected ZonedDateTime logTime;
 
+  Logged(ZonedDateTime logTime) {
+    this.logTime = logTime;
+  }
+
   public String getLogTime() {
     return logTime.withZoneSameInstant(ZoneOffset.ofHoursMinutes(5, 30)).format(dateFormat);
   }

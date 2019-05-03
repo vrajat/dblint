@@ -89,8 +89,8 @@ public class Deadlock extends Logged implements Comparable<Deadlock> {
   public final List<Transaction> transactions;
 
   public Deadlock(List<Transaction> transactions, ZonedDateTime time) {
+    super(time);
     this.transactions = transactions;
-    this.logTime = time;
   }
 
   @Override
