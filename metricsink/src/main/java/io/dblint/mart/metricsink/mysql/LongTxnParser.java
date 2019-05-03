@@ -10,15 +10,27 @@ import java.util.regex.Pattern;
 
 public class LongTxnParser extends RowParser<LongTxnParser.LongTxn> {
   public static class LongTxn extends Logged {
-    public final Transaction transaction;
+    private Transaction transaction;
 
     public LongTxn(Transaction transaction, ZonedDateTime timeStamp) {
-      this.logTime = timeStamp;
+      super(timeStamp);
       this.transaction = transaction;
     }
 
-    public String getTransactionId() {
+    public Transaction getTransaction() {
+      return transaction;
+    }
+
+    public void setTransaction(Transaction transaction) {
+      this.transaction = transaction;
+    }
+
+    public int getTransactionId() {
       return transaction.id;
+    }
+
+    public String getDatabaseId() {
+      return transaction.databaseId;
     }
   }
 
@@ -30,7 +42,7 @@ public class LongTxnParser extends RowParser<LongTxnParser.LongTxn> {
       throws IOException, MetricAgentException {
     Transaction transaction = new Transaction();
     String line = getLineOrThrow(reader);
-    transaction.setId(parseColumn(line)[1].trim());
+    transaction.setDatabaseId(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
     transaction.setThread(parseColumn(line)[1].trim());

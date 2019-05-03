@@ -2,6 +2,7 @@ package io.dblint.mart.metricsink.mysql;
 
 import com.codahale.metrics.MetricRegistry;
 import io.dblint.mart.metricsink.util.DbSink;
+import io.dblint.mart.metricsink.util.MetricAgentException;
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.reflect.BeanMapper;
@@ -175,9 +176,9 @@ public class Sink extends DbSink {
    * @param handle JDBI Handle that manages the connection to the database
    * @param transaction Transaction to be inserted
    */
-  public void insertTransaction(Handle handle, Transaction transaction) {
-    handle.createUpdate("insert into transactions("
-        + "id,"
+  public long insertTransaction(Handle handle, Transaction transaction) {
+    return handle.createUpdate("insert into transactions("
+        + "database_id,"
         + "thread,"
         + "query,"
         + "start_time,"
@@ -186,10 +187,12 @@ public class Sink extends DbSink {
         + "lock_type,"
         + "lock_table,"
         + "lock_index,"
-        + "lock_data) values (:id, :thread, :query, :startTime, :waitStartTime,"
+        + "lock_data) values (:databaseId, :thread, :query, :startTime, :waitStartTime,"
         + ":lockMode, :lockType, :lockTable, :lockIndex, :lockData)")
         .bindBean(transaction)
-        .execute();
+        .executeAndReturnGeneratedKeys()
+        .mapTo(long.class)
+        .findOnly();
   }
 
   /**
@@ -198,7 +201,7 @@ public class Sink extends DbSink {
    * @param id ID of the transaction
    * @return Returns an Optional with the Transaction object
    */
-  public Optional<Transaction> getTransaction(Handle handle, String id) {
+  public Optional<Transaction> getTransaction(Handle handle, long id) {
     return handle.createQuery("select * from transactions "
         + "where id = :id")
         .bind("id", id)
@@ -207,18 +210,56 @@ public class Sink extends DbSink {
   }
 
   /**
+   * Get a @Transaction object from a database.
+   * @param handle Connection to the database managed by JDBI
+   * @param transaction  Transaction object with database id and start time
+   * @return Returns an Optional with the Transaction object
+   */
+  Optional<Transaction> getTransaction(Handle handle, Transaction transaction) {
+    return handle.createQuery("select * from transactions "
+        + "where database_id = :databaseId and start_time = :startTime")
+        .bind("databaseId", transaction.databaseId)
+        .bind("startTime", transaction.getStartTime())
+        .mapTo(Transaction.class)
+        .findFirst();
+  }
+
+  /**
+   * Insert Or Get a transaction depending on if it exists in the database.
+   * @param handle Connection to the database managed by JDBI
+   * @param transaction  Transaction object with database id and start time
+   * @return An inserted transaction with primary key filled in
+   * @throws MetricAgentException Throw an exception if a transaction is not found unexpectedly
+   */
+  public Transaction insertOrGetTransaction(Handle handle, Transaction transaction)
+      throws MetricAgentException {
+    Optional<Transaction> optional;
+    if (!getTransaction(handle, transaction).isPresent()) {
+      long tid = insertTransaction(handle, transaction);
+      optional = getTransaction(handle, tid);
+    } else {
+      optional = getTransaction(handle, transaction);
+    }
+    if (!optional.isPresent()) {
+      throw new MetricAgentException("Failed to insert Transaction for LongTxn");
+    }
+    return optional.get();
+  }
+
+  /**
    * Insert a LongTxn object to the database.
    * @param handle Connection to the database managed by JDBI
    * @param longTxn Object to be stored
    * @return Returns an ID to the new row
    */
-  public int insertLongTxn(Handle handle, LongTxnParser.LongTxn longTxn) {
+  public long insertLongTxn(Handle handle, LongTxnParser.LongTxn longTxn) {
     return handle.createUpdate("insert into long_txns("
         + "log_time,"
-        + "transaction_id) values (:logTime, :transactionId)")
+        + "transaction_id,"
+        + "database_id) values (:logTime, :transactionId, :databaseId)")
         .bindBean(longTxn)
         .executeAndReturnGeneratedKeys()
-        .mapTo(int.class)
+        .mapTo(long.class)
         .findOnly();
   }
 
@@ -228,14 +269,17 @@ public class Sink extends DbSink {
    * @param lockWait Object to be stored
    * @return Returns an ID to the new row
    */
-  public int insertLockWait(Handle handle, InnodbLockWait lockWait) {
+  public long insertLockWait(Handle handle, InnodbLockWait lockWait) {
     return handle.createUpdate("insert into lock_waits("
         + "log_time,"
         + "waiting_id,"
-        + "blocking_id) values (:logTime, :waitingId, :blockingId)")
+        + "blocking_id,"
+        + "waiting_database_id,"
+        + "blocking_database_id)"
+        + " values (:logTime, :waitingId, :blockingId, :waitingDatabaseId, :blockingDatabaseId)")
         .bindBean(lockWait)
         .executeAndReturnGeneratedKeys()
-        .mapTo(int.class)
+        .mapTo(long.class)
         .findOnly();
   }
 }

@@ -11,6 +11,10 @@ public class UserQuery extends Logged {
   private String query;
   private String digestHash;
 
+  public UserQuery() {
+    super(null);
+  }
+
   public void setId(int id) {
     this.id = id;
   }

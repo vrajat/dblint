@@ -34,15 +34,9 @@ public class InnodbLockWaitLog extends LogParser<InnodbLockWaitsParser, InnodbLo
   }
 
   @Override
-  void outputSql(Sink sink, Handle handle, InnodbLockWait item) {
-    if (!sink.getTransaction(handle, item.blocking.getId()).isPresent()) {
-      sink.insertTransaction(handle, item.blocking);
-    }
-
-    if (!sink.getTransaction(handle, item.waiting.getId()).isPresent()) {
-      sink.insertTransaction(handle, item.waiting);
-    }
-
+  void outputSql(Sink sink, Handle handle, InnodbLockWait item) throws MetricAgentException {
+    item.setBlocking(sink.insertOrGetTransaction(handle, item.getBlocking()));
+    item.setWaiting(sink.insertOrGetTransaction(handle, item.getWaiting()));
     sink.insertLockWait(handle, item);
   }
 }
