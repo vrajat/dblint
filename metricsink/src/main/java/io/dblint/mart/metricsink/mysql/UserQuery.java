@@ -15,10 +15,6 @@ public class UserQuery extends Logged {
     super(null);
   }
 
-  public void setId(int id) {
-    this.id = id;
-  }
-
   public String getUserHost() {
     return userHost;
   }

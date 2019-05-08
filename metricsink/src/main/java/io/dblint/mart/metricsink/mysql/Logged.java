@@ -29,7 +29,7 @@ public class Logged {
     return this.logTime;
   }
 
-  public void setZonedLogTime(ZonedDateTime logTime) {
+  void setZonedLogTime(ZonedDateTime logTime) {
     this.logTime = logTime;
   }
 
