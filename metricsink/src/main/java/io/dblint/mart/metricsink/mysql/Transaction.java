@@ -8,7 +8,8 @@ import java.time.format.DateTimeFormatter;
 public class Transaction {
   static DateTimeFormatter dateFormat =
       DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm:ss");
-  String id;
+  int id;
+  String databaseId;
   String thread;
   String query;
   ZonedDateTime startTime;
@@ -19,12 +20,20 @@ public class Transaction {
   String lockIndex;
   String lockData;
 
-  public String getId() {
+  public int getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(int id) {
     this.id = id;
+  }
+
+  public String getDatabaseId() {
+    return databaseId;
+  }
+
+  public void setDatabaseId(String databaseId) {
+    this.databaseId = databaseId;
   }
 
   public String getThread() {

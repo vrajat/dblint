@@ -51,7 +51,7 @@ INNER JOIN information_schema.innodb_locks bl
     Transaction transaction = new Transaction();
 
     String line = getLineOrThrow(reader);
-    transaction.setId(parseColumn(line)[1].trim());
+    transaction.setDatabaseId(parseColumn(line)[1].trim());
 
     line = getLineOrThrow(reader);
     transaction.setThread(parseColumn(line)[1].trim());

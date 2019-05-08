@@ -11,8 +11,8 @@ public class UserQuery extends Logged {
   private String query;
   private String digestHash;
 
-  public void setId(int id) {
-    this.id = id;
+  public UserQuery() {
+    super(null);
   }
 
   public String getUserHost() {

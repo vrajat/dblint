@@ -44,10 +44,10 @@ public class LongTxnParserTest {
         ZonedDateTime.of(LocalDateTime.of(2019, 3, 15, 1, 0, 0),
             ZoneOffset.ofHoursMinutes(5, 30)));
 
-    assertEquals("142437810275", txn.transaction.id);
+    assertEquals("142437810275", txn.getTransaction().databaseId);
     assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 4, 24, 7, 1, 5),
-        ZoneOffset.UTC), txn.transaction.startTime);
-    assertEquals("21323342", txn.transaction.thread);
+        ZoneOffset.UTC), txn.getTransaction().startTime);
+    assertEquals("21323342", txn.getTransaction().thread);
   }
 
   @Test

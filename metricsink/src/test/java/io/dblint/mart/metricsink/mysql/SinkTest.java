@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SinkTest {
   private static Logger logger = LoggerFactory.getLogger("SinkTest");
@@ -46,7 +45,7 @@ class SinkTest {
         ZoneId.of("UTC")));
 
     testTransaction = new Transaction();
-    testTransaction.setId("285543496076");
+    testTransaction.setDatabaseId("285543496076");
     testTransaction.setThread("62265463");
     testTransaction.setQuery("SELECT sequence_number FROM invoice WHERE id = 45 FOR UPDATE");
     testTransaction.setZonedStartTime(ZonedDateTime.of(LocalDateTime.of(2019, 03, 18, 02,41,01)
@@ -246,15 +245,16 @@ class SinkTest {
 
   @Test
   void testInsertTransaction() throws SQLException {
-    sink.useHandle(handle -> sink.insertTransaction(handle, testTransaction));
+    long id = sink.inTransaction(handle -> sink.insertTransaction(handle, testTransaction));
 
     Statement statement = connection.createStatement();
-    ResultSet resultSet = statement.executeQuery("select id, thread, query,"
+    ResultSet resultSet = statement.executeQuery("select id, database_id, thread, query,"
         + "start_time, wait_start_time, lock_mode, lock_type, lock_table, lock_index, lock_data"
         + " from transactions");
     resultSet.next();
 
-    assertEquals("285543496076", resultSet.getString("id"));
+    assertEquals(id, resultSet.getInt("id"));
+    assertEquals("285543496076", resultSet.getString("database_id"));
     assertEquals("62265463", resultSet.getString("thread"));
     assertEquals("SELECT sequence_number FROM invoice WHERE id = 45 FOR UPDATE",
         resultSet.getString("query"));
@@ -268,16 +268,41 @@ class SinkTest {
   }
 
   @Test
-  void testGetTransaction() throws SQLException {
+  void testGetTransaction() {
     sink.useHandle(handle -> sink.insertTransaction(handle, testTransaction));
 
     Optional<Transaction> transactionOptional =
-        sink.withHandle(handle -> sink.getTransaction(handle, testTransaction.id));
+        sink.withHandle(handle -> sink.getTransaction(handle, testTransaction));
     assertTrue(transactionOptional.isPresent());
 
     Transaction transaction = transactionOptional.get();
 
-    assertEquals("285543496076", transaction.id);
+    assertEquals("285543496076", transaction.databaseId);
+    assertEquals("62265463", transaction.thread);
+    assertEquals("SELECT sequence_number FROM invoice WHERE id = 45 FOR UPDATE",
+        transaction.query);
+    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3, 18, 8, 11, 1),
+        ZoneOffset.ofHoursMinutes(5, 30)), transaction.startTime);
+    assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3, 18, 8, 13, 1),
+        ZoneOffset.ofHoursMinutes(5, 30)), transaction.waitStartTime);
+    assertEquals("X", transaction.lockMode);
+    assertEquals("RECORD", transaction.lockType);
+    assertEquals("`schema`.`table`", transaction.lockTable);
+    assertEquals("PRIMARY", transaction.lockIndex);
+    assertEquals("45", transaction.lockData);
+  }
+
+  @Test
+  void testGetTransactionWithId() {
+    long tid = sink.inTransaction(handle -> sink.insertTransaction(handle, testTransaction));
+
+    Optional<Transaction> transactionOptional =
+        sink.withHandle(handle -> sink.getTransaction(handle, tid));
+    assertTrue(transactionOptional.isPresent());
+
+    Transaction transaction = transactionOptional.get();
+
+    assertEquals("285543496076", transaction.databaseId);
     assertEquals("62265463", transaction.thread);
     assertEquals("SELECT sequence_number FROM invoice WHERE id = 45 FOR UPDATE",
         transaction.query);
@@ -294,34 +319,47 @@ class SinkTest {
 
   @Test
   void insertLockWait() throws SQLException {
-    sink.useHandle(handle -> sink.insertTransaction(handle, testTransaction));
-    long id = sink.withHandle(handle -> sink.insertLockWait(handle, testLockWait)).longValue();
+    long tid = sink.withHandle(handle -> sink.insertTransaction(handle, testTransaction));
+    Optional<Transaction> transactionOptional =
+        sink.withHandle(handle -> sink.getTransaction(handle, testTransaction));
+    assertTrue(transactionOptional.isPresent());
+
+    InnodbLockWait lockWait = new InnodbLockWait(transactionOptional.get(), transactionOptional.get(),
+        testLockWait.getZonedLogTime());
+    long id = sink.withHandle(handle -> sink.insertLockWait(handle, lockWait));
 
     Statement statement = connection.createStatement();
     ResultSet resultSet = statement.executeQuery("select id, log_time, waiting_id, blocking_id"
-          + " from lock_waits");
+          + ",waiting_database_id, blocking_database_id from lock_waits");
 
-    resultSet.next();
-
-    // assertEquals(id, resultSet.getInt("id"));
+    assertEquals(id, resultSet.getInt("id"));
     assertEquals("2019-03-13 22:02:01", resultSet.getString("log_time"));
-    assertEquals("285543496076", resultSet.getString("waiting_id"));
-    assertEquals("285543496076", resultSet.getString("waiting_id"));
+    assertEquals(transactionOptional.get().id, resultSet.getInt("waiting_id"));
+    assertEquals(transactionOptional.get().id, resultSet.getInt("blocking_id"));
+    assertEquals("285543496076", resultSet.getString("waiting_database_id"));
+    assertEquals("285543496076", resultSet.getString("blocking_database_id"));
   }
 
   @Test
   void insertLongTxn() throws SQLException {
-    sink.useHandle(handle -> sink.insertTransaction(handle, testTransaction));
-    long id = sink.withHandle(handle -> sink.insertLongTxn(handle, testLongTxn)).longValue();
+    long tid = sink.withHandle(handle -> sink.insertTransaction(handle, testTransaction)).longValue();
+    Optional<Transaction> transactionOptional =
+        sink.withHandle(handle -> sink.getTransaction(handle, testTransaction));
+    assertTrue(transactionOptional.isPresent());
+    LongTxnParser.LongTxn longTxn = new LongTxnParser.LongTxn(transactionOptional.get(),
+        testLongTxn.getZonedLogTime());
+    long id = sink.withHandle(handle -> sink.insertLongTxn(handle, longTxn));
 
     Statement statement = connection.createStatement();
-    ResultSet resultSet = statement.executeQuery("select id, log_time, transaction_id"
-          + " from long_txns");
+    ResultSet resultSet = statement.executeQuery("select id, log_time, transaction_id,"
+          + " database_id from long_txns");
 
     resultSet.next();
 
-    // assertEquals(id, resultSet.getInt("id"));
+    assertNotNull(id);
+    assertEquals(id, resultSet.getInt("id"));
     assertEquals("2019-03-13 22:02:01", resultSet.getString("log_time"));
-    assertEquals("285543496076", resultSet.getString("transaction_id"));
+    assertEquals(transactionOptional.get().id, resultSet.getInt("transaction_id"));
+    assertEquals("285543496076", resultSet.getString("database_id"));
   }
 }

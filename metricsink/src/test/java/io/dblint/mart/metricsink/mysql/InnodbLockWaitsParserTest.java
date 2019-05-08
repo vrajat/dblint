@@ -56,7 +56,7 @@ public class InnodbLockWaitsParserTest {
     Transaction transaction =
         new InnodbLockWaitsParser().parseTransaction(bufferedReader);
 
-    assertEquals("281417201150", transaction.id);
+    assertEquals("281417201150", transaction.databaseId);
     assertEquals("55762544", transaction.thread);
     assertEquals(" UPDATE `table` SET `arrival_time` = '21:57:27.543000'", transaction.query);
     assertEquals(ZonedDateTime.of(
@@ -89,7 +89,7 @@ public class InnodbLockWaitsParserTest {
     Transaction transaction =
         new InnodbLockWaitsParser().parseTransaction(bufferedReader);
 
-    assertEquals("285543495612", transaction.id);
+    assertEquals("285543495612", transaction.databaseId);
     assertEquals("62265470", transaction.thread);
     assertEquals(" NULL", transaction.query);
     assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 3, 18, 2, 41, 1), ZoneOffset.UTC),
@@ -125,8 +125,8 @@ public class InnodbLockWaitsParserTest {
         ZonedDateTime.of(LocalDateTime.of(2019, 3, 15, 1, 0, 0),
             ZoneOffset.ofHoursMinutes(5, 30)));
 
-    assertNotNull(lockWait.blocking);
-    assertNotNull(lockWait.waiting);
+    assertNotNull(lockWait.getBlocking());
+    assertNotNull(lockWait.getWaiting());
   }
 
   @Test

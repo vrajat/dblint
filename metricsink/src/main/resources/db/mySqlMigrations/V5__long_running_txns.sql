@@ -3,7 +3,8 @@ drop table lock_waits;
 
 CREATE TABLE transactions
 (
-    id varchar(100) PRIMARY KEY,
+    id integer primary key,
+    database_id varchar(100),
     thread varchar(100),
     query TEXT,
     start_time timestamp,
@@ -17,16 +18,19 @@ CREATE TABLE transactions
 
 CREATE TABLE lock_waits
 (
-  id int primary key,
+  id integer primary key,
   log_time timestamp,
-  waiting_id varchar(100) REFERENCES transactions(id),
-  blocking_id varchar(100) REFERENCES transactions(id)
+  waiting_id int REFERENCES transactions(id),
+  blocking_id int REFERENCES transactions(id),
+  waiting_database_id varchar(100),
+  blocking_database_id varchar(100)
 );
 
 create table long_txns
 (
-    id INT PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     log_time TIMESTAMP,
-    transaction_id varchar(100) REFERENCES transactions(id)
+    transaction_id int REFERENCES transactions(id),
+    database_id varchar(100)
 );
 
